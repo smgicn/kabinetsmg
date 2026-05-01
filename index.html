@@ -1208,14 +1208,14 @@
         }
     </style>
     
-    <!-- Firebase SDK (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Firebase SDK v8 (Namespaced) - Compatible with IE 11 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
       // TODO: Ganti dengan konfigurasi Firebase Web App Anda
       // Dapatkan dari: Firebase Console > Project Settings > Your apps > Web app > Config
       // Project ID: kabinnet (dari service account)
-      const firebaseConfig = {
+      var firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "kabinnet.firebaseapp.com",
         databaseURL: "https://kabinnet.firebaseio.com",
@@ -1224,7 +1224,7 @@
         messagingSenderId: "YOUR_SENDER_ID",
         appId: "YOUR_APP_ID"
       };
-      // Inisialisasi Firebase
+      // Inisialisasi Firebase (v8 namespaced)
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
       }
