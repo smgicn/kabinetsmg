@@ -44,27 +44,6 @@
             --border: #475569;
         }
 
-        .dark-mode .content-card {
-            background: var(--background-alt);
-            border-color: var(--border);
-        }
-
-        .dark-mode .content-title {
-            color: var(--text-primary);
-        }
-
-        .dark-mode .content-subject {
-            color: var(--text-secondary);
-        }
-
-        .dark-mode .content-text {
-            color: var(--text-primary);
-        }
-
-        .dark-mode .content-date {
-            color: var(--text-muted);
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -593,11 +572,10 @@
         }
 
         .content-card {
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 1rem;
+            background: var(--background);
+            border-radius: var(--radius-md);
             box-shadow: var(--shadow-sm);
-            padding: 1.25rem;
+            padding: 16px;
             transition: var(--transition);
             width: 100%;
         }
@@ -610,7 +588,7 @@
 
         .content-card:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-md);
         }
 
         .content-card.search-active {
@@ -628,9 +606,9 @@
         }
 
         .content-title {
-            font-size: 1.25rem;
+            font-size: 14px;
             font-weight: 700;
-            color: #000000;
+            color: var(--text-primary);
         }
 
         .content-meta {
@@ -641,31 +619,31 @@
         }
 
         .content-date {
-            font-size: 0.75rem;
+            font-size: 11px;
             color: var(--text-muted);
         }
 
         .content-classification {
             padding: 2px 10px;
             border-radius: var(--radius-pill);
-            font-size: 0.75rem;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            background: #e0edff;
-            color: #2563eb;
+            background: var(--primary-light);
+            color: var(--primary);
         }
 
         .content-status {
             padding: 2px 10px;
             border-radius: var(--radius-pill);
-            font-size: 0.75rem;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
         }
 
         .content-subject {
-            font-size: 1rem;
-            color: #444444;
+            font-size: 11px;
+            color: var(--text-secondary);
             margin-bottom: 12px;
         }
 
@@ -721,15 +699,6 @@
             background: #DC2626;
         }
 
-        #openPasteModalBtn {
-            background: #A1F4FF !important;
-            color: #000000 !important;
-        }
-
-        #openPasteModalBtn:hover {
-            background: #89dbff !important;
-        }
-
         .content-details {
             max-height: 0;
             overflow: hidden;
@@ -745,8 +714,7 @@
 
         .content-text {
             line-height: 1.8;
-            font-size: 0.875rem;
-            color: #000000;
+            color: var(--text-primary);
         }
 
         .content-text[align="center"] {
@@ -1207,30 +1175,6 @@
             }
         }
     </style>
-    
-    <!-- Firebase SDK v8 (Namespaced) - Compatible with IE 11 -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script>
-      // TODO: Ganti dengan konfigurasi Firebase Web App Anda
-      // Dapatkan dari: Firebase Console > Project Settings > Your apps > Web app > Config
-      // Project ID: kabinnet (dari service account)
-      var firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "kabinnet.firebaseapp.com",
-        databaseURL: "https://kabinnet.firebaseio.com",
-        projectId: "kabinnet",
-        storageBucket: "kabinnet.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-      };
-      // Inisialisasi Firebase (v8 namespaced)
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      // Make db globally accessible
-      window.db = firebase.database();
-    </script>
 </head>
 
 <body>
@@ -1294,7 +1238,7 @@
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                     </svg>
                 </button>
-                <button class="logout-btn" id="logoutBtn">Keluar</button>
+                <button class="logout-btn" id="logoutBtn" style="display: none;">Keluar</button>
             </div>
         </nav>
 
@@ -1892,7 +1836,24 @@
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDoc, serverTimestamp, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDl3wX5h-AM9vOg3qtePl6wAl2vNS_lN2Y",
+            authDomain: "kabinnet12-d8305.firebaseapp.com",
+            projectId: "kabinnet12-d8305",
+            storageBucket: "kabinnet12-d8305.firebasestorage.app",
+            messagingSenderId: "504059668634",
+            appId: "1:504059668634:web:d31810dff98697b9801723"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
         // ========================================
         // MODULE: Configuration & Constants
         // ========================================
@@ -1902,8 +1863,22 @@
         const urlParams = new URLSearchParams(window.location.search);
         const CENTRAL_API_HOST = window.centralApiHost || window.CENTRAL_API_HOST || urlParams.get('api_host') || window.location.origin;
         const CONFIG = {
+            API_URL: CENTRAL_API_HOST + '/api',
             MAX_LOGIN_ATTEMPTS: 5,
-            ITEMS_PER_PAGE: 7
+            ITEMS_PER_PAGE: 7,
+            AUTO_SYNC_INTERVAL: 3000,
+            STORAGE_KEYS: {
+                contents: 'KB1_contents',
+                hargaLayanan: 'KB1_harga',
+                feedbacks: 'KB1_feedbacks',
+                classifications: 'KB1_classifications',
+                quickLinks: 'KB1_quickLinks',
+                darkmode: 'KB1_darkmode',
+                activeSection: 'KB1_activeSection',
+                session: 'KABINET_session',
+                loginAttempts: 'KB1_loginAttempts',
+                lampiran: 'KB1_lampiran'
+            }
         };
 
         // Login passwords
@@ -1914,7 +1889,28 @@
             user: 'Contact1234'
         };
 
-
+        // Sample data
+        const SAMPLE_DATA = {
+            contents: [
+                { id: '1', title: 'Promo Spesial Bulan Ini', date: '2026-04-01', classification: 'PROMO', subject: 'Dapatkan diskon 50% untuk semua layanan internet rumah!', content: '<p style="text-align: center;"><strong>DISKON 50%</strong></p><p>Segera daftarkan diri Anda dan nikmati kecepatan internet tinggi dengan harga terjangkau.</p><ul><li>Kecepatan up to 100 Mbps</li><li>Gratis installasi</li><li>Gratis router WiFi</li></ul>', externalLinks: [{ name: 'Syarat & Ketentuan', url: 'https://docs.google.com' }] },
+                { id: '2', title: 'Cara Memperkuat Sinyal WiFi', date: '2026-03-28', classification: 'INFO', subject: 'Tips dan trick untuk memperkuat signal WiFi di rumah Anda.', content: '<p>Berikut beberapa tips untuk memperkuat sinyal WiFi:</p><ol><li>Letakkan router di tengah rumah</li><li>Hindari dinding tebal dan perangkat elektronik</li><li>Gunakan WiFi extender</li><li>Update firmware router secara berkala</li></ol>', externalLinks: [] },
+                { id: '3', title: 'Kategori Layanan Internet', date: '2026-03-25', classification: 'KATEGORI', subject: 'Kategori layanan internet yang tersedia untuk Anda.', content: '<p><strong>Layanan yang tersedia:</strong></p><ul><li><strong>Internet Rumah</strong> - untuk kebutuhan rumah tangga</li><li><strong>Internet Bisnis</strong> - untuk kebutuhan usaha</li><li><strong>Internet WiFi Hotspot</strong> - untuk area publik</li></ul>', externalLinks: [{ name: 'Daftar Harga', url: '#harga' }] }
+            ],
+            hargaLayanan: [
+                { id: '1', bulan: 'Januari', regional: 'Jawa & Bali', jenisPelanggan: 'Baru', paket: 'Reguler', layanan: 'Internet 20 Mbps', biayaPasang: 300000, hargaPaket: 250000 },
+                { id: '2', bulan: 'Januari', regional: 'Jawa & Bali', jenisPelanggan: 'Baru', paket: 'HEBAT 12', layanan: 'Internet 50 Mbps', biayaPasang: 300000, hargaPaket: 350000 },
+                { id: '3', bulan: 'Februari', regional: 'Jawa & Bali', jenisPelanggan: 'Existing', paket: 'HEBAT 6', layanan: 'Internet 100 Mbps', biayaPasang: 0, hargaPaket: 400000 },
+                { id: '4', bulan: 'Maret', regional: 'Sumatera & Kalimantan', jenisPelanggan: 'Baru', paket: 'Reguler', layanan: 'Internet 20 Mbps', biayaPasang: 350000, hargaPaket: 275000 },
+                { id: '5', bulan: 'April', regional: 'Sumatera & Kalimantan', jenisPelanggan: 'Baru', paket: 'HEBAT 24', layanan: 'Internet 100 Mbps', biayaPasang: 350000, hargaPaket: 450000 },
+                { id: '6', bulan: 'Mei', regional: 'Jawa & Bali', jenisPelanggan: 'Existing', paket: 'HEBAT 12', layanan: 'Internet 50 Mbps', biayaPasang: 0, hargaPaket: 325000 },
+                { id: '7', bulan: 'Juni', regional: 'Jawa & Bali', jenisPelanggan: 'Baru', paket: 'HEBAT 3', layanan: 'Internet 30 Mbps', biayaPasang: 250000, hargaPaket: 300000 },
+                { id: '8', bulan: 'Juli', regional: 'Sumatera & Kalimantan', jenisPelanggan: 'Baru', paket: 'Reguler', layanan: 'Internet 10 Mbps', biayaPasang: 300000, hargaPaket: 200000 }
+            ],
+            feedbacks: [],
+            classifications: ['INFO', 'KATEGORI', 'PROMO'],
+            quickLinks: [],
+            lampiran: []
+        };
 
         // ========================================
         // MODULE: State Management
@@ -1958,58 +1954,132 @@
         }
 
         // ========================================
-        // MODULE: Firebase Realtime Database
+        // MODULE: Storage Functions
         // ========================================
-        function setupFirebaseListeners() {
-            // Listen to each data node under 'data' parent
-            db.ref('data/contents').on('value', (snapshot) => {
-                const data = snapshot.val();
-                state.contents = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
-                if (document.getElementById('mainPage').classList.contains('active')) {
-                    renderAllUI();
-                }
-            });
+        function saveToStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+                localStorage.setItem(key + '_timestamp', Date.now().toString());
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+            }
+        }
 
-            db.ref('data/pricing').on('value', (snapshot) => {
-                const data = snapshot.val();
-                state.hargaLayanan = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
-                if (document.getElementById('mainPage').classList.contains('active')) {
-                    renderAllUI();
-                }
-            });
+        function loadFromStorage(key, defaultValue) {
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : defaultValue;
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+                return defaultValue;
+            }
+        }
 
-            db.ref('data/feedback').on('value', (snapshot) => {
-                const data = snapshot.val();
-                state.feedbacks = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
-                if (document.getElementById('mainPage').classList.contains('active')) {
-                    renderAllUI();
-                }
-            });
+        function saveAllData() {
+            state.updatedAt = Date.now();
+            syncToServer();
+        }
 
-            db.ref('data/classifications').on('value', (snapshot) => {
-                const data = snapshot.val();
-                state.classifications = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+        // Listener terpisah untuk feedbacks (read semua user)
+        let feedbackUnsubscribe = null;
+        function listenFeedbacks() {
+            if (feedbackUnsubscribe) feedbackUnsubscribe();
+            const q = query(collection(db, "feedbacks"), orderBy("date", "desc"));
+            feedbackUnsubscribe = onSnapshot(q, (snapshot) => {
+                state.feedbacks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 if (document.getElementById('mainPage').classList.contains('active')) {
-                    renderAllUI();
-                }
-            });
-
-            db.ref('data/quickLinks').on('value', (snapshot) => {
-                const data = snapshot.val();
-                state.quickLinks = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
-                if (document.getElementById('mainPage').classList.contains('active')) {
-                    renderAllUI();
-                }
-            });
-
-            db.ref('data/lampiran').on('value', (snapshot) => {
-                const data = snapshot.val();
-                state.lampiran = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
-                if (document.getElementById('mainPage').classList.contains('active')) {
-                    renderAllUI();
+                    renderFeedbackList();
                 }
             });
         }
+
+        async function loadAllData() {
+            return new Promise((resolve) => {
+                onSnapshot(doc(db, "app", "globalData"), (docSnap) => {
+                    if (docSnap.exists()) {
+                        const serverData = docSnap.data();
+                        state.contents = serverData.contents || [];
+                        state.hargaLayanan = serverData.hargaLayanan || [];
+                        state.classifications = serverData.classifications || SAMPLE_DATA.classifications;
+                        state.quickLinks = serverData.quickLinks || [];
+                        state.lampiran = serverData.lampiran || [];
+                        console.log('Data loaded realtime from Firebase');
+                    } else {
+                        // Init default data if not exist
+                        state.contents = SAMPLE_DATA.contents;
+                        state.hargaLayanan = SAMPLE_DATA.hargaLayanan;
+                        state.classifications = SAMPLE_DATA.classifications;
+                        syncToServer();
+                    }
+                    
+                    if (document.getElementById('mainPage').classList.contains('active')) {
+                        renderAllUI();
+                    }
+                    resolve();
+                });
+            });
+        }
+
+        // ========================================
+        // MODULE: Server Communication (Firebase)
+        // ========================================
+        async function syncToServer() {
+            const data = {
+                contents: state.contents,
+                hargaLayanan: state.hargaLayanan,
+                // feedbacks disimpan terpisah di collection 'feedbacks'
+                classifications: state.classifications,
+                quickLinks: state.quickLinks,
+                lampiran: state.lampiran,
+                updatedAt: state.updatedAt
+            };
+            try {
+                await setDoc(doc(db, "app", "globalData"), data);
+            } catch(e) {
+                console.error("Error saving to Firebase:", e);
+                showToast("Gagal menyimpan ke server", "error");
+            }
+        }
+
+        async function fetchFromServer() {
+            // Ditangani secara otomatis oleh onSnapshot di loadAllData()
+            return true;
+        }
+
+        // ========================================
+        // MODULE: Cross-Tab Synchronization
+        // ========================================
+        window.addEventListener('storage', async (event) => {
+            if (event.key && event.key.startsWith('KB1_') && !event.key.endsWith('_timestamp')) {
+                console.log('Storage changed, reloading data from:', event.key);
+                await loadAllData();
+                if (document.getElementById('mainPage').classList.contains('active')) {
+                    renderAllUI();
+                }
+            }
+        });
+
+        // Auto-refresh on focus — hanya re-render, tidak reload (onSnapshot sudah realtime)
+        window.addEventListener('focus', () => {
+            if (document.getElementById('mainPage').classList.contains('active')) {
+                renderAllUI();
+            }
+        });
+
+        // Online/Offline status
+        window.addEventListener('online', () => {
+            state.isOnline = true;
+            showToast('Koneksi online', 'success');
+            fetchFromServer();
+        });
+
+        window.addEventListener('offline', () => {
+            state.isOnline = false;
+            showToast('Mode offline - data disimpan lokal', 'warning');
+        });
+
+        // Auto sync interval — tidak diperlukan lagi karena onSnapshot sudah realtime
+        // setInterval(() => { ... }, CONFIG.AUTO_SYNC_INTERVAL);
 
         // ========================================
         // MODULE: Toast Notifications
@@ -2032,76 +2102,93 @@
         // ========================================
         // MODULE: Login System
         // ========================================
-        async function login() {
-            const password = document.getElementById('passwordInput').value;
+        window.login = async function() {
             const role = state.selectedRole;
-            const isCorrectPassword = password === PASSWORDS[role];
+            const password = document.getElementById('passwordInput').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
 
-            if (state.loginAttempts >= CONFIG.MAX_LOGIN_ATTEMPTS && !isCorrectPassword) {
-                showToast('Percobaan login habis. Silakan refresh halaman.', 'error');
+            if (!password) {
+                showToast('Password harus diisi', 'warning');
                 return;
             }
 
-            if (isCorrectPassword) {
-                state.role = role;
-                state.loginAttempts = 0;
-                showMainPage();
-                showToast('Login berhasil!', 'success');
-            } else {
-                state.loginAttempts++;
-                const attemptsLeft = CONFIG.MAX_LOGIN_ATTEMPTS - state.loginAttempts;
-                document.getElementById('loginError').classList.add('show');
-                document.getElementById('loginAttempts').style.display = 'block';
-                document.getElementById('attemptsCount').textContent = attemptsLeft;
-
-                document.getElementById('passwordInput').value = '';
-
-                if (attemptsLeft <= 0) {
-                    showToast('Percobaan login habis. Silakan refresh halaman.', 'error');
+            if (role === 'user') {
+                if (password === 'Contact1234') {
+                    state.role = 'user';
+                    if (rememberMe) {
+                        localStorage.setItem(CONFIG.STORAGE_KEYS.session, JSON.stringify({ role: 'user' }));
+                    } else {
+                        sessionStorage.setItem(CONFIG.STORAGE_KEYS.session, JSON.stringify({ role: 'user' }));
+                    }
+                    showMainPage();
+                    showToast('Masuk sebagai User berhasil!', 'success');
+                } else {
+                    document.getElementById('loginError').classList.add('show');
+                    setTimeout(() => {
+                        document.getElementById('loginError').classList.remove('show');
+                    }, 3000);
                 }
+                return;
+            }
 
+            // Jika role === 'admin'
+            try {
+                const email = "admin@kabinnet.com";
+                await signInWithEmailAndPassword(auth, email, password);
+                // Auth observer di DOMContentLoaded akan handle sisanya
+            } catch (error) {
+                document.getElementById('loginError').classList.add('show');
                 setTimeout(() => {
                     document.getElementById('loginError').classList.remove('show');
                 }, 3000);
             }
         }
 
-        function logout() {
+        window.logout = async function() {
             state.role = null;
+            localStorage.removeItem(CONFIG.STORAGE_KEYS.session);
+            sessionStorage.removeItem(CONFIG.STORAGE_KEYS.session);
+            await signOut(auth);
+            
             document.getElementById('loginPage').style.display = 'flex';
             document.getElementById('mainPage').classList.remove('active');
             document.getElementById('passwordInput').value = '';
+            showToast('Berhasil logout!', 'success');
         }
 
         function showMainPage() {
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainPage').classList.add('active');
 
-            // Role-based UI
-            if (state.role === 'admin') {
-                document.getElementById('adminControls').classList.remove('hidden');
-                document.getElementById('hargaAdminControls').style.display = 'flex';
-                document.getElementById('kritikAdminControls').classList.remove('hidden');
-                document.getElementById('hargaActionHeader').classList.remove('hidden');
-                document.getElementById('feedbackFab').classList.add('hidden');
-                document.getElementById('userFilters').classList.add('hidden');
-                document.getElementById('userFilters').style.display = 'none';
-                document.getElementById('quickLinksAdminControls').classList.remove('hidden');
-                // Lampiran admin controls will be shown in renderLampiranList
-            } else {
-                document.getElementById('adminControls').classList.add('hidden');
-                document.getElementById('hargaAdminControls').style.display = 'none';
-                document.getElementById('kritikAdminControls').classList.add('hidden');
-                document.getElementById('hargaActionHeader').classList.add('hidden');
-                document.getElementById('feedbackFab').classList.remove('hidden');
-                document.getElementById('userFilters').classList.remove('hidden');
-                document.getElementById('userFilters').style.display = 'flex';
-                document.getElementById('quickLinksAdminControls').classList.add('hidden');
-            }
+            // Mulai listen feedbacks (bisa dibaca semua user)
+            listenFeedbacks();
 
-            renderAllUI();
-            const initialSection = getSectionFromHash() || 'konten';
-            navigateToSection(initialSection);
+            loadAllData().then(() => {
+                // Role-based UI
+                if (state.role === 'admin') {
+                    document.getElementById('adminControls').classList.remove('hidden');
+                    document.getElementById('hargaAdminControls').style.display = 'flex';
+                    document.getElementById('kritikAdminControls').classList.remove('hidden');
+                    document.getElementById('hargaActionHeader').classList.remove('hidden');
+                    document.getElementById('feedbackFab').classList.add('hidden');
+                    document.getElementById('userFilters').classList.add('hidden');
+                    document.getElementById('userFilters').style.display = 'none';
+                    document.getElementById('quickLinksAdminControls').classList.remove('hidden');
+                } else {
+                    document.getElementById('adminControls').classList.add('hidden');
+                    document.getElementById('hargaAdminControls').style.display = 'none';
+                    document.getElementById('kritikAdminControls').classList.add('hidden');
+                    document.getElementById('hargaActionHeader').classList.add('hidden');
+                    document.getElementById('feedbackFab').classList.remove('hidden');
+                    document.getElementById('userFilters').classList.remove('hidden');
+                    document.getElementById('userFilters').style.display = 'flex';
+                    document.getElementById('quickLinksAdminControls').classList.add('hidden');
+                }
+
+                renderAllUI();
+                const initialSection = getSectionFromHash() || localStorage.getItem(CONFIG.STORAGE_KEYS.activeSection) || 'konten';
+                navigateToSection(initialSection);
+            });
         }
 
         function renderAllUI() {
@@ -2132,6 +2219,7 @@
             if (updateMenu) {
                 document.querySelectorAll('.navbar-menu button').forEach(b => b.classList.remove('active'));
                 document.querySelector(`.navbar-menu button[data-section="${selectedSection}"]`).classList.add('active');
+                localStorage.setItem(CONFIG.STORAGE_KEYS.activeSection, selectedSection);
             }
 
             if (selectedSection === 'harga') {
@@ -2252,7 +2340,7 @@
             const container = document.getElementById('contentList');
 
             if (paginated.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Data belum tersedia</div>';
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Tidak ada konten</div>';
             } else {
                 container.innerHTML = paginated.map(content => {
                     const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -2274,7 +2362,7 @@
                              <div class="content-meta">
                                  <span class="content-date">${formatDate(content.date)}</span>
                                  <span class="content-classification">${content.classification}</span>
-                                  ${content.status ? `<span class="content-status" style="background: ${content.status === 'berlaku' ? '#22c55e' : '#555'}; color: white; padding: 2px 10px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; text-transform: uppercase;">${content.status === 'berlaku' ? 'Berlaku' : 'Tidak Berlaku'}</span>` : ''}
+                                 ${content.status ? `<span class="content-status" style="background: ${content.status === 'berlaku' ? 'var(--success)' : 'var(--error)'}; color: white; padding: 2px 10px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 600; text-transform: uppercase;">${content.status === 'berlaku' ? 'Berlaku' : 'Tidak Berlaku'}</span>` : ''}
                              </div>
                          </div>
                         <div class="content-subject">${highlightedSubject}</div>
@@ -2394,7 +2482,8 @@
                 state.contents.unshift(content);
             }
 
-            await db.ref('data/contents').set(state.contents);
+            saveAllData();
+            await syncToServer();
 
             document.getElementById('contentModal').classList.remove('active');
             renderContentList();
@@ -2404,7 +2493,8 @@
         async function deleteContent(id) {
             if (confirm('Apakah Anda yakin ingin menghapus konten ini?')) {
                 state.contents = state.contents.filter(c => c.id !== id);
-                await db.ref('data/contents').set(state.contents);
+                saveAllData();
+                await syncToServer();
                 renderContentList();
                 showToast('Konten berhasil dihapus!', 'success');
             }
@@ -2453,7 +2543,7 @@
             const tbody = document.getElementById('pricingTableBody');
 
             if (paginated.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Data belum tersedia</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Tidak ada data</td></tr>';
             } else {
                 tbody.innerHTML = paginated.map(harga => {
                     const ppn = Math.round((harga.biayaPasang + harga.hargaPaket) * 0.11);
@@ -2536,7 +2626,8 @@
                 state.hargaLayanan.push(harga);
             }
 
-            await db.ref('data/pricing').set(state.hargaLayanan);
+            saveAllData();
+            await syncToServer();
 
             document.getElementById('hargaModal').classList.remove('active');
             renderPricingTable();
@@ -2546,7 +2637,8 @@
         async function deleteHarga(id) {
             if (confirm('Hapus data harga ini?')) {
                 state.hargaLayanan = state.hargaLayanan.filter(h => h.id !== id);
-                await db.ref('data/pricing').set(state.hargaLayanan);
+                saveAllData();
+                await syncToServer();
                 renderPricingTable();
                 showToast('Harga dihapus!', 'success');
             }
@@ -2565,7 +2657,7 @@
             const container = document.getElementById('feedbackList');
 
             if (paginated.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Data belum tersedia</div>';
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Belum ada kritik dan saran</div>';
             } else {
                 container.innerHTML = paginated.map(feedback => {
                     const hasReplies = feedback.replies && feedback.replies.length > 0;
@@ -2617,7 +2709,6 @@
             }
 
             const feedback = {
-                id: Date.now().toString(),
                 name: name || 'Anonim',
                 message,
                 date: new Date().toISOString().split('T')[0],
@@ -2625,13 +2716,15 @@
                 replies: []
             };
 
-            state.feedbacks.unshift(feedback);
-            await db.ref('data/feedback').set(state.feedbacks);
-
-            document.getElementById('feedbackModal').classList.remove('active');
-            document.getElementById('feedbackForm').reset();
-            renderFeedbackList();
-            showToast('Kritik & saran terkirim!', 'success');
+            try {
+                await addDoc(collection(db, "feedbacks"), feedback);
+                document.getElementById('feedbackModal').classList.remove('active');
+                document.getElementById('feedbackForm').reset();
+                showToast('Kritik & saran terkirim!', 'success');
+            } catch(e) {
+                console.error("Error saving feedback:", e);
+                showToast('Gagal mengirim pesan: ' + e.message, 'error');
+            }
         }
 
         function openReplyFeedbackModal(feedbackId) {
@@ -2677,9 +2770,7 @@
             const feedback = state.feedbacks.find(f => f.id === feedbackId);
             if (!feedback) return;
 
-            if (!feedback.replies) {
-                feedback.replies = [];
-            }
+            if (!feedback.replies) feedback.replies = [];
 
             const reply = {
                 id: Date.now().toString(),
@@ -2690,12 +2781,18 @@
             feedback.replies.push(reply);
             feedback.read = true;
 
-            await db.ref('data/feedback').set(state.feedbacks);
-
-            document.getElementById('replyFeedbackModal').classList.remove('active');
-            document.getElementById('replyForm').reset();
-            renderFeedbackList();
-            showToast('Respon terkirim!', 'success');
+            try {
+                await updateDoc(doc(db, "feedbacks", feedbackId), {
+                    replies: feedback.replies,
+                    read: true
+                });
+                document.getElementById('replyFeedbackModal').classList.remove('active');
+                document.getElementById('replyForm').reset();
+                showToast('Respon terkirim!', 'success');
+            } catch(e) {
+                console.error("Error saving reply:", e);
+                showToast('Gagal menyimpan respon: ' + e.message, 'error');
+            }
         }
 
         async function deleteReply(feedbackId, replyId) {
@@ -2703,9 +2800,15 @@
                 const feedback = state.feedbacks.find(f => f.id === feedbackId);
                 if (feedback && feedback.replies) {
                     feedback.replies = feedback.replies.filter(r => r.id !== replyId);
-                    await db.ref('data/feedback').set(state.feedbacks);
-                    openReplyFeedbackModal(feedbackId);
-                    showToast('Respon dihapus!', 'success');
+                    try {
+                        await updateDoc(doc(db, "feedbacks", feedbackId), {
+                            replies: feedback.replies
+                        });
+                        openReplyFeedbackModal(feedbackId);
+                        showToast('Respon dihapus!', 'success');
+                    } catch(e) {
+                        showToast('Gagal menghapus: ' + e.message, 'error');
+                    }
                 }
             }
         }
@@ -2714,17 +2817,23 @@
             const feedback = state.feedbacks.find(f => f.id === id);
             if (feedback) {
                 feedback.read = true;
-                await db.ref('data/feedback').set(state.feedbacks);
-                renderFeedbackList();
+                try {
+                    await updateDoc(doc(db, "feedbacks", id), { read: true });
+                    renderFeedbackList();
+                } catch(e) {
+                    showToast('Gagal update: ' + e.message, 'error');
+                }
             }
         }
 
         async function deleteFeedback(id) {
             if (confirm('Hapus pesan ini?')) {
-                state.feedbacks = state.feedbacks.filter(f => f.id !== id);
-                await db.ref('data/feedback').set(state.feedbacks);
-                renderFeedbackList();
-                showToast('Pesan dihapus!', 'success');
+                try {
+                    await deleteDoc(doc(db, "feedbacks", id));
+                    showToast('Pesan dihapus!', 'success');
+                } catch(e) {
+                    showToast('Gagal menghapus: ' + e.message, 'error');
+                }
             }
         }
 
@@ -2747,7 +2856,8 @@
 
             if (newCls && !state.classifications.includes(newCls)) {
                 state.classifications.push(newCls);
-                await db.ref('data/classifications').set(state.classifications);
+                saveAllData();
+                await syncToServer();
                 input.value = '';
                 renderClassificationList();
                 updateClassificationSelect();
@@ -2761,7 +2871,8 @@
         async function removeClassification(index) {
             if (confirm('Hapus klasifikasi ini?')) {
                 state.classifications.splice(index, 1);
-                await db.ref('data/classifications').set(state.classifications);
+                saveAllData();
+                await syncToServer();
                 renderClassificationList();
                 updateClassificationSelect();
                 updateFilterPills();
@@ -2796,7 +2907,8 @@
             if (name && url) {
                 const link = { id: Date.now().toString(), name, url };
                 state.quickLinks.push(link);
-                await db.ref('data/quickLinks').set(state.quickLinks);
+                saveAllData();
+                await syncToServer();
 
                 document.getElementById('quickLinkName').value = '';
                 document.getElementById('quickLinkUrl').value = '';
@@ -2811,7 +2923,8 @@
         async function removeQuickLink(id) {
             if (confirm('Hapus link ini?')) {
                 state.quickLinks = state.quickLinks.filter(link => link.id !== id);
-                await db.ref('data/quickLinks').set(state.quickLinks);
+                saveAllData();
+                await syncToServer();
                 renderQuickLinksList();
                 renderQuickLinks();
                 showToast('Link dihapus!', 'success');
@@ -2987,7 +3100,8 @@
                 state.hargaLayanan.push(data);
             });
 
-            await db.ref('data/pricing').set(state.hargaLayanan);
+            saveAllData();
+            await syncToServer();
 
             document.getElementById('pasteModal').classList.remove('active');
             document.getElementById('pasteDataInput').value = '';
@@ -3013,7 +3127,7 @@
             }
 
             if (state.lampiran.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Data belum tersedia</div>';
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Belum ada lampiran</div>';
             } else {
                 container.innerHTML = state.lampiran.map(lamp => {
                     const date = new Date(lamp.tanggal || lamp.createdAt).toLocaleDateString('id-ID');
@@ -3023,8 +3137,8 @@
                             <div class="content-title">${lamp.judul}</div>
                             <div class="content-meta">
                                 <span class="content-date">${date}</span>
-                                 <span class="content-classification">${lamp.kategori}</span>
-                                 ${lamp.status ? `<span class="content-status" style="background: ${lamp.status === 'berlaku' ? '#22c55e' : '#555'}; color: white; padding:2px 10px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; text-transform: uppercase;">${lamp.status === 'berlaku' ? 'Berlaku' : 'Tidak Berlaku'}</span>` : ''}
+                                <span class="content-classification" style="background: var(--primary-light); color: var(--primary);">${lamp.kategori}</span>
+                                ${lamp.status ? `<span class="content-status" style="background: ${lamp.status === 'berlaku' ? 'var(--success)' : 'var(--error)'}; color: white; padding:2px 10px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 600; text-transform: uppercase;">${lamp.status === 'berlaku' ? 'Berlaku' : 'Tidak Berlaku'}</span>` : ''}
                             </div>
                         </div>
                         ${lamp.deskripsi ? `<div class="content-subject">${lamp.deskripsi}</div>` : ''}
@@ -3098,7 +3212,8 @@
                 state.lampiran.unshift(lampiran);
             }
 
-            await db.ref('data/lampiran').set(state.lampiran);
+            saveAllData();
+            await syncToServer();
 
             document.getElementById('lampiranModal').classList.remove('active');
             renderLampiranList();
@@ -3108,7 +3223,8 @@
         async function deleteLampiran(id) {
             if (confirm('Hapus lampiran ini?')) {
                 state.lampiran = state.lampiran.filter(l => l.id !== id);
-                await db.ref('data/lampiran').set(state.lampiran);
+                saveAllData();
+                await syncToServer();
                 renderLampiranList();
                 showToast('Lampiran dihapus!', 'success');
             }
@@ -3128,13 +3244,13 @@
             });
 
             // Login
-            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('loginBtn').addEventListener('click', window.login);
             document.getElementById('passwordInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') login();
+                if (e.key === 'Enter') window.login();
             });
 
             // Logout
-            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('logoutBtn').addEventListener('click', window.logout);
 
             // Toggle password
             document.getElementById('togglePassword').addEventListener('click', () => {
@@ -3145,6 +3261,7 @@
             // Dark mode
             document.getElementById('darkModeToggle').addEventListener('click', () => {
                 document.body.classList.toggle('dark-mode');
+                saveToStorage(CONFIG.STORAGE_KEYS.darkmode, document.body.classList.contains('dark-mode'));
             });
 
             // Mobile menu
@@ -3317,18 +3434,57 @@
         // ========================================
         // MODULE: Initialization
         // ========================================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Attach all event handlers
             attachEventHandlers();
 
-            // Setup Firebase real-time listeners
-            setupFirebaseListeners();
+            // Cek Session User biasa (tanpa Firebase)
+            let session = localStorage.getItem(CONFIG.STORAGE_KEYS.session) || sessionStorage.getItem(CONFIG.STORAGE_KEYS.session);
+            if (session) {
+                const data = JSON.parse(session);
+                if (data.role === 'user') {
+                    state.role = 'user';
+                    window.isAdmin = false;
+                    document.getElementById('logoutBtn').style.display = 'block';
+                    showMainPage();
+                }
+            }
 
-            // No session persistence; user must login
-            // No dark mode persistence; default light mode
-            // Initialize classification select and filters
-            updateClassificationSelect();
-            updateFilterPills();
+            // Firebase Auth Observer (untuk Admin)
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    try {
+                        const userDoc = await getDoc(doc(db, "users", user.uid));
+                        if (userDoc.exists() && userDoc.data().role === "admin") {
+                            state.role = "admin";
+                            window.isAdmin = true;
+                            document.getElementById('logoutBtn').style.display = 'block';
+                            
+                            // Save session so reload remembers admin
+                            const rememberMe = document.getElementById('rememberMe').checked;
+                            if (rememberMe) {
+                                localStorage.setItem(CONFIG.STORAGE_KEYS.session, JSON.stringify({ role: 'admin' }));
+                            }
+                            showMainPage();
+                            showToast('Login berhasil sebagai Admin!', 'success');
+                        } else {
+                            throw new Error("Bukan Admin");
+                        }
+                    } catch (e) {
+                        await signOut(auth);
+                        state.role = null;
+                        window.isAdmin = false;
+                        document.getElementById('loginPage').style.display = 'flex';
+                        document.getElementById('mainPage').classList.remove('active');
+                    }
+                }
+            });
+
+            // Dark mode
+            const darkMode = localStorage.getItem(CONFIG.STORAGE_KEYS.darkmode);
+            if (darkMode === 'true') {
+                document.body.classList.add('dark-mode');
+            }
         });
     </script>
 </body>
