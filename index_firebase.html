@@ -2011,7 +2011,7 @@
                         state.classifications = SAMPLE_DATA.classifications;
                         syncToServer();
                     }
-                    
+
                     if (document.getElementById('mainPage').classList.contains('active')) {
                         renderAllUI();
                     }
@@ -2035,7 +2035,7 @@
             };
             try {
                 await setDoc(doc(db, "app", "globalData"), data);
-            } catch(e) {
+            } catch (e) {
                 console.error("Error saving to Firebase:", e);
                 showToast("Gagal menyimpan ke server", "error");
             }
@@ -2102,7 +2102,7 @@
         // ========================================
         // MODULE: Login System
         // ========================================
-        window.login = async function() {
+        window.login = async function () {
             const role = state.selectedRole;
             const password = document.getElementById('passwordInput').value;
             const rememberMe = document.getElementById('rememberMe').checked;
@@ -2144,12 +2144,12 @@
             }
         }
 
-        window.logout = async function() {
+        window.logout = async function () {
             state.role = null;
             localStorage.removeItem(CONFIG.STORAGE_KEYS.session);
             sessionStorage.removeItem(CONFIG.STORAGE_KEYS.session);
             await signOut(auth);
-            
+
             document.getElementById('loginPage').style.display = 'flex';
             document.getElementById('mainPage').classList.remove('active');
             document.getElementById('passwordInput').value = '';
@@ -2196,6 +2196,7 @@
             updateFilterPills();
             renderQuickLinks();
             renderContentList();
+            updateHargaDropdowns();
             renderPricingTable();
             renderLampiranList();
             renderFeedbackList();
@@ -2503,6 +2504,42 @@
         // ========================================
         // MODULE: Pricing Management
         // ========================================
+        function updateHargaDropdowns() {
+            if (!state.hargaLayanan) return;
+
+            const bulans = [...new Set(state.hargaLayanan.map(h => h.bulan).filter(Boolean))];
+            const regionals = [...new Set(state.hargaLayanan.map(h => h.regional).filter(Boolean))];
+            const jeniss = [...new Set(state.hargaLayanan.map(h => h.jenisPelanggan).filter(Boolean))];
+            const pakets = [...new Set(state.hargaLayanan.map(h => h.paket).filter(Boolean))];
+
+            const updateSelect = (id, defaultText, options) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const currentVal = el.value;
+                el.innerHTML = `<option value="">${defaultText}</option>`;
+                options.forEach(opt => {
+                    const optionEl = document.createElement('option');
+                    optionEl.value = opt;
+                    optionEl.textContent = opt;
+                    el.appendChild(optionEl);
+                });
+                if (options.includes(currentVal)) {
+                    el.value = currentVal;
+                }
+            };
+
+            const bulanOrder = { 'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4, 'Mei': 5, 'Juni': 6, 'Juli': 7, 'Agustus': 8, 'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12 };
+            bulans.sort((a, b) => (bulanOrder[a] || 99) - (bulanOrder[b] || 99));
+            regionals.sort();
+            jeniss.sort();
+            pakets.sort();
+
+            updateSelect('filterBulan', 'Semua Bulan', bulans);
+            updateSelect('filterRegional', 'Semua Regional', regionals);
+            updateSelect('filterJenis', 'Semua Jenis', jeniss);
+            updateSelect('filterPaket', 'Semua Paket', pakets);
+        }
+
         function renderPricingTable() {
             let filtered = [...state.hargaLayanan];
 
@@ -2721,7 +2758,7 @@
                 document.getElementById('feedbackModal').classList.remove('active');
                 document.getElementById('feedbackForm').reset();
                 showToast('Kritik & saran terkirim!', 'success');
-            } catch(e) {
+            } catch (e) {
                 console.error("Error saving feedback:", e);
                 showToast('Gagal mengirim pesan: ' + e.message, 'error');
             }
@@ -2789,7 +2826,7 @@
                 document.getElementById('replyFeedbackModal').classList.remove('active');
                 document.getElementById('replyForm').reset();
                 showToast('Respon terkirim!', 'success');
-            } catch(e) {
+            } catch (e) {
                 console.error("Error saving reply:", e);
                 showToast('Gagal menyimpan respon: ' + e.message, 'error');
             }
@@ -2806,7 +2843,7 @@
                         });
                         openReplyFeedbackModal(feedbackId);
                         showToast('Respon dihapus!', 'success');
-                    } catch(e) {
+                    } catch (e) {
                         showToast('Gagal menghapus: ' + e.message, 'error');
                     }
                 }
@@ -2820,7 +2857,7 @@
                 try {
                     await updateDoc(doc(db, "feedbacks", id), { read: true });
                     renderFeedbackList();
-                } catch(e) {
+                } catch (e) {
                     showToast('Gagal update: ' + e.message, 'error');
                 }
             }
@@ -2831,7 +2868,7 @@
                 try {
                     await deleteDoc(doc(db, "feedbacks", id));
                     showToast('Pesan dihapus!', 'success');
-                } catch(e) {
+                } catch (e) {
                     showToast('Gagal menghapus: ' + e.message, 'error');
                 }
             }
@@ -3103,13 +3140,15 @@
             saveAllData();
             await syncToServer();
 
+            const importedCount = parsedData.length;
             document.getElementById('pasteModal').classList.remove('active');
             document.getElementById('pasteDataInput').value = '';
             document.getElementById('parsedDataPreview').style.display = 'none';
             parsedData = [];
 
+            updateHargaDropdowns();
             renderPricingTable();
-            showToast(`${parsedData.length} data berhasil di-import!`, 'success');
+            showToast(`${importedCount} data berhasil di-import!`, 'success');
         }
 
         // ========================================
@@ -3459,7 +3498,7 @@
                             state.role = "admin";
                             window.isAdmin = true;
                             document.getElementById('logoutBtn').style.display = 'block';
-                            
+
                             // Save session so reload remembers admin
                             const rememberMe = document.getElementById('rememberMe').checked;
                             if (rememberMe) {

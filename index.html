@@ -2196,6 +2196,7 @@
             updateFilterPills();
             renderQuickLinks();
             renderContentList();
+            updateHargaDropdowns();
             renderPricingTable();
             renderLampiranList();
             renderFeedbackList();
@@ -2503,6 +2504,42 @@
         // ========================================
         // MODULE: Pricing Management
         // ========================================
+        function updateHargaDropdowns() {
+            if (!state.hargaLayanan) return;
+
+            const bulans = [...new Set(state.hargaLayanan.map(h => h.bulan).filter(Boolean))];
+            const regionals = [...new Set(state.hargaLayanan.map(h => h.regional).filter(Boolean))];
+            const jeniss = [...new Set(state.hargaLayanan.map(h => h.jenisPelanggan).filter(Boolean))];
+            const pakets = [...new Set(state.hargaLayanan.map(h => h.paket).filter(Boolean))];
+
+            const updateSelect = (id, defaultText, options) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const currentVal = el.value;
+                el.innerHTML = `<option value="">${defaultText}</option>`;
+                options.forEach(opt => {
+                    const optionEl = document.createElement('option');
+                    optionEl.value = opt;
+                    optionEl.textContent = opt;
+                    el.appendChild(optionEl);
+                });
+                if (options.includes(currentVal)) {
+                    el.value = currentVal;
+                }
+            };
+
+            const bulanOrder = { 'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4, 'Mei': 5, 'Juni': 6, 'Juli': 7, 'Agustus': 8, 'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12 };
+            bulans.sort((a, b) => (bulanOrder[a] || 99) - (bulanOrder[b] || 99));
+            regionals.sort();
+            jeniss.sort();
+            pakets.sort();
+
+            updateSelect('filterBulan', 'Semua Bulan', bulans);
+            updateSelect('filterRegional', 'Semua Regional', regionals);
+            updateSelect('filterJenis', 'Semua Jenis', jeniss);
+            updateSelect('filterPaket', 'Semua Paket', pakets);
+        }
+
         function renderPricingTable() {
             let filtered = [...state.hargaLayanan];
 
@@ -3103,13 +3140,15 @@
             saveAllData();
             await syncToServer();
 
+            const importedCount = parsedData.length;
             document.getElementById('pasteModal').classList.remove('active');
             document.getElementById('pasteDataInput').value = '';
             document.getElementById('parsedDataPreview').style.display = 'none';
             parsedData = [];
 
+            updateHargaDropdowns();
             renderPricingTable();
-            showToast(`${parsedData.length} data berhasil di-import!`, 'success');
+            showToast(`${importedCount} data berhasil di-import!`, 'success');
         }
 
         // ========================================
