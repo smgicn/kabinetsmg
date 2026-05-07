@@ -2413,8 +2413,11 @@
             // Mulai listen feedbacks (bisa dibaca semua user)
             listenFeedbacks();
 
+            // Jalankan render UI segera agar tombol admin muncul instan tanpa menunggu data
+            renderAllUI();
+
             loadAllData().then(() => {
-                renderAllUI();
+                renderAllUI(); // Render ulang setelah data dari cloud siap
                 const initialSection = getSectionFromHash() || localStorage.getItem(CONFIG.STORAGE_KEYS.activeSection) || 'konten';
                 navigateToSection(initialSection);
 
