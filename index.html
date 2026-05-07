@@ -2573,6 +2573,7 @@
                     ).join('') : ''}
                              ${state.role === 'admin' ? `
                                  <button class="btn btn-secondary" data-pin-content="${content.id}">${content.pinned ? 'Unpin' : 'Pin'}</button>
+                                 <button class="btn btn-secondary" data-duplicate-content="${content.id}">Duplikat</button>
                                  <button class="btn btn-secondary" data-edit-content="${content.id}">Edit</button>
                                  <button class="btn btn-danger" data-delete-content="${content.id}">Hapus</button>
                              ` : ''}
@@ -2594,15 +2595,17 @@
         }
 
         // Content CRUD
-        function openContentModal(id = null) {
+        function openContentModal(id = null, isDuplicate = false) {
             const linksContainer = document.getElementById('linksContainer');
             linksContainer.innerHTML = '';
+            const form = document.getElementById('contentForm');
+            form.reset();
 
             if (id) {
                 const content = state.contents.find(c => c.id === id);
-                document.getElementById('contentModalTitle').innerText = 'Edit Konten';
-                document.getElementById('contentId').value = content.id;
-                document.getElementById('contentTitleInput').value = content.title;
+                document.getElementById('contentModalTitle').innerText = isDuplicate ? 'Duplikat Konten' : 'Edit Konten';
+                document.getElementById('contentId').value = isDuplicate ? '' : content.id;
+                document.getElementById('contentTitleInput').value = isDuplicate ? content.title + ' (Copy)' : content.title;
                 document.getElementById('contentDateInput').value = content.date;
                 document.getElementById('contentClassificationInput').value = content.classification;
 
@@ -2612,7 +2615,7 @@
 
                 document.getElementById('contentSubjectInput').innerHTML = content.subject || '';
                 document.getElementById('contentTextInput').innerHTML = content.content || '';
-                document.getElementById('contentPinned').checked = content.pinned || false;
+                document.getElementById('contentPinned').checked = isDuplicate ? false : (content.pinned || false);
 
                 if (content.externalLinks && content.externalLinks.length > 0) {
                     content.externalLinks.forEach(link => addLinkField(link.name, link.url));
@@ -2621,8 +2624,8 @@
                 }
             } else {
                 document.getElementById('contentModalTitle').innerText = 'Tambah Konten';
-                document.getElementById('contentForm').reset();
                 document.getElementById('contentId').value = '';
+                document.getElementById('contentSubjectInput').innerHTML = '';
                 document.getElementById('contentTextInput').innerHTML = '';
                 // Reset status to default
                 document.querySelector('input[name="contentStatus"][value="berlaku"]').checked = true;
@@ -3798,6 +3801,10 @@
                 // Edit content
                 const editBtn = e.target.closest('[data-edit-content]');
                 if (editBtn) openContentModal(editBtn.dataset.editContent);
+
+                // Duplicate content
+                const duplicateBtn = e.target.closest('[data-duplicate-content]');
+                if (duplicateBtn) openContentModal(duplicateBtn.dataset.duplicateContent, true);
 
                 // Delete content
                 const deleteContentBtn = e.target.closest('[data-delete-content]');
