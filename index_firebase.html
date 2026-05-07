@@ -2340,7 +2340,7 @@
 
             // Jika role === 'admin'
             try {
-                const email = "admin@kabinnet.com";
+                const email = "admin@kabinetsmg.com";
                 await signInWithEmailAndPassword(auth, email, password);
                 state.role = 'admin'; // Set role immediately
                 window.isAdmin = true;
@@ -2388,19 +2388,31 @@
             const kritikAdmin = document.getElementById('kritikAdminControls');
             const quickLinksAdmin = document.getElementById('quickLinksAdminControls');
 
+            console.log('Current Role:', state.role); // Debug info
+
             if (state.role === 'admin') {
-                adminControls.forEach(el => el.style.setProperty('display', 'block', 'important'));
+                adminControls.forEach(el => {
+                    el.style.setProperty('display', 'block', 'important');
+                    el.classList.remove('hidden');
+                });
                 if (hargaAdmin) hargaAdmin.style.setProperty('display', 'flex', 'important');
                 if (hargaAction) hargaAction.classList.remove('hidden');
                 if (userFilters) userFilters.style.setProperty('display', 'none', 'important');
-                if (kritikAdmin) kritikAdmin.classList.remove('hidden');
+                if (kritikAdmin) {
+                    kritikAdmin.style.setProperty('display', 'block', 'important');
+                    kritikAdmin.classList.remove('hidden');
+                }
                 if (quickLinksAdmin) quickLinksAdmin.classList.remove('hidden');
             } else {
-                adminControls.forEach(el => el.style.setProperty('display', 'none', 'important'));
+                adminControls.forEach(el => {
+                    el.style.setProperty('display', 'none', 'important');
+                });
                 if (hargaAdmin) hargaAdmin.style.setProperty('display', 'none', 'important');
                 if (hargaAction) hargaAction.classList.add('hidden');
                 if (userFilters) userFilters.style.setProperty('display', 'flex', 'important');
-                if (kritikAdmin) kritikAdmin.classList.add('hidden');
+                if (kritikAdmin) {
+                    kritikAdmin.style.setProperty('display', 'none', 'important');
+                }
                 if (quickLinksAdmin) quickLinksAdmin.classList.add('hidden');
             }
 
