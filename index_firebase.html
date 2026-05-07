@@ -2342,7 +2342,9 @@
             try {
                 const email = "admin@kabinnet.com";
                 await signInWithEmailAndPassword(auth, email, password);
-                // Auth observer di DOMContentLoaded akan handle sisanya
+                state.role = 'admin'; // Set role immediately
+                window.isAdmin = true;
+                showMainPage();
             } catch (error) {
                 document.getElementById('loginError').classList.add('show');
                 setTimeout(() => {
@@ -3971,13 +3973,7 @@
                             window.isAdmin = true;
                             document.getElementById('logoutBtn').style.display = 'block';
 
-                            // Save session so reload remembers admin
-                            const rememberMe = document.getElementById('rememberMe').checked;
-                            if (rememberMe) {
-                                localStorage.setItem(CONFIG.STORAGE_KEYS.session, JSON.stringify({ role: 'admin' }));
-                            }
                             showMainPage();
-                            showToast('Login berhasil sebagai Admin!', 'success');
                         } else {
                             throw new Error("Bukan Admin");
                         }
