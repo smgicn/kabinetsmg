@@ -1407,7 +1407,7 @@
             <section id="kontenSection">
                 <div class="section-container">
                     <!-- Admin Controls for Content -->
-                    <div id="adminControls" class="admin-controls" style="margin-bottom: 24px; display: none;">
+                    <div id="contentAdminControls" class="admin-controls hidden" style="margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
                         <button class="btn btn-primary" id="openContentModalBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -1415,6 +1415,14 @@
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
                             Tambah Konten
+                        </button>
+                        <button class="btn btn-secondary" id="recoverDataBtn" title="Pulihkan data jika card hilang">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6"></path>
+                                <path d="M1 20v-6h6"></path>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                            Pulihkan Data
                         </button>
                     </div>
 
@@ -2202,6 +2210,26 @@
                         state.classifications = serverData.classifications || SAMPLE_DATA.classifications;
                         state.quickLinks = serverData.quickLinks || [];
                         state.lampiran = serverData.lampiran || [];
+                        
+                        // Dukungan Legacy: Jika ada field 'contents' atau field bernomor (seperti di screenshot)
+                        let legacyContents = serverData.contents || [];
+                        if (legacyContents.length === 0) {
+                            const numericKeys = Object.keys(serverData).filter(k => !isNaN(k)).sort((a,b) => a-b);
+                            legacyContents = numericKeys.map(k => ({...serverData[k], _isLegacy: true}));
+                        }
+                        
+                        if (legacyContents.length > 0) {
+                            state.legacyContents = legacyContents;
+                            console.warn("Ditemukan " + legacyContents.length + " data lama di globalData.");
+                            
+                            // Jika koleksi utama belum memberikan data, gunakan legacy dulu
+                            if (state.contents.length === 0) {
+                                state.contents = legacyContents;
+                                if (document.getElementById('mainPage').classList.contains('active')) {
+                                    renderContentList();
+                                }
+                            }
+                        }
                     }
                     globalLoaded = true;
                     checkDone();
@@ -2213,7 +2241,20 @@
                     querySnapshot.forEach((doc) => {
                         contents.push({ ...doc.data(), id: doc.id });
                     });
-                    state.contents = contents;
+                    
+                    // Prioritas: Jika koleksi utama berisi data, gunakan itu. 
+                    // Jika kosong, cek apakah ada data legacy yang bisa ditampilkan.
+                    if (contents.length > 0) {
+                        state.contents = contents;
+                    } else if (state.legacyContents && state.legacyContents.length > 0) {
+                        state.contents = state.legacyContents;
+                    } else {
+                        state.contents = [];
+                    }
+
+                    if (document.getElementById('mainPage').classList.contains('active')) {
+                        renderContentList();
+                    }
                     contentsLoaded = true;
                     checkDone();
                 });
@@ -2376,6 +2417,21 @@
                 renderAllUI();
                 const initialSection = getSectionFromHash() || localStorage.getItem(CONFIG.STORAGE_KEYS.activeSection) || 'konten';
                 navigateToSection(initialSection);
+
+                // Proactive check for missing contents (Admin only)
+                if (state.role === 'admin' && state.contents.length === 0) {
+                    const localData = localStorage.getItem(CONFIG.STORAGE_KEYS.contents);
+                    if (localData) {
+                        try {
+                            const parsed = JSON.parse(localData);
+                            if (parsed && parsed.length > 0) {
+                                setTimeout(() => {
+                                    alert('PERINGATAN: Konten di Cloud kosong, tetapi ditemukan ' + parsed.length + ' data di browser ini.\n\nJika data Anda hilang, silakan klik tombol "PULIHKAN DATA" di bagian atas daftar konten.');
+                                }, 1000);
+                            }
+                        } catch(e) {}
+                    }
+                }
             });
         }
 
@@ -2758,6 +2814,74 @@
                     console.error(err);
                     showToast('Gagal menghapus konten: ' + err.message, 'error');
                 }
+            }
+        }
+
+        async function recoverLostData() {
+            let recoverySource = 'local';
+            let dataToRecover = [];
+            
+            const localData = localStorage.getItem(CONFIG.STORAGE_KEYS.contents);
+            if (localData) {
+                try {
+                    dataToRecover = JSON.parse(localData);
+                } catch(e) {}
+            }
+
+            // Jika local kosong, coba tarik dari globalData di server (legacy location)
+            if (dataToRecover.length === 0) {
+                showToast('Mengecek Cloud untuk data lama...', 'info');
+                try {
+                    const globalSnap = await getDoc(doc(db, "app", "globalData"));
+                    if (globalSnap.exists()) {
+                        const data = globalSnap.data();
+                        if (data.contents) {
+                            dataToRecover = data.contents;
+                            recoverySource = 'cloud (legacy array)';
+                        } else {
+                            // Cek field bernomor (seperti yang terlihat di screenshot)
+                            const numericKeys = Object.keys(data).filter(k => !isNaN(k)).sort((a,b) => a-b);
+                            if (numericKeys.length > 0) {
+                                dataToRecover = numericKeys.map(k => data[k]);
+                                recoverySource = 'cloud (legacy fields)';
+                            }
+                        }
+                    }
+                } catch(e) {
+                    console.error("Cloud check failed:", e);
+                }
+            }
+
+            if (dataToRecover.length === 0) {
+                showToast('Tidak ditemukan cadangan di browser maupun di Cloud legacy.', 'error');
+                return;
+            }
+
+            try {
+                if (confirm(`Ditemukan ${dataToRecover.length} konten dari ${recoverySource}. Pulihkan ke Cloud Baru?`)) {
+                    let successCount = 0;
+                    showToast('Sedang memulihkan...', 'info');
+                    
+                    for (const content of dataToRecover) {
+                        const id = content.id || Date.now().toString() + Math.random().toString(36).substr(2, 9);
+                        // Pastikan tidak ada field serverTimestamp di data lama yang bikin error
+                        const cleanContent = { ...content };
+                        delete cleanContent.updatedAt; 
+
+                        await setDoc(doc(db, "contents", id), {
+                            ...cleanContent,
+                            id: id,
+                            updatedAt: serverTimestamp()
+                        });
+                        successCount++;
+                    }
+                    
+                    showToast(`${successCount} konten berhasil dipulihkan!`, 'success');
+                    renderContentList();
+                }
+            } catch (e) {
+                console.error("Recovery failed:", e);
+                showToast('Gagal memulihkan: ' + e.message, 'error');
             }
         }
 
@@ -3610,6 +3734,7 @@
                 renderLampiranList();
                 document.getElementById('lampiranModal').classList.add('active');
             });
+            document.getElementById('recoverDataBtn').addEventListener('click', recoverLostData);
 
             // Feedback FAB
             document.getElementById('feedbackFab').addEventListener('click', () => {
