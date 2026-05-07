@@ -1407,7 +1407,7 @@
             <section id="kontenSection">
                 <div class="section-container">
                     <!-- Admin Controls for Content -->
-                    <div id="adminControls" class="admin-controls hidden" style="margin-bottom: 24px;">
+                    <div id="adminControls" class="admin-controls" style="margin-bottom: 24px; display: none;">
                         <button class="btn btn-primary" id="openContentModalBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -2381,22 +2381,27 @@
 
         function renderAllUI() {
             // Role-based UI visibility check
+            const adminControls = document.querySelectorAll('.admin-controls');
+            const hargaAdmin = document.getElementById('hargaAdminControls');
+            const hargaAction = document.getElementById('hargaActionHeader');
+            const userFilters = document.getElementById('userFilters');
+            const kritikAdmin = document.getElementById('kritikAdminControls');
+            const quickLinksAdmin = document.getElementById('quickLinksAdminControls');
+
             if (state.role === 'admin') {
-                document.querySelectorAll('.admin-controls').forEach(el => el.classList.remove('hidden'));
-                const hargaAdmin = document.getElementById('hargaAdminControls');
-                if (hargaAdmin) hargaAdmin.style.display = 'flex';
-                const hargaAction = document.getElementById('hargaActionHeader');
+                adminControls.forEach(el => el.style.setProperty('display', 'block', 'important'));
+                if (hargaAdmin) hargaAdmin.style.setProperty('display', 'flex', 'important');
                 if (hargaAction) hargaAction.classList.remove('hidden');
-                const userFilters = document.getElementById('userFilters');
-                if (userFilters) userFilters.style.display = 'none';
+                if (userFilters) userFilters.style.setProperty('display', 'none', 'important');
+                if (kritikAdmin) kritikAdmin.classList.remove('hidden');
+                if (quickLinksAdmin) quickLinksAdmin.classList.remove('hidden');
             } else {
-                document.querySelectorAll('.admin-controls').forEach(el => el.classList.add('hidden'));
-                const hargaAdmin = document.getElementById('hargaAdminControls');
-                if (hargaAdmin) hargaAdmin.style.display = 'none';
-                const hargaAction = document.getElementById('hargaActionHeader');
+                adminControls.forEach(el => el.style.setProperty('display', 'none', 'important'));
+                if (hargaAdmin) hargaAdmin.style.setProperty('display', 'none', 'important');
                 if (hargaAction) hargaAction.classList.add('hidden');
-                const userFilters = document.getElementById('userFilters');
-                if (userFilters) userFilters.style.display = 'flex';
+                if (userFilters) userFilters.style.setProperty('display', 'flex', 'important');
+                if (kritikAdmin) kritikAdmin.classList.add('hidden');
+                if (quickLinksAdmin) quickLinksAdmin.classList.add('hidden');
             }
 
             updateClassificationSelect();
