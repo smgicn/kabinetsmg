@@ -2340,7 +2340,7 @@
 
             // Jika role === 'admin'
             try {
-                const email = "admin@kabinetsmg.com";
+                const email = "admin@kabinnet.com";
                 await signInWithEmailAndPassword(auth, email, password);
                 state.role = 'admin'; // Set role immediately
                 window.isAdmin = true;
@@ -3987,7 +3987,12 @@
                             state.role = "admin";
                             window.isAdmin = true;
                             document.getElementById('logoutBtn').style.display = 'block';
-
+                            showMainPage();
+                        } else if (user.email === "admin@kabinnet.com") {
+                            // Fallback jika dokumen user tidak ada tapi email cocok
+                            state.role = "admin";
+                            window.isAdmin = true;
+                            document.getElementById('logoutBtn').style.display = 'block';
                             showMainPage();
                         } else {
                             throw new Error("Bukan Admin");
