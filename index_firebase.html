@@ -763,7 +763,8 @@
         .content-text {
             line-height: 1.8;
             color: var(--text-primary);
-            font-size: 16px;
+            font-size: 16px; /* Matches editor default */
+            font-family: inherit;
         }
 
         .content-text img {
@@ -1218,7 +1219,7 @@
         }
 
         .content-text {
-            font-size: 11px;
+            /* font-size removed to match editor and inherit custom styles */
         }
 
         @media (max-width: 768px) {
