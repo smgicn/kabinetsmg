@@ -2373,27 +2373,6 @@
             listenFeedbacks();
 
             loadAllData().then(() => {
-                // Role-based UI
-                if (state.role === 'admin') {
-                    document.getElementById('adminControls').classList.remove('hidden');
-                    document.getElementById('hargaAdminControls').style.display = 'flex';
-                    document.getElementById('kritikAdminControls').classList.remove('hidden');
-                    document.getElementById('hargaActionHeader').classList.remove('hidden');
-                    document.getElementById('feedbackFab').classList.add('hidden');
-                    document.getElementById('userFilters').classList.add('hidden');
-                    document.getElementById('userFilters').style.display = 'none';
-                    document.getElementById('quickLinksAdminControls').classList.remove('hidden');
-                } else {
-                    document.getElementById('adminControls').classList.add('hidden');
-                    document.getElementById('hargaAdminControls').style.display = 'none';
-                    document.getElementById('kritikAdminControls').classList.add('hidden');
-                    document.getElementById('hargaActionHeader').classList.add('hidden');
-                    document.getElementById('feedbackFab').classList.remove('hidden');
-                    document.getElementById('userFilters').classList.remove('hidden');
-                    document.getElementById('userFilters').style.display = 'flex';
-                    document.getElementById('quickLinksAdminControls').classList.add('hidden');
-                }
-
                 renderAllUI();
                 const initialSection = getSectionFromHash() || localStorage.getItem(CONFIG.STORAGE_KEYS.activeSection) || 'konten';
                 navigateToSection(initialSection);
@@ -2401,6 +2380,25 @@
         }
 
         function renderAllUI() {
+            // Role-based UI visibility check
+            if (state.role === 'admin') {
+                document.querySelectorAll('.admin-controls').forEach(el => el.classList.remove('hidden'));
+                const hargaAdmin = document.getElementById('hargaAdminControls');
+                if (hargaAdmin) hargaAdmin.style.display = 'flex';
+                const hargaAction = document.getElementById('hargaActionHeader');
+                if (hargaAction) hargaAction.classList.remove('hidden');
+                const userFilters = document.getElementById('userFilters');
+                if (userFilters) userFilters.style.display = 'none';
+            } else {
+                document.querySelectorAll('.admin-controls').forEach(el => el.classList.add('hidden'));
+                const hargaAdmin = document.getElementById('hargaAdminControls');
+                if (hargaAdmin) hargaAdmin.style.display = 'none';
+                const hargaAction = document.getElementById('hargaActionHeader');
+                if (hargaAction) hargaAction.classList.add('hidden');
+                const userFilters = document.getElementById('userFilters');
+                if (userFilters) userFilters.style.display = 'flex';
+            }
+
             updateClassificationSelect();
             updateFilterPills();
             renderQuickLinks();
