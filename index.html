@@ -2182,27 +2182,40 @@
 
         async function loadAllData() {
             return new Promise((resolve) => {
+                let globalLoaded = false;
+                let contentsLoaded = false;
+
+                const checkDone = () => {
+                    if (globalLoaded && contentsLoaded) {
+                        if (document.getElementById('mainPage').classList.contains('active')) {
+                            renderAllUI();
+                        }
+                        resolve();
+                    }
+                };
+
+                // Listen to Global Data (Pricing, Categories, etc.)
                 onSnapshot(doc(db, "app", "globalData"), (docSnap) => {
                     if (docSnap.exists()) {
                         const serverData = docSnap.data();
-                        state.contents = serverData.contents || [];
                         state.hargaLayanan = serverData.hargaLayanan || [];
                         state.classifications = serverData.classifications || SAMPLE_DATA.classifications;
                         state.quickLinks = serverData.quickLinks || [];
                         state.lampiran = serverData.lampiran || [];
-                        console.log('Data loaded realtime from Firebase');
-                    } else {
-                        // Init default data if not exist
-                        state.contents = SAMPLE_DATA.contents;
-                        state.hargaLayanan = SAMPLE_DATA.hargaLayanan;
-                        state.classifications = SAMPLE_DATA.classifications;
-                        syncToServer();
                     }
+                    globalLoaded = true;
+                    checkDone();
+                });
 
-                    if (document.getElementById('mainPage').classList.contains('active')) {
-                        renderAllUI();
-                    }
-                    resolve();
+                // Listen to individual Contents Collection
+                onSnapshot(collection(db, "contents"), (querySnapshot) => {
+                    const contents = [];
+                    querySnapshot.forEach((doc) => {
+                        contents.push({ ...doc.data(), id: doc.id });
+                    });
+                    state.contents = contents;
+                    contentsLoaded = true;
+                    checkDone();
                 });
             });
         }
@@ -2212,13 +2225,12 @@
         // ========================================
         async function syncToServer() {
             const data = {
-                contents: state.contents,
+                // contents sekarang disimpan di collection 'contents' per dokumen
                 hargaLayanan: state.hargaLayanan,
-                // feedbacks disimpan terpisah di collection 'feedbacks'
                 classifications: state.classifications,
                 quickLinks: state.quickLinks,
                 lampiran: state.lampiran,
-                updatedAt: state.updatedAt
+                updatedAt: serverTimestamp()
             };
             try {
                 await setDoc(doc(db, "app", "globalData"), data);
@@ -2691,7 +2703,8 @@
                     subject: document.getElementById('contentSubjectInput').innerHTML,
                     content: document.getElementById('contentTextInput').innerHTML,
                     externalLinks,
-                    pinned: document.getElementById('contentPinned').checked
+                    pinned: document.getElementById('contentPinned').checked,
+                    updatedAt: serverTimestamp()
                 };
 
                 if (!newContent.title || !newContent.date) {
@@ -2699,41 +2712,16 @@
                     return;
                 }
 
-                // Cek estimasi ukuran sebelum simpan
-                // Kita harus cek total data karena Firebase menyimpan semuanya dalam satu dokumen globalData
-                const tempContents = [...state.contents];
-                const existingIndex = tempContents.findIndex(c => c.id === id);
-                if (existingIndex >= 0) {
-                    tempContents[existingIndex] = newContent;
-                } else {
-                    tempContents.unshift(newContent);
-                }
-
-                const totalSize = estimateDataSize({
-                    contents: tempContents,
-                    hargaLayanan: state.hargaLayanan,
-                    classifications: state.classifications,
-                    quickLinks: state.quickLinks,
-                    lampiran: state.lampiran
-                });
-
-                // Limit Firestore 1,048,576 bytes. Kita batasi di 900KB agar aman.
-                if (totalSize > 900000) {
-                    showToast(`Gagal: Data terlalu besar (${(totalSize/1024).toFixed(0)} KB). Harap kurangi jumlah gambar atau perkecil resolusinya!`, 'error');
-                    return;
-                }
-
                 // Tampilkan loading
                 btn.disabled = true;
                 btn.innerText = 'Menyimpan...';
 
-                state.contents = tempContents;
-                saveAllData();
-                await syncToServer();
+                // Simpan ke collection 'contents' sebagai dokumen terpisah
+                await setDoc(doc(db, "contents", id), newContent);
 
                 document.getElementById('contentModal').classList.remove('active');
                 renderContentList();
-                showToast('Konten berhasil disimpan!', 'success');
+                showToast('Konten berhasil disimpan ke cloud!', 'success');
             } catch (err) {
                 console.error(err);
                 showToast('Terjadi kesalahan saat menyimpan: ' + err.message, 'error');
@@ -2745,11 +2733,14 @@
 
         async function deleteContent(id) {
             if (confirm('Apakah Anda yakin ingin menghapus konten ini?')) {
-                state.contents = state.contents.filter(c => c.id !== id);
-                saveAllData();
-                await syncToServer();
-                renderContentList();
-                showToast('Konten berhasil dihapus!', 'success');
+                try {
+                    await deleteDoc(doc(db, "contents", id));
+                    renderContentList();
+                    showToast('Konten berhasil dihapus!', 'success');
+                } catch (err) {
+                    console.error(err);
+                    showToast('Gagal menghapus konten: ' + err.message, 'error');
+                }
             }
         }
 
