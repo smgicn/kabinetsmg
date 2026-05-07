@@ -2283,7 +2283,15 @@
             toast.querySelector('.toast-close').addEventListener('click', () => toast.remove());
             container.appendChild(toast);
 
-            setTimeout(() => toast.remove(), 4000);
+            // Jika error, biarkan sedikit lebih lama agar terbaca
+            const duration = type === 'error' ? 8000 : 4000;
+            setTimeout(() => toast.remove(), duration);
+        }
+
+        // Fungsi untuk estimasi ukuran data (Firestore limit 1MB)
+        function estimateDataSize(data) {
+            const str = JSON.stringify(data);
+            return encodeURI(str).split(/%..|./).length - 1;
         }
 
         // ========================================
@@ -2657,44 +2665,82 @@
         }
 
         async function saveContent() {
-            const id = document.getElementById('contentId').value || Date.now().toString();
+            const btn = document.getElementById('saveContentBtn');
+            const originalText = btn.innerText;
+            
+            try {
+                const id = document.getElementById('contentId').value || Date.now().toString();
 
-            let externalLinks = [];
-            document.querySelectorAll('.link-item').forEach(item => {
-                const name = item.querySelector('.link-name').value.trim();
-                const url = item.querySelector('.link-url').value.trim();
-                if (name && url) {
-                    externalLinks.push({ name, url });
+                let externalLinks = [];
+                document.querySelectorAll('.link-item').forEach(item => {
+                    const name = item.querySelector('.link-name').value.trim();
+                    const url = item.querySelector('.link-url').value.trim();
+                    if (name && url) {
+                        externalLinks.push({ name, url });
+                    }
+                });
+
+                const status = document.querySelector('input[name="contentStatus"]:checked').value;
+
+                const newContent = {
+                    id,
+                    title: document.getElementById('contentTitleInput').value.trim(),
+                    date: document.getElementById('contentDateInput').value,
+                    classification: document.getElementById('contentClassificationInput').value,
+                    status,
+                    subject: document.getElementById('contentSubjectInput').innerHTML,
+                    content: document.getElementById('contentTextInput').innerHTML,
+                    externalLinks,
+                    pinned: document.getElementById('contentPinned').checked
+                };
+
+                if (!newContent.title || !newContent.date) {
+                    showToast('Judul dan Tanggal wajib diisi!', 'warning');
+                    return;
                 }
-            });
 
-            const status = document.querySelector('input[name="contentStatus"]:checked').value;
+                // Cek estimasi ukuran sebelum simpan
+                // Kita harus cek total data karena Firebase menyimpan semuanya dalam satu dokumen globalData
+                const tempContents = [...state.contents];
+                const existingIndex = tempContents.findIndex(c => c.id === id);
+                if (existingIndex >= 0) {
+                    tempContents[existingIndex] = newContent;
+                } else {
+                    tempContents.unshift(newContent);
+                }
 
-            const content = {
-                id,
-                title: document.getElementById('contentTitleInput').value,
-                date: document.getElementById('contentDateInput').value,
-                classification: document.getElementById('contentClassificationInput').value,
-                status,
-                subject: document.getElementById('contentSubjectInput').innerHTML,
-                content: document.getElementById('contentTextInput').innerHTML,
-                externalLinks,
-                pinned: document.getElementById('contentPinned').checked
-            };
+                const totalSize = estimateDataSize({
+                    contents: tempContents,
+                    hargaLayanan: state.hargaLayanan,
+                    classifications: state.classifications,
+                    quickLinks: state.quickLinks,
+                    lampiran: state.lampiran
+                });
 
-            const existingIndex = state.contents.findIndex(c => c.id === id);
-            if (existingIndex >= 0) {
-                state.contents[existingIndex] = content;
-            } else {
-                state.contents.unshift(content);
+                // Limit Firestore 1,048,576 bytes. Kita batasi di 900KB agar aman.
+                if (totalSize > 900000) {
+                    showToast(`Gagal: Data terlalu besar (${(totalSize/1024).toFixed(0)} KB). Harap kurangi jumlah gambar atau perkecil resolusinya!`, 'error');
+                    return;
+                }
+
+                // Tampilkan loading
+                btn.disabled = true;
+                btn.innerText = 'Menyimpan...';
+
+                state.contents = tempContents;
+                saveAllData();
+                await syncToServer();
+
+                document.getElementById('contentModal').classList.remove('active');
+                renderContentList();
+                showToast('Konten berhasil disimpan!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Terjadi kesalahan saat menyimpan: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
-
-            saveAllData();
-            await syncToServer();
-
-            document.getElementById('contentModal').classList.remove('active');
-            renderContentList();
-            showToast('Konten berhasil disimpan!', 'success');
         }
 
         async function deleteContent(id) {
