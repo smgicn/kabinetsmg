@@ -3794,7 +3794,13 @@
                     document.execCommand('styleWithCSS', null, true);
                     if (command === 'createLink') {
                         const url = prompt('Masukkan URL:');
-                        if (url) document.execCommand(command, false, url);
+                        if (url) {
+                            const selection = window.getSelection();
+                            const range = selection.getRangeAt(0);
+                            const selectedText = range.toString();
+                            const linkHtml = `<a href="${url}" target="_blank">${selectedText || url}</a>`;
+                            document.execCommand('insertHTML', false, linkHtml);
+                        }
                     } else if (command === 'indent') {
                         const selection = window.getSelection();
                         if (selection.rangeCount > 0) {
