@@ -757,12 +757,21 @@
             padding-top: 24px;
             margin-top: 24px;
             border-top: 1px solid var(--border);
+            overflow: visible;
         }
 
         .content-text {
             line-height: 1.8;
             color: var(--text-primary);
             font-size: 16px;
+        }
+
+        .content-text img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-sm);
+            margin: 10px 0;
+            display: block;
         }
 
         .content-text h1, .content-text h2, .content-text h3 {
@@ -3568,6 +3577,47 @@
                     document.getElementById('contentTextInput').focus();
                 });
             });
+
+            // Paste Handler for Rich Text
+            const handlePaste = (e) => {
+                e.preventDefault();
+                const clipboardData = e.clipboardData || window.clipboardData;
+                const items = clipboardData.items;
+                const html = clipboardData.getData('text/html');
+                const text = clipboardData.getData('text/plain');
+
+                // Handle images in clipboard
+                let imageFound = false;
+                if (items) {
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            const blob = items[i].getAsFile();
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                const img = `<img src="${event.target.result}" alt="Pasted Image">`;
+                                document.execCommand('insertHTML', false, img);
+                            };
+                            reader.readAsDataURL(blob);
+                            imageFound = true;
+                        }
+                    }
+                }
+
+                if (!imageFound) {
+                    // Clean up pasted HTML (remove Word/Web junk styles)
+                    const contentToPaste = html || text;
+                    const cleanHTML = contentToPaste
+                        .replace(/style="[^"]*"/gi, '') // Remove inline styles
+                        .replace(/class="[^"]*"/gi, '') // Remove classes
+                        .replace(/<o:p>.*?<\/o:p>/gi, '') // Remove Word tags
+                        .replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
+                    
+                    document.execCommand('insertHTML', false, cleanHTML);
+                }
+            };
+
+            document.getElementById('contentSubjectInput').addEventListener('paste', handlePaste);
+            document.getElementById('contentTextInput').addEventListener('paste', handlePaste);
 
             // Font size select
             document.querySelector('select[data-rtf="fontSize"]').addEventListener('change', (e) => {
