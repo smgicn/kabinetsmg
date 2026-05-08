@@ -1831,7 +1831,7 @@
                     style="margin-bottom: 16px; padding: 12px; background: var(--background-soft); border-radius: var(--radius-md); font-size: 14px;">
                     <p style="margin: 0 0 8px 0; color: var(--text-secondary);"><strong>Pesan dari:</strong> <span
                             id="replyFeedbackName"></span></p>
-                    <p style="margin: 0; color: var(--text);"><span id="replyFeedbackMessage"></span></p>
+                    <p style="margin: 0; color: var(--text-primary);"><span id="replyFeedbackMessage"></span></p>
                 </div>
                 <form id="replyForm">
                     <input type="hidden" id="replyFeedbackId">
@@ -3093,7 +3093,7 @@
                         ${feedback.replies.map(reply => `
                             <div style="padding: 12px; background: var(--background-soft); border-radius: var(--radius-sm); margin-bottom: 8px;">
                                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">${formatDate(reply.date)}</div>
-                                <div style="color: var(--text);">Admin: ${reply.message}</div>
+                                <div style="color: var(--text-primary);">Admin: ${reply.message}</div>
                             </div>
                         `).join('')}
                     </div>
@@ -3171,7 +3171,7 @@
                     <div style="padding: 12px; background: var(--background-soft); border-radius: var(--radius-sm); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start;">
                         <div style="flex: 1;">
                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">${formatDate(reply.date)}</div>
-                            <div style="color: var(--text);">Admin: ${reply.message}</div>
+                            <div style="color: var(--text-primary);">Admin: ${reply.message}</div>
                         </div>
                         <button type="button" class="btn btn-danger" data-delete-reply="${feedbackId}|${reply.id}" style="margin-left: 8px; padding: 4px 10px; font-size: 12px;">Hapus</button>
                     </div>
@@ -3215,6 +3215,7 @@
                 document.getElementById('replyFeedbackModal').classList.remove('active');
                 document.getElementById('replyForm').reset();
                 showToast('Respon terkirim!', 'success');
+                renderFeedbackList();
             } catch (e) {
                 console.error("Error saving reply:", e);
                 showToast('Gagal menyimpan respon: ' + e.message, 'error');
@@ -3232,6 +3233,7 @@
                         });
                         openReplyFeedbackModal(feedbackId);
                         showToast('Respon dihapus!', 'success');
+                        renderFeedbackList();
                     } catch (e) {
                         showToast('Gagal menghapus: ' + e.message, 'error');
                     }
