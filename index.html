@@ -4069,7 +4069,12 @@
                     if (content) {
                         content.pinned = !content.pinned;
                         saveAllData();
-                        syncToServer();
+                        // Update individual content doc in Firestore
+                        try {
+                            updateDoc(doc(db, "contents", id), { pinned: content.pinned });
+                        } catch (e) {
+                            console.error("Error updating pin status:", e);
+                        }
                         renderContentList();
                         showToast(content.pinned ? 'Konten di-pin!' : 'Konten di-unpin!', 'success');
                     }
