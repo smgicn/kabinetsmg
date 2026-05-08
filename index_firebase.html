@@ -7,8 +7,7 @@
     <title>KABINET - Kamus Besar ICONNET</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
@@ -750,7 +749,8 @@
         .content-text {
             line-height: 1.8;
             color: var(--text-primary);
-            font-size: 16px; /* Matches editor default */
+            font-size: 16px;
+            /* Matches editor default */
             font-family: inherit;
         }
 
@@ -781,7 +781,9 @@
             display: block;
         }
 
-        .content-text h1, .content-text h2, .content-text h3 {
+        .content-text h1,
+        .content-text h2,
+        .content-text h3 {
             margin: 0;
             padding: 0;
             font-weight: bold;
@@ -800,7 +802,8 @@
             font-size: 12px;
         }
 
-        .content-text ul, .content-text ol {
+        .content-text ul,
+        .content-text ol {
             margin: 0;
             padding-left: 20px;
         }
@@ -1301,14 +1304,57 @@
             cursor: nwse-resize;
         }
 
-        .resizer-handle.se { right: -5px; bottom: -5px; cursor: nwse-resize; }
-        .resizer-handle.sw { left: -5px; bottom: -5px; cursor: nesw-resize; }
-        .resizer-handle.ne { right: -5px; top: -5px; cursor: nesw-resize; }
-        .resizer-handle.nw { left: -5px; top: -5px; cursor: nwse-resize; }
-        .resizer-handle.e { right: -5px; top: 50%; transform: translateY(-50%); cursor: e-resize; }
-        .resizer-handle.w { left: -5px; top: 50%; transform: translateY(-50%); cursor: w-resize; }
-        .resizer-handle.s { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
-        .resizer-handle.n { top: -5px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+        .resizer-handle.se {
+            right: -5px;
+            bottom: -5px;
+            cursor: nwse-resize;
+        }
+
+        .resizer-handle.sw {
+            left: -5px;
+            bottom: -5px;
+            cursor: nesw-resize;
+        }
+
+        .resizer-handle.ne {
+            right: -5px;
+            top: -5px;
+            cursor: nesw-resize;
+        }
+
+        .resizer-handle.nw {
+            left: -5px;
+            top: -5px;
+            cursor: nwse-resize;
+        }
+
+        .resizer-handle.e {
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: e-resize;
+        }
+
+        .resizer-handle.w {
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: w-resize;
+        }
+
+        .resizer-handle.s {
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: s-resize;
+        }
+
+        .resizer-handle.n {
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: n-resize;
+        }
     </style>
 </head>
 
@@ -1407,7 +1453,8 @@
             <section id="kontenSection">
                 <div class="section-container">
                     <!-- Admin Controls for Content -->
-                    <div id="contentAdminControls" class="admin-controls hidden" style="margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div id="contentAdminControls" class="admin-controls hidden"
+                        style="margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
                         <button class="btn btn-primary" id="openContentModalBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -1417,7 +1464,8 @@
                             Tambah Konten
                         </button>
                         <button class="btn btn-secondary" id="recoverDataBtn" title="Pulihkan data jika card hilang">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M23 4v6h-6"></path>
                                 <path d="M1 20v-6h6"></path>
                                 <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -1603,25 +1651,25 @@
                                 title="Kelola Klasifikasi">⚙</button>
                         </div>
                     </div>
-                     <div class="form-group">
-                         <label class="form-label">Status</label>
-                         <div style="display: flex; gap: 12px;">
-                             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                 <input type="radio" name="contentStatus" value="berlaku" checked>
-                                 <span style="color: var(--success); font-weight: 500;">✓ Berlaku</span>
-                             </label>
-                             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                 <input type="radio" name="contentStatus" value="tidak_berlaku">
-                                 <span style="color: var(--error); font-weight: 500;">✗ Tidak Berlaku</span>
-                             </label>
-                         </div>
-                     </div>
-                     <div class="form-group">
-                         <label style="display: flex; align-items: center; gap: 6px;">
-                             <input type="checkbox" id="contentPinned">
-                             <span>Pin konten ini (tampilkan di atas)</span>
-                         </label>
-                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <div style="display: flex; gap: 12px;">
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="contentStatus" value="berlaku" checked>
+                                <span style="color: var(--success); font-weight: 500;">✓ Berlaku</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="contentStatus" value="tidak_berlaku">
+                                <span style="color: var(--error); font-weight: 500;">✗ Tidak Berlaku</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 6px;">
+                            <input type="checkbox" id="contentPinned">
+                            <span>Pin konten ini (tampilkan di atas)</span>
+                        </label>
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Subject (max 10000 karakter)</label>
                         <div style="margin-bottom: 8px;">
@@ -1639,16 +1687,22 @@
                             <button type="button" class="btn btn-secondary" data-rtf="bold"><strong>B</strong></button>
                             <button type="button" class="btn btn-secondary" data-rtf="italic"><em>I</em></button>
                             <button type="button" class="btn btn-secondary" data-rtf="underline"><u>U</u></button>
-                            <button type="button" class="btn btn-secondary" data-rtf="formatBlock" data-value="h1">H1</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="formatBlock" data-value="h2">H2</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="formatBlock" data-value="h3">H3</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="indent" title="Indent Paragraph">⭾</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="formatBlock"
+                                data-value="h1">H1</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="formatBlock"
+                                data-value="h2">H2</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="formatBlock"
+                                data-value="h3">H3</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="indent"
+                                title="Indent Paragraph">⭾</button>
                             <button type="button" class="btn btn-secondary" data-rtf="justifyLeft">↤</button>
                             <button type="button" class="btn btn-secondary" data-rtf="justifyCenter">↥</button>
                             <button type="button" class="btn btn-secondary" data-rtf="justifyRight">↦</button>
                             <button type="button" class="btn btn-secondary" data-rtf="justifyFull">⭾⭽</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="fontName" data-value="Segoe UI">Segoe UI</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="fontName" data-value="Arial">Arial</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="fontName"
+                                data-value="Segoe UI">Segoe UI</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="fontName"
+                                data-value="Arial">Arial</button>
                             <select class="form-select" style="min-width: 60px; font-size: 12px;" data-rtf="fontSize">
                                 <option value="12">12px</option>
                                 <option value="14">14px</option>
@@ -1660,18 +1714,27 @@
                                 <option value="26">26px</option>
                                 <option value="28">28px</option>
                             </select>
-                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#000000" style="background-color: #000000; color: white; width: 30px;">A</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#FF0000" style="background-color: #FF0000; color: white; width: 30px;">A</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#0000FF" style="background-color: #0000FF; color: white; width: 30px;">A</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#008000" style="background-color: #008000; color: white; width: 30px;">A</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#FFFF00" style="background-color: #FFFF00; color: black; width: 30px;">A</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#800080" style="background-color: #800080; color: white; width: 30px;">A</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#000000"
+                                style="background-color: #000000; color: white; width: 30px;">A</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#FF0000"
+                                style="background-color: #FF0000; color: white; width: 30px;">A</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#0000FF"
+                                style="background-color: #0000FF; color: white; width: 30px;">A</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#008000"
+                                style="background-color: #008000; color: white; width: 30px;">A</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#FFFF00"
+                                style="background-color: #FFFF00; color: black; width: 30px;">A</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="foreColor" data-value="#800080"
+                                style="background-color: #800080; color: white; width: 30px;">A</button>
                             <button type="button" class="btn btn-secondary" data-rtf="insertUnorderedList">•</button>
                             <button type="button" class="btn btn-secondary" data-rtf="insertOrderedList">1.</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="createLink" title="Tambah Link">🔗</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="unlink" title="Hapus Link">⎌</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="createLink"
+                                title="Tambah Link">🔗</button>
+                            <button type="button" class="btn btn-secondary" data-rtf="unlink"
+                                title="Hapus Link">⎌</button>
                             <button type="button" class="btn btn-secondary" data-rtf="insertTable" title="Tambah Tabel">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"></path>
                                 </svg>
                             </button>
@@ -1831,7 +1894,7 @@
                     style="margin-bottom: 16px; padding: 12px; background: var(--background-soft); border-radius: var(--radius-md); font-size: 14px;">
                     <p style="margin: 0 0 8px 0; color: var(--text-secondary);"><strong>Pesan dari:</strong> <span
                             id="replyFeedbackName"></span></p>
-                    <p style="margin: 0; color: var(--text);"><span id="replyFeedbackMessage"></span></p>
+                    <p style="margin: 0; color: var(--text-primary);"><span id="replyFeedbackMessage"></span></p>
                 </div>
                 <form id="replyForm">
                     <input type="hidden" id="replyFeedbackId">
@@ -2006,21 +2069,21 @@
                         <label class="form-label">URL File (link download atau view)</label>
                         <input type="url" class="form-input" id="lampiranUrlInput" placeholder="https://..." required>
                     </div>
-                     <div class="form-group">
-                         <label class="form-label">Kategori</label>
-                         <select class="form-select" id="lampiranKategoriInput">
-                             <option value="Panduan">Panduan</option>
-                             <option value="Formulir">Formulir</option>
-                             <option value="Prosedur">Prosedur</option>
-                             <option value="Lainnya">Lainnya</option>
-                         </select>
-                     </div>
-                     <div class="form-group">
-                         <label style="display: flex; align-items: center; gap: 6px;">
-                             <input type="checkbox" id="lampiranPinned">
-                             <span>Pin lampiran ini (tampilkan di atas)</span>
-                         </label>
-                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Kategori</label>
+                        <select class="form-select" id="lampiranKategoriInput">
+                            <option value="Panduan">Panduan</option>
+                            <option value="Formulir">Formulir</option>
+                            <option value="Prosedur">Prosedur</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 6px;">
+                            <input type="checkbox" id="lampiranPinned">
+                            <span>Pin lampiran ini (tampilkan di atas)</span>
+                        </label>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -2212,18 +2275,18 @@
                         state.classifications = serverData.classifications || SAMPLE_DATA.classifications;
                         state.quickLinks = serverData.quickLinks || [];
                         state.lampiran = serverData.lampiran || [];
-                        
+
                         // Dukungan Legacy: Jika ada field 'contents' atau field bernomor (seperti di screenshot)
                         let legacyContents = serverData.contents || [];
                         if (legacyContents.length === 0) {
-                            const numericKeys = Object.keys(serverData).filter(k => !isNaN(k)).sort((a,b) => a-b);
-                            legacyContents = numericKeys.map(k => ({...serverData[k], _isLegacy: true}));
+                            const numericKeys = Object.keys(serverData).filter(k => !isNaN(k)).sort((a, b) => a - b);
+                            legacyContents = numericKeys.map(k => ({ ...serverData[k], _isLegacy: true }));
                         }
-                        
+
                         if (legacyContents.length > 0) {
                             state.legacyContents = legacyContents;
                             console.warn("Ditemukan " + legacyContents.length + " data lama di globalData.");
-                            
+
                             // Jika koleksi utama belum memberikan data, gunakan legacy dulu
                             if (state.contents.length === 0) {
                                 state.contents = legacyContents;
@@ -2243,7 +2306,7 @@
                     querySnapshot.forEach((doc) => {
                         contents.push({ ...doc.data(), id: doc.id });
                     });
-                    
+
                     // Prioritas: Jika koleksi utama berisi data, gunakan itu. 
                     // Jika kosong, cek apakah ada data legacy yang bisa ditampilkan.
                     if (contents.length > 0) {
@@ -2434,7 +2497,7 @@
                                     alert('PERINGATAN: Konten di Cloud kosong, tetapi ditemukan ' + parsed.length + ' data di browser ini.\n\nJika data Anda hilang, silakan klik tombol "PULIHKAN DATA" di bagian atas daftar konten.');
                                 }, 1000);
                             }
-                        } catch(e) {}
+                        } catch (e) { }
                     }
                 }
             });
@@ -2757,7 +2820,7 @@
         async function saveContent() {
             const btn = document.getElementById('saveContentBtn');
             const originalText = btn.innerText;
-            
+
             try {
                 const id = document.getElementById('contentId').value || Date.now().toString();
 
@@ -2825,12 +2888,12 @@
         async function recoverLostData() {
             let recoverySource = 'local';
             let dataToRecover = [];
-            
+
             const localData = localStorage.getItem(CONFIG.STORAGE_KEYS.contents);
             if (localData) {
                 try {
                     dataToRecover = JSON.parse(localData);
-                } catch(e) {}
+                } catch (e) { }
             }
 
             // Jika local kosong, coba tarik dari globalData di server (legacy location)
@@ -2845,14 +2908,14 @@
                             recoverySource = 'cloud (legacy array)';
                         } else {
                             // Cek field bernomor (seperti yang terlihat di screenshot)
-                            const numericKeys = Object.keys(data).filter(k => !isNaN(k)).sort((a,b) => a-b);
+                            const numericKeys = Object.keys(data).filter(k => !isNaN(k)).sort((a, b) => a - b);
                             if (numericKeys.length > 0) {
                                 dataToRecover = numericKeys.map(k => data[k]);
                                 recoverySource = 'cloud (legacy fields)';
                             }
                         }
                     }
-                } catch(e) {
+                } catch (e) {
                     console.error("Cloud check failed:", e);
                 }
             }
@@ -2866,12 +2929,12 @@
                 if (confirm(`Ditemukan ${dataToRecover.length} konten dari ${recoverySource}. Pulihkan ke Cloud Baru?`)) {
                     let successCount = 0;
                     showToast('Sedang memulihkan...', 'info');
-                    
+
                     for (const content of dataToRecover) {
                         const id = content.id || Date.now().toString() + Math.random().toString(36).substr(2, 9);
                         // Pastikan tidak ada field serverTimestamp di data lama yang bikin error
                         const cleanContent = { ...content };
-                        delete cleanContent.updatedAt; 
+                        delete cleanContent.updatedAt;
 
                         await setDoc(doc(db, "contents", id), {
                             ...cleanContent,
@@ -2880,7 +2943,7 @@
                         });
                         successCount++;
                     }
-                    
+
                     showToast(`${successCount} konten berhasil dipulihkan!`, 'success');
                     renderContentList();
                 }
@@ -3093,7 +3156,7 @@
                         ${feedback.replies.map(reply => `
                             <div style="padding: 12px; background: var(--background-soft); border-radius: var(--radius-sm); margin-bottom: 8px;">
                                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">${formatDate(reply.date)}</div>
-                                <div style="color: var(--text);">Admin: ${reply.message}</div>
+                                <div style="color: var(--text-primary);">Admin: ${reply.message}</div>
                             </div>
                         `).join('')}
                     </div>
@@ -3171,7 +3234,7 @@
                     <div style="padding: 12px; background: var(--background-soft); border-radius: var(--radius-sm); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start;">
                         <div style="flex: 1;">
                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">${formatDate(reply.date)}</div>
-                            <div style="color: var(--text);">Admin: ${reply.message}</div>
+                            <div style="color: var(--text-primary);">Admin: ${reply.message}</div>
                         </div>
                         <button type="button" class="btn btn-danger" data-delete-reply="${feedbackId}|${reply.id}" style="margin-left: 8px; padding: 4px 10px; font-size: 12px;">Hapus</button>
                     </div>
@@ -3215,6 +3278,7 @@
                 document.getElementById('replyFeedbackModal').classList.remove('active');
                 document.getElementById('replyForm').reset();
                 showToast('Respon terkirim!', 'success');
+                renderFeedbackList();
             } catch (e) {
                 console.error("Error saving reply:", e);
                 showToast('Gagal menyimpan respon: ' + e.message, 'error');
@@ -3232,6 +3296,7 @@
                         });
                         openReplyFeedbackModal(feedbackId);
                         showToast('Respon dihapus!', 'success');
+                        renderFeedbackList();
                     } catch (e) {
                         showToast('Gagal menghapus: ' + e.message, 'error');
                     }
@@ -3855,7 +3920,7 @@
                             const reader = new FileReader();
                             reader.onload = (event) => {
                                 const originalDataUrl = event.target.result;
-                                
+
                                 // Auto Compression Logic
                                 const img = new Image();
                                 img.onload = () => {
@@ -3873,7 +3938,7 @@
                                     canvas.height = height;
                                     const ctx = canvas.getContext('2d');
                                     ctx.drawImage(img, 0, 0, width, height);
-                                    
+
                                     // Convert to compressed JPEG (quality 0.7)
                                     const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
                                     const imgTag = `<img src="${compressedDataUrl}" alt="Pasted & Compressed Image">`;
@@ -3895,8 +3960,8 @@
                         .replace(/class="[^"]*"/gi, '') // Remove classes
                         .replace(/<o:p>.*?<\/o:p>/gi, '') // Remove Word tags
                         .replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
-                    
-                    document.execCommand('insertHTML', false, cleanHTML);
+
+                            document.execCommand('insertHTML', false, cleanHTML);
                 }
             };
 
@@ -3906,13 +3971,13 @@
             // Image Resizer Logic
             let currentResizingImg = null;
             const resizerOverlay = document.getElementById('imageResizerOverlay');
-            
+
             const updateResizerPos = () => {
                 if (!currentResizingImg) return;
                 const rect = currentResizingImg.getBoundingClientRect();
                 const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                
+
                 resizerOverlay.style.display = 'block';
                 resizerOverlay.style.width = rect.width + 'px';
                 resizerOverlay.style.height = rect.height + 'px';
@@ -3931,7 +3996,7 @@
             };
 
             document.addEventListener('click', editorClick);
-            
+
             let isDragging = false;
             let startX, startY, startWidth, startHeight, currentHandle;
 
