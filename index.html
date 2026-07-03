@@ -2257,7 +2257,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDoc, serverTimestamp, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -2408,6 +2408,20 @@
                 state.feedbacks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 if (document.getElementById('mainPage').classList.contains('active')) {
                     renderFeedbackList();
+                }
+            }, (error) => {
+                console.error('Error listening feedbacks:', error);
+                // Jika gagal karena permission, tampilkan toast agar user/admin tahu
+                showToast('Gagal memuat kritik/saran: ' + error.message + ' (Periksa aturan keamanan Firestore Anda)', 'error');
+                if (error.code === 'permission-denied' || error.code === 'unauthenticated') {
+                    console.log('Trying anonymous sign-in for feedback access...');
+                    signInAnonymously(auth).then(() => {
+                        // Jangan langsung retry tanpa henti, lakukan sekali saja
+                        if (!state.retryFeedbackAuth) {
+                            state.retryFeedbackAuth = true;
+                            listenFeedbacks();
+                        }
+                    }).catch(e => console.error('Anonymous sign-in failed:', e));
                 }
             });
         }
@@ -2640,6 +2654,12 @@
                     } else {
                         sessionStorage.setItem(CONFIG.STORAGE_KEYS.session, JSON.stringify({ role: 'user' }));
                     }
+                    // Sign in anonymous agar user bisa baca Firestore (termasuk feedbacks)
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (e) {
+                        console.log('Anonymous sign-in skipped:', e.message);
+                    }
                     showMainPage();
                     showToast('Masuk sebagai User berhasil!', 'success');
                 } else {
@@ -2817,6 +2837,8 @@
                 renderPricingTable();
             } else if (selectedSection === 'lampiran') {
                 renderLampiranList();
+            } else if (selectedSection === 'kritik') {
+                renderFeedbackList();
             }
         }
 
@@ -4475,6 +4497,12 @@
                     state.role = 'user';
                     window.isAdmin = false;
                     document.getElementById('logoutBtn').style.display = 'block';
+                    // Sign in anonymous agar user bisa baca Firestore (termasuk feedbacks)
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (e) {
+                        console.log('Anonymous sign-in skipped:', e.message);
+                    }
                     showMainPage();
                 }
             }
@@ -4482,6 +4510,11 @@
             // Firebase Auth Observer (untuk Admin)
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
+                    // Skip anonymous users - mereka adalah user biasa yang butuh Firestore read access
+                    if (user.isAnonymous) {
+                        console.log('Anonymous user authenticated for Firestore access');
+                        return;
+                    }
                     try {
                         const userDoc = await getDoc(doc(db, "users", user.uid));
                         if (userDoc.exists() && userDoc.data().role === "admin") {
