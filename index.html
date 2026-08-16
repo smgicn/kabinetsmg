@@ -569,7 +569,7 @@
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
             padding: 24px;
-            transition: var(--transition);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
             width: 100%;
         }
 
@@ -674,6 +674,74 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
+        /* Materi Card Line Colors & Hover Floating Effects */
+        .content-card.materi-semua {
+            border: 2px solid #000000 !important;
+        }
+
+        .content-card.materi-semua:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+        }
+
+        .content-card.materi-outbound {
+            border: 2px solid #16a34a !important;
+        }
+
+        .content-card.materi-outbound:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(22, 163, 74, 0.28);
+        }
+
+        .content-card.materi-backoffice {
+            border: 2px solid #2563eb !important;
+        }
+
+        .content-card.materi-backoffice:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.28);
+        }
+
+        .content-materi-tag {
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .content-materi-tag.materi-semua {
+            background: rgba(0, 0, 0, 0.08);
+            color: #000000;
+            border: 1px solid #000000;
+        }
+
+        .content-materi-tag.materi-outbound {
+            background: rgba(22, 163, 74, 0.1);
+            color: #16a34a;
+            border: 1px solid #16a34a;
+        }
+
+        .content-materi-tag.materi-backoffice {
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
+            border: 1px solid #2563eb;
+        }
+
+        .dark-mode .content-card.materi-semua {
+            border: 2px solid #ffffff !important;
+        }
+
+        .dark-mode .content-card.materi-semua:hover {
+            box-shadow: 0 12px 28px rgba(255, 255, 255, 0.25);
+        }
+
+        .dark-mode .content-materi-tag.materi-semua {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid #ffffff;
+        }
+
         .content-subject {
             font-size: 14px;
             color: var(--text-muted);
@@ -731,6 +799,77 @@
 
         .btn-danger:hover {
             background: #DC2626;
+        }
+
+        /* Color-Coded Solid Action Buttons */
+        .btn-selengkapnya {
+            background: #ef4444 !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-selengkapnya:hover {
+            background: #dc2626 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-link-kuning {
+            background: #f59e0b !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+        }
+
+        .btn-link-kuning:hover {
+            background: #d97706 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-link-hijau {
+            background: #16a34a !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+        }
+
+        .btn-link-hijau:hover {
+            background: #15803d !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-link-biru {
+            background: #2563eb !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-link-biru:hover {
+            background: #1d4ed8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-link-ungu {
+            background: #8b5cf6 !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+        }
+
+        .btn-link-ungu:hover {
+            background: #7c3aed !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+            transform: translateY(-1px);
         }
 
         .content-details {
@@ -1558,7 +1697,8 @@
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <input type="text" class="search-bar" id="contentSearch" placeholder="Cari...">
+                        <input type="text" class="search-bar" id="contentSearch" placeholder="Cari judul, subject, atau isi..." style="padding-right: 75px;">
+                        <button type="button" id="clearSearchBtn" style="position: absolute; right: 48px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 16px; cursor: pointer; color: var(--text-muted); display: none;" title="Hapus pencarian">✕</button>
                         <span id="searchResultCount" class="search-result-count"></span>
                     </div>
                     <div id="searchNavHint" class="search-nav-hint" style="display: none;">
@@ -1664,6 +1804,13 @@
                             </svg>
                             Paste dari Excel
                         </button>
+                        <button class="btn btn-danger" id="deleteAllHargaBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Hapus All
+                        </button>
                     </div>
 
                     <div class="pricing-container">
@@ -1768,18 +1915,35 @@
                         </div>
                     </div>
                      <div class="form-group">
-                         <label class="form-label">Status</label>
-                         <div style="display: flex; gap: 12px;">
-                             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                 <input type="radio" name="contentStatus" value="berlaku" checked>
-                                 <span style="color: var(--success); font-weight: 500;">✓ Berlaku</span>
-                             </label>
-                             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                                 <input type="radio" name="contentStatus" value="tidak_berlaku">
-                                 <span style="color: var(--error); font-weight: 500;">✗ Tidak Berlaku</span>
-                             </label>
-                         </div>
-                     </div>
+                        <label class="form-label">Status</label>
+                        <div style="display: flex; gap: 12px;">
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="contentStatus" value="berlaku" checked>
+                                <span style="color: var(--success); font-weight: 500;">✓ Berlaku</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="contentStatus" value="tidak_berlaku">
+                                <span style="color: var(--error); font-weight: 500;">✗ Tidak Berlaku</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Pilihan Materi</label>
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="contentMateri" value="semua" checked>
+                                <span style="font-weight: 600; color: #000000;">Untuk Semua (Garis Hitam)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="contentMateri" value="outbound">
+                                <span style="font-weight: 600; color: #16a34a;">Outbound (Garis Hijau)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="contentMateri" value="back_office">
+                                <span style="font-weight: 600; color: #2563eb;">Back Office (Garis Biru)</span>
+                            </label>
+                        </div>
+                    </div>
                      <div class="form-group">
                          <label style="display: flex; align-items: center; gap: 6px;">
                              <input type="checkbox" id="contentPinned">
@@ -1951,7 +2115,7 @@
 
     <!-- Classification Modal -->
     <div id="classificationModal" class="modal-overlay">
-        <div class="modal" style="max-width: 400px;">
+        <div class="modal" style="max-width: 450px;">
             <div class="modal-header">
                 <h2>Kelola Klasifikasi</h2>
                 <button class="modal-close" id="closeClassificationModal">
@@ -1971,8 +2135,11 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Daftar Klasifikasi</label>
-                    <div id="classificationList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label class="form-label" style="margin-bottom: 0;">Daftar Klasifikasi</label>
+                        <button type="button" class="btn btn-secondary" id="reverseClassificationOrderBtn" style="padding: 4px 10px; font-size: 12px;" title="Balik urutan pertama menjadi terakhir / sebaliknya">🔄 Balik Urutan</button>
+                    </div>
+                    <div id="classificationList" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;"></div>
                 </div>
             </div>
         </div>
@@ -2257,7 +2424,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDoc, serverTimestamp, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -2266,7 +2433,8 @@
             projectId: "kabinnet12-d8305",
             storageBucket: "kabinnet12-d8305.firebasestorage.app",
             messagingSenderId: "504059668634",
-            appId: "1:504059668634:web:d31810dff98697b9801723"
+            appId: "1:504059668634:web:d31810dff98697b9801723",
+            measurementId: "G-SCQ4HRKKW2"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -2399,8 +2567,9 @@
             syncToServer();
         }
 
-        // Listener terpisah untuk feedbacks (read semua user)
+        // Listener terpisah untuk feedbacks (public read — tidak perlu auth)
         let feedbackUnsubscribe = null;
+
         function listenFeedbacks() {
             if (feedbackUnsubscribe) feedbackUnsubscribe();
             const q = query(collection(db, "feedbacks"), orderBy("date", "desc"));
@@ -2411,18 +2580,7 @@
                 }
             }, (error) => {
                 console.error('Error listening feedbacks:', error);
-                // Jika gagal karena permission, tampilkan toast agar user/admin tahu
-                showToast('Gagal memuat kritik/saran: ' + error.message + ' (Periksa aturan keamanan Firestore Anda)', 'error');
-                if (error.code === 'permission-denied' || error.code === 'unauthenticated') {
-                    console.log('Trying anonymous sign-in for feedback access...');
-                    signInAnonymously(auth).then(() => {
-                        // Jangan langsung retry tanpa henti, lakukan sekali saja
-                        if (!state.retryFeedbackAuth) {
-                            state.retryFeedbackAuth = true;
-                            listenFeedbacks();
-                        }
-                    }).catch(e => console.error('Anonymous sign-in failed:', e));
-                }
+                showToast('Gagal memuat kritik/saran: ' + error.message, 'error');
             });
         }
 
@@ -2654,12 +2812,6 @@
                     } else {
                         sessionStorage.setItem(CONFIG.STORAGE_KEYS.session, JSON.stringify({ role: 'user' }));
                     }
-                    // Sign in anonymous agar user bisa baca Firestore (termasuk feedbacks)
-                    try {
-                        await signInAnonymously(auth);
-                    } catch (e) {
-                        console.log('Anonymous sign-in skipped:', e.message);
-                    }
                     showMainPage();
                     showToast('Masuk sebagai User berhasil!', 'success');
                 } else {
@@ -2703,7 +2855,7 @@
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainPage').classList.add('active');
 
-            // Mulai listen feedbacks (bisa dibaca semua user)
+            // Mulai listen feedbacks (public read, tidak perlu auth)
             listenFeedbacks();
 
             // Jalankan render UI segera agar tombol admin muncul instan tanpa menunggu data
@@ -2927,22 +3079,41 @@
         // ========================================
         // MODULE: Content Management
         // ========================================
+        function stripHtml(html) {
+            if (!html) return '';
+            const tmp = document.createElement('DIV');
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || '';
+        }
+
         function renderContentList() {
             const searchTerm = document.getElementById('contentSearch').value.trim();
+            const lowerSearch = searchTerm.toLowerCase();
+
             let filtered = state.contents.filter(c => {
                 const matchesFilter = state.filter.active === 'all' || c.classification === state.filter.active;
-                const matchesSearch = !searchTerm ||
-                    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    (c.subject && c.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                    (c.content && c.content.toLowerCase().includes(searchTerm.toLowerCase()));
-                return matchesFilter && matchesSearch;
+                if (!matchesFilter) return false;
+                if (!searchTerm) return true;
+
+                if (!c._plainText) {
+                    c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                }
+                return c._plainText.includes(lowerSearch);
             });
 
-            // Sort by pinned first, then by date (newest first)
+            // Urutan card: Pinned first, kemudian status (Berlaku A-Z sebelum Tidak Berlaku A-Z)
             filtered.sort((a, b) => {
                 if (a.pinned && !b.pinned) return -1;
                 if (!a.pinned && b.pinned) return 1;
-                return new Date(b.date) - new Date(a.date);
+
+                const aStatus = (a.status === 'tidak_berlaku' || a.status === 'tidak-berlaku') ? 1 : 0;
+                const bStatus = (b.status === 'tidak_berlaku' || b.status === 'tidak-berlaku') ? 1 : 0;
+
+                if (aStatus !== bStatus) {
+                    return aStatus - bStatus; // 0 (Berlaku) before 1 (Tidak Berlaku)
+                }
+
+                return (a.title || '').localeCompare(b.title || '', 'id', { numeric: true, sensitivity: 'base' });
             });
 
             const totalPages = Math.ceil(filtered.length / CONFIG.ITEMS_PER_PAGE);
@@ -2975,22 +3146,29 @@
                     const highlightedSubject = highlightText(content.subject);
                     const highlightedContent = highlightText(content.content);
 
+                    const materi = content.materi || 'semua';
+                    const materiClass = materi === 'outbound' ? 'materi-outbound' : materi === 'back_office' ? 'materi-backoffice' : 'materi-semua';
+                    const materiLabel = materi === 'outbound' ? 'Outbound' : materi === 'back_office' ? 'Back Office' : 'Untuk Semua';
+
                     return `
-                    <div class="content-card ${content.pinned ? 'pinned' : ''}" data-id="${content.id}">
+                    <div class="content-card ${materiClass} ${content.pinned ? 'pinned' : ''}" data-id="${content.id}">
                          <div class="content-header">
                              <div class="content-title">${highlightedTitle}</div>
                              <div class="content-meta">
                                  <span class="content-date">${formatDate(content.date)}</span>
                                  <span class="content-classification">${content.classification}</span>
+                                 <span class="content-materi-tag ${materiClass}">${materiLabel}</span>
                                   ${content.status ? `<span class="content-status ${content.status === 'berlaku' ? 'berlaku' : 'tidak-berlaku'}">${content.status === 'berlaku' ? 'Berlaku' : 'Tidak Berlaku'}</span>` : ''}
                              </div>
                          </div>
                         <div class="content-subject">${highlightedSubject}</div>
                         <div class="content-actions">
-                            ${content.content && content.content.trim() ? `<button class="btn btn-primary" data-toggle-details="${content.id}">Selengkapnya</button>` : ''}
-                             ${content.externalLinks && content.externalLinks.length > 0 ? content.externalLinks.map(link =>
-                        `<a href="${link.url}" target="_blank" class="btn btn-secondary" style="border: 2px solid #E6E6FC; background: white; color: var(--primary);">${link.name}</a>`
-                    ).join('') : ''}
+                            ${content.content && content.content.trim() ? `<button class="btn btn-selengkapnya" data-toggle-details="${content.id}">Selengkapnya</button>` : ''}
+                            ${content.externalLinks && content.externalLinks.length > 0 ? content.externalLinks.map((link, linkIdx) => {
+                        const linkClasses = ['btn-link-kuning', 'btn-link-hijau', 'btn-link-biru', 'btn-link-ungu'];
+                        const colorClass = linkClasses[Math.min(linkIdx, linkClasses.length - 1)];
+                        return `<a href="${link.url}" target="_blank" class="btn ${colorClass}">${link.name}</a>`;
+                    }).join('') : ''}
                              ${state.role === 'admin' ? `
                                  <button class="btn btn-secondary" data-pin-content="${content.id}">${content.pinned ? 'Unpin' : 'Pin'}</button>
                                  <button class="btn btn-secondary" data-duplicate-content="${content.id}">Duplikat</button>
@@ -3033,6 +3211,11 @@
                 const status = content.status || 'berlaku';
                 document.querySelector(`input[name="contentStatus"][value="${status}"]`).checked = true;
 
+                // Set materi radio button
+                const materi = content.materi || 'semua';
+                const materiRadio = document.querySelector(`input[name="contentMateri"][value="${materi}"]`);
+                if (materiRadio) materiRadio.checked = true;
+
                 document.getElementById('contentSubjectInput').innerHTML = content.subject || '';
                 document.getElementById('contentTextInput').innerHTML = content.content || '';
                 document.getElementById('contentPinned').checked = isDuplicate ? false : (content.pinned || false);
@@ -3049,6 +3232,8 @@
                 document.getElementById('contentTextInput').innerHTML = '';
                 // Reset status to default
                 document.querySelector('input[name="contentStatus"][value="berlaku"]').checked = true;
+                const defaultMateriRadio = document.querySelector('input[name="contentMateri"][value="semua"]');
+                if (defaultMateriRadio) defaultMateriRadio.checked = true;
                 document.getElementById('contentPinned').checked = false;
                 addLinkField();
             }
@@ -3093,6 +3278,8 @@
                 });
 
                 const status = document.querySelector('input[name="contentStatus"]:checked').value;
+                const materiRadio = document.querySelector('input[name="contentMateri"]:checked');
+                const materi = materiRadio ? materiRadio.value : 'semua';
 
                 const newContent = {
                     id,
@@ -3100,12 +3287,14 @@
                     date: document.getElementById('contentDateInput').value,
                     classification: document.getElementById('contentClassificationInput').value,
                     status,
+                    materi,
                     subject: document.getElementById('contentSubjectInput').innerHTML,
                     content: document.getElementById('contentTextInput').innerHTML,
                     externalLinks,
                     pinned: document.getElementById('contentPinned').checked,
                     updatedAt: serverTimestamp()
                 };
+                delete newContent._plainText;
 
                 if (!newContent.title || !newContent.date) {
                     showToast('Judul dan Tanggal wajib diisi!', 'warning');
@@ -3392,6 +3581,20 @@
             }
         }
 
+        async function deleteAllHarga() {
+            if (state.hargaLayanan.length === 0) {
+                showToast('Tidak ada data harga untuk dihapus!', 'warning');
+                return;
+            }
+            if (confirm(`Apakah Anda yakin ingin menghapus SEMUA (${state.hargaLayanan.length}) data harga layanan? Tindakan ini tidak dapat dibatalkan.`)) {
+                state.hargaLayanan = [];
+                saveAllData();
+                await syncToServer();
+                renderPricingTable();
+                showToast('Semua data harga layanan berhasil dihapus!', 'success');
+            }
+        }
+
         // ========================================
         // MODULE: Feedback Management
         // ========================================
@@ -3592,12 +3795,48 @@
         // ========================================
         function renderClassificationList() {
             const container = document.getElementById('classificationList');
+            if (!container) return;
+            const total = state.classifications.length;
             container.innerHTML = state.classifications.map((cls, index) => `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--background-soft); border-radius: var(--radius-sm);">
-                <span>${cls}</span>
-                <button type="button" class="btn btn-danger" data-remove-classification="${index}" style="padding: 4px 10px; font-size: 12px;">Hapus</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--background-soft); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 11px; background: var(--border); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: var(--text-secondary);">${index + 1}</span>
+                    <span style="font-weight: 600;">${cls}</span>
+                </div>
+                <div style="display: flex; gap: 4px; align-items: center;">
+                    <button type="button" class="btn btn-secondary" data-move-cls-up="${index}" ${index === 0 ? 'disabled' : ''} style="padding: 4px 8px; font-size: 12px;" title="Pindah ke Atas">▲</button>
+                    <button type="button" class="btn btn-secondary" data-move-cls-down="${index}" ${index === total - 1 ? 'disabled' : ''} style="padding: 4px 8px; font-size: 12px;" title="Pindah ke Bawah">▼</button>
+                    <button type="button" class="btn btn-danger" data-remove-classification="${index}" style="padding: 4px 10px; font-size: 12px;">Hapus</button>
+                </div>
             </div>
         `).join('');
+        }
+
+        async function moveClassification(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= state.classifications.length) return;
+            const temp = state.classifications[index];
+            state.classifications[index] = state.classifications[targetIndex];
+            state.classifications[targetIndex] = temp;
+            saveAllData();
+            await syncToServer();
+            renderClassificationList();
+            updateClassificationSelect();
+            updateFilterPills();
+            renderContentList();
+            showToast('Posisi klasifikasi berhasil diubah!', 'success');
+        }
+
+        async function reverseClassificationOrder() {
+            if (state.classifications.length <= 1) return;
+            state.classifications.reverse();
+            saveAllData();
+            await syncToServer();
+            renderClassificationList();
+            updateClassificationSelect();
+            updateFilterPills();
+            renderContentList();
+            showToast('Urutan klasifikasi berhasil dibalik!', 'success');
         }
 
         async function addClassification() {
@@ -3720,51 +3959,65 @@
         // ========================================
         // MODULE: Search
         // ========================================
+        let searchAnimationFrame = null;
+
         function searchContent() {
             const searchTerm = document.getElementById('contentSearch').value.trim();
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) {
+                clearBtn.style.display = searchTerm ? 'block' : 'none';
+            }
+
             state.pagination.content = 1;
             state.search.term = searchTerm;
-            state.search.currentMatch = searchTerm ? -1 : -1; // Will be set to 0 in render if has results
+            state.search.currentMatch = searchTerm ? -1 : -1;
 
             const hint = document.getElementById('searchNavHint');
-            hint.style.display = searchTerm ? 'block' : 'none';
+            if (hint) hint.style.display = searchTerm ? 'block' : 'none';
 
-            renderContentList();
-            updateSearchResultCount();
+            // Hitung jumlah hasil pencarian secara instan
+            const lowerSearch = searchTerm.toLowerCase();
+            let count = 0;
+            if (!searchTerm) {
+                count = state.contents.length;
+            } else {
+                state.contents.forEach(c => {
+                    const matchesFilter = state.filter.active === 'all' || c.classification === state.filter.active;
+                    if (!matchesFilter) return;
+                    if (!c._plainText) {
+                        c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                    }
+                    if (c._plainText.includes(lowerSearch)) count++;
+                });
+            }
+
+            const countEl = document.getElementById('searchResultCount');
+            if (countEl) {
+                countEl.textContent = searchTerm ? `${count} hasil` : '';
+            }
+
+            if (searchAnimationFrame) cancelAnimationFrame(searchAnimationFrame);
+            searchAnimationFrame = requestAnimationFrame(() => {
+                renderContentList();
+            });
         }
 
         function updateSearchResultCount() {
-            const searchTerm = document.getElementById('contentSearch').value.trim();
-            const countEl = document.getElementById('searchResultCount');
-
-            if (!searchTerm) {
-                countEl.textContent = '';
-                return;
-            }
-
-            const filtered = state.contents.filter(c => {
-                const matchesFilter = state.filter.active === 'all' || c.classification === state.filter.active;
-                const matchesSearch =
-                    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    (c.subject && c.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                    (c.content && c.content.toLowerCase().includes(searchTerm.toLowerCase()));
-                return matchesFilter && matchesSearch;
-            });
-
-            countEl.textContent = `${filtered.length} hasil`;
+            // Ditangani secara instan di searchContent()
         }
 
         function navigateToNextMatch() {
             const searchTerm = document.getElementById('contentSearch').value.trim();
             if (!searchTerm) return;
+            const lowerSearch = searchTerm.toLowerCase();
 
             const filtered = state.contents.filter(c => {
                 const matchesFilter = state.filter.active === 'all' || c.classification === state.filter.active;
-                const matchesSearch =
-                    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    (c.subject && c.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                    (c.content && c.content.toLowerCase().includes(searchTerm.toLowerCase()));
-                return matchesFilter && matchesSearch;
+                if (!matchesFilter) return false;
+                if (!c._plainText) {
+                    c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                }
+                return c._plainText.includes(lowerSearch);
             });
 
             if (filtered.length === 0) return;
@@ -3904,7 +4157,7 @@
                         </div>
                         ${lamp.deskripsi ? `<div class="content-subject">${lamp.deskripsi}</div>` : ''}
                         <div class="content-actions">
-                             <a href="${lamp.url}" target="_blank" class="btn btn-secondary" style="border: 2px solid #E6E6FC; background: white; color: var(--primary);">
+                             <a href="${lamp.url}" target="_blank" class="btn btn-link-biru">
                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                                      <polyline points="15 3 21 3 21 9"></polyline>
@@ -4106,6 +4359,44 @@
             document.getElementById('contentSearch').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') navigateToNextMatch();
             });
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', () => {
+                    document.getElementById('contentSearch').value = '';
+                    searchContent();
+                    document.getElementById('contentSearch').focus();
+                });
+            }
+
+            // Classification list click events (Move up/down/remove)
+            const clsListEl = document.getElementById('classificationList');
+            if (clsListEl) {
+                clsListEl.addEventListener('click', (e) => {
+                    const removeBtn = e.target.closest('[data-remove-classification]');
+                    if (removeBtn) {
+                        const index = parseInt(removeBtn.dataset.removeClassification);
+                        removeClassification(index);
+                        return;
+                    }
+                    const upBtn = e.target.closest('[data-move-cls-up]');
+                    if (upBtn && !upBtn.disabled) {
+                        const index = parseInt(upBtn.dataset.moveClsUp);
+                        moveClassification(index, -1);
+                        return;
+                    }
+                    const downBtn = e.target.closest('[data-move-cls-down]');
+                    if (downBtn && !downBtn.disabled) {
+                        const index = parseInt(downBtn.dataset.moveClsDown);
+                        moveClassification(index, 1);
+                        return;
+                    }
+                });
+            }
+
+            const reverseClsBtn = document.getElementById('reverseClassificationOrderBtn');
+            if (reverseClsBtn) {
+                reverseClsBtn.addEventListener('click', reverseClassificationOrder);
+            }
 
             // Admin controls
             document.getElementById('openContentModalBtn').addEventListener('click', () => openContentModal());
@@ -4117,6 +4408,10 @@
             document.getElementById('openPasteModalBtn').addEventListener('click', () => {
                 document.getElementById('pasteModal').classList.add('active');
             });
+            const deleteAllHargaBtn = document.getElementById('deleteAllHargaBtn');
+            if (deleteAllHargaBtn) {
+                deleteAllHargaBtn.addEventListener('click', () => deleteAllHarga());
+            }
             document.getElementById('openLampiranModalBtn').addEventListener('click', () => {
                 renderLampiranList();
                 document.getElementById('lampiranModal').classList.add('active');
@@ -4497,12 +4792,6 @@
                     state.role = 'user';
                     window.isAdmin = false;
                     document.getElementById('logoutBtn').style.display = 'block';
-                    // Sign in anonymous agar user bisa baca Firestore (termasuk feedbacks)
-                    try {
-                        await signInAnonymously(auth);
-                    } catch (e) {
-                        console.log('Anonymous sign-in skipped:', e.message);
-                    }
                     showMainPage();
                 }
             }
@@ -4510,11 +4799,6 @@
             // Firebase Auth Observer (untuk Admin)
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    // Skip anonymous users - mereka adalah user biasa yang butuh Firestore read access
-                    if (user.isAnonymous) {
-                        console.log('Anonymous user authenticated for Firestore access');
-                        return;
-                    }
                     try {
                         const userDoc = await getDoc(doc(db, "users", user.uid));
                         if (userDoc.exists() && userDoc.data().role === "admin") {
