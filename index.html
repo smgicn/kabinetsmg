@@ -439,11 +439,53 @@
             background: rgba(37, 99, 235, 0.05);
         }
 
+        /* Default checked = blue/primary */
         .classification-tag-checkbox.checked {
             background: var(--primary);
             color: #ffffff;
             border-color: var(--primary);
             box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+        }
+
+        /* OUTBOUND = Green */
+        .classification-tag-checkbox.tag-outbound {
+            border-color: #16a34a;
+            color: #15803d;
+        }
+        .classification-tag-checkbox.tag-outbound:hover {
+            background: rgba(22, 163, 74, 0.08);
+            border-color: #16a34a;
+            color: #15803d;
+        }
+        .classification-tag-checkbox.tag-outbound.checked {
+            background: #16a34a;
+            color: #ffffff;
+            border-color: #16a34a;
+            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);
+        }
+
+        /* BACK OFFICE = Blue accent */
+        .classification-tag-checkbox.tag-backoffice {
+            border-color: #2563eb;
+            color: #1d4ed8;
+        }
+        .classification-tag-checkbox.tag-backoffice:hover {
+            background: rgba(37, 99, 235, 0.08);
+            border-color: #2563eb;
+            color: #1d4ed8;
+        }
+        .classification-tag-checkbox.tag-backoffice.checked {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Disabled state when max reached */
+        .classification-tag-checkbox.cls-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
         .classification-tag-checkbox .tag-checkmark {
@@ -2414,7 +2456,7 @@
                         <input type="date" class="form-input" id="contentDateInput" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Klasifikasi <span style="font-weight: 400; font-size: 12px; color: var(--text-muted);">(Pilih 1 atau lebih)</span></label>
+                        <label class="form-label">Klasifikasi <span style="font-weight: 400; font-size: 12px; color: var(--text-muted);">(Pilih 1 sampai 3)</span> <span id="classificationCountBadge" style="font-size: 11px; font-weight: 600; color: var(--primary); margin-left: 4px;"></span></label>
                         <div style="display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px;">
                             <div id="classificationCheckboxes" class="classification-checkboxes-grid" style="flex: 1; display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm, 12px); background: var(--background-soft); max-height: 160px; overflow-y: auto;">
                             </div>
@@ -3146,8 +3188,19 @@
                 // Listen to individual Contents Collection
                 onSnapshot(collection(db, "contents"), (querySnapshot) => {
                     const contents = [];
-                    querySnapshot.forEach((doc) => {
-                        contents.push({ ...doc.data(), id: doc.id });
+                    querySnapshot.forEach((docSnap) => {
+                        const data = { ...docSnap.data(), id: docSnap.id };
+                        // NORMALISASI: Pastikan classification selalu berbentuk array
+                        if (data.classification) {
+                            if (typeof data.classification === 'string') {
+                                data.classification = data.classification.split(',').map(s => s.trim()).filter(Boolean);
+                            } else if (!Array.isArray(data.classification)) {
+                                data.classification = [String(data.classification)];
+                            }
+                        } else {
+                            data.classification = [];
+                        }
+                        contents.push(data);
                     });
                     
                     // Prioritas: Jika koleksi utama berisi data, gunakan itu. 
@@ -3543,21 +3596,47 @@
             if (!filter || filter === 'all') return true;
             if (!c.classification) return false;
             if (Array.isArray(c.classification)) {
-                return c.classification.includes(filter);
+                // Case-insensitive match untuk keamanan
+                return c.classification.some(cl => cl.trim().toLowerCase() === filter.trim().toLowerCase());
             }
-            return String(c.classification).split(',').map(s => s.trim()).includes(filter);
+            return String(c.classification).split(',').map(s => s.trim().toLowerCase()).includes(filter.trim().toLowerCase());
         }
 
-        function updateClassificationSelect() {
+        const MAX_CLASSIFICATION = 3;
+
+        function getTagColorClass(cls) {
+            const upper = cls.toUpperCase();
+            if (upper.includes('OUTBOUND')) return 'tag-outbound';
+            if (upper.includes('BACK OFFICE') || upper.includes('BACK_OFFICE') || upper.includes('BACKOFFICE')) return 'tag-backoffice';
+            return '';
+        }
+
+        function updateClassificationCountBadge() {
+            const badge = document.getElementById('classificationCountBadge');
+            if (!badge) return;
+            const checked = document.querySelectorAll('#classificationCheckboxes input[name="contentClassification"]:checked').length;
+            if (checked === 0) {
+                badge.textContent = '';
+            } else {
+                badge.textContent = `${checked}/${MAX_CLASSIFICATION} dipilih`;
+                badge.style.color = checked >= MAX_CLASSIFICATION ? '#ef4444' : 'var(--primary)';
+            }
+        }
+
+        function updateClassificationSelect(preChecked) {
             const container = document.getElementById('classificationCheckboxes');
             if (!container) return;
 
-            const checkedValues = Array.from(container.querySelectorAll('input[name="contentClassification"]:checked')).map(cb => cb.value);
+            // Gunakan preChecked jika diberikan, fallback ke nilai yang sudah terchecked di DOM
+            const checkedValues = preChecked != null
+                ? preChecked
+                : Array.from(container.querySelectorAll('input[name="contentClassification"]:checked')).map(cb => cb.value);
 
             container.innerHTML = state.classifications.map(cls => {
                 const isChecked = checkedValues.includes(cls);
+                const colorClass = getTagColorClass(cls);
                 return `
-                    <label class="classification-tag-checkbox ${isChecked ? 'checked' : ''}">
+                    <label class="classification-tag-checkbox ${colorClass} ${isChecked ? 'checked' : ''}">
                         <input type="checkbox" name="contentClassification" value="${cls}" ${isChecked ? 'checked' : ''} style="display: none;">
                         <span class="tag-checkmark">✓</span>
                         <span class="tag-text">${cls}</span>
@@ -3565,15 +3644,42 @@
                 `;
             }).join('');
 
+            function enforceMaxAndUpdate() {
+                const allTags = container.querySelectorAll('.classification-tag-checkbox');
+                const checkedNow = container.querySelectorAll('input[name="contentClassification"]:checked').length;
+                allTags.forEach(tag => {
+                    const cb = tag.querySelector('input[type="checkbox"]');
+                    if (!cb) return;
+                    if (!cb.checked && checkedNow >= MAX_CLASSIFICATION) {
+                        tag.classList.add('cls-disabled');
+                    } else {
+                        tag.classList.remove('cls-disabled');
+                    }
+                });
+                updateClassificationCountBadge();
+            }
+
             container.querySelectorAll('.classification-tag-checkbox').forEach(tag => {
                 const cb = tag.querySelector('input[type="checkbox"]');
+
                 tag.addEventListener('click', (e) => {
-                    if (e.target !== cb) {
-                        cb.checked = !cb.checked;
-                    }
+                    // PENTING: e.preventDefault() mencegah browser otomatis toggle checkbox
+                    // karena label berisi <input> → tanpa ini terjadi double-toggle = tidak ada perubahan
+                    e.preventDefault();
+
+                    const checkedNow = container.querySelectorAll('input[name="contentClassification"]:checked').length;
+
+                    // Jika akan dicentang tapi sudah mencapai maksimum, blokir
+                    if (!cb.checked && checkedNow >= MAX_CLASSIFICATION) return;
+
+                    // Toggle manual sekali saja
+                    cb.checked = !cb.checked;
                     tag.classList.toggle('checked', cb.checked);
+                    enforceMaxAndUpdate();
                 });
             });
+
+            enforceMaxAndUpdate();
 
             const selectAllBtn = document.getElementById('selectAllClassificationBtn');
             const clearAllBtn = document.getElementById('clearAllClassificationBtn');
@@ -3581,13 +3687,21 @@
             if (selectAllBtn && !selectAllBtn._hasListener) {
                 selectAllBtn._hasListener = true;
                 selectAllBtn.addEventListener('click', () => {
+                    let count = 0;
                     document.querySelectorAll('#classificationCheckboxes .classification-tag-checkbox').forEach(tag => {
                         const cb = tag.querySelector('input[type="checkbox"]');
-                        if (cb) {
+                        if (cb && count < MAX_CLASSIFICATION) {
                             cb.checked = true;
                             tag.classList.add('checked');
+                            count++;
                         }
                     });
+                    const container2 = document.getElementById('classificationCheckboxes');
+                    if (container2) container2.querySelectorAll('.classification-tag-checkbox').forEach(tag => {
+                        const cb = tag.querySelector('input[type="checkbox"]');
+                        if (cb && !cb.checked) tag.classList.add('cls-disabled');
+                    });
+                    updateClassificationCountBadge();
                 });
             }
 
@@ -3599,8 +3713,10 @@
                         if (cb) {
                             cb.checked = false;
                             tag.classList.remove('checked');
+                            tag.classList.remove('cls-disabled');
                         }
                     });
+                    updateClassificationCountBadge();
                 });
             }
         }
@@ -3660,14 +3776,29 @@
             const searchTerm = document.getElementById('contentSearch').value.trim();
             const lowerSearch = searchTerm.toLowerCase();
 
+            // Debug: log state filter dan jumlah konten untuk verifikasi
+            if (searchTerm) {
+                console.log('[DEBUG] Filter aktif:', state.filter.active, '| Search:', searchTerm);
+                console.log('[DEBUG] Total konten:', state.contents.length);
+                state.contents.forEach(c => {
+                    const cls = c.classification;
+                    const matchFilter = isContentInFilter(c, state.filter.active);
+                    const titleLower = (c.title || '').toLowerCase();
+                    const matchSearch = titleLower.includes(lowerSearch);
+                    if (matchSearch) {
+                        console.log('[DEBUG] Konten match search:', c.title, '| classification:', cls, '| matchFilter:', matchFilter);
+                    }
+                });
+            }
+
             let filtered = state.contents.filter(c => {
                 const matchesFilter = isContentInFilter(c, state.filter.active);
                 if (!matchesFilter) return false;
                 if (!searchTerm) return true;
 
-                if (!c._plainText) {
-                    c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
-                }
+                // Selalu regenerate _plainText agar cache tidak menyebabkan hasil pencarian
+                // yang salah setelah data diperbarui
+                c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
                 return c._plainText.includes(lowerSearch);
             });
 
@@ -3771,8 +3902,6 @@
             const form = document.getElementById('contentForm');
             form.reset();
 
-            updateClassificationSelect();
-
             let selectedCls = [];
             if (id) {
                 const content = state.contents.find(c => c.id === id);
@@ -3781,6 +3910,7 @@
                 document.getElementById('contentTitleInput').value = isDuplicate ? content.title + ' (Copy)' : content.title;
                 document.getElementById('contentDateInput').value = content.date;
 
+                // Normalisasi classification ke array sebelum render
                 if (Array.isArray(content.classification)) {
                     selectedCls = content.classification;
                 } else if (typeof content.classification === 'string') {
@@ -3819,14 +3949,8 @@
                 addLinkField();
             }
 
-            document.querySelectorAll('#classificationCheckboxes input[name="contentClassification"]').forEach(cb => {
-                const isChecked = selectedCls.includes(cb.value);
-                cb.checked = isChecked;
-                const parentLabel = cb.closest('.classification-tag-checkbox');
-                if (parentLabel) {
-                    parentLabel.classList.toggle('checked', isChecked);
-                }
-            });
+            // Panggil SETELAH selectedCls ditentukan agar semua klasifikasi tampil dengan benar
+            updateClassificationSelect(selectedCls);
 
             document.getElementById('contentModal').classList.add('active');
         }
@@ -4573,15 +4697,13 @@
             const lowerSearch = searchTerm.toLowerCase();
             let count = 0;
             if (!searchTerm) {
-                count = state.contents.length;
+                count = state.contents.filter(c => isContentInFilter(c, state.filter.active)).length;
             } else {
                 state.contents.forEach(c => {
-                    const matchesFilter = state.filter.active === 'all' || c.classification === state.filter.active;
-                    if (!matchesFilter) return;
-                    if (!c._plainText) {
-                        c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
-                    }
-                    if (c._plainText.includes(lowerSearch)) count++;
+                    // Gunakan isContentInFilter agar multi-klasifikasi benar-benar dicek
+                    if (!isContentInFilter(c, state.filter.active)) return;
+                    const plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                    if (plainText.includes(lowerSearch)) count++;
                 });
             }
 
@@ -4606,12 +4728,10 @@
             const lowerSearch = searchTerm.toLowerCase();
 
             const filtered = state.contents.filter(c => {
-                const matchesFilter = state.filter.active === 'all' || c.classification === state.filter.active;
-                if (!matchesFilter) return false;
-                if (!c._plainText) {
-                    c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
-                }
-                return c._plainText.includes(lowerSearch);
+                // Gunakan isContentInFilter agar multi-klasifikasi benar-benar dicek
+                if (!isContentInFilter(c, state.filter.active)) return false;
+                const plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                return plainText.includes(lowerSearch);
             });
 
             if (filtered.length === 0) return;
