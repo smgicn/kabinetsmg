@@ -3772,6 +3772,20 @@
             return tmp.textContent || tmp.innerText || '';
         }
 
+        function getSearchMatchRank(card, lowerSearch) {
+            if (!lowerSearch) return 0;
+            const titleText = (card.title || '').toLowerCase();
+            if (titleText.includes(lowerSearch)) return 1;
+
+            const subjectText = stripHtml(card.subject || '').toLowerCase();
+            if (subjectText.includes(lowerSearch)) return 2;
+
+            const contentText = stripHtml(card.content || '').toLowerCase();
+            if (contentText.includes(lowerSearch)) return 3;
+
+            return 4;
+        }
+
         function renderContentList() {
             const searchTerm = document.getElementById('contentSearch').value.trim();
             const lowerSearch = searchTerm.toLowerCase();
@@ -3802,7 +3816,7 @@
                 return c._plainText.includes(lowerSearch);
             });
 
-            // Urutan card: Pinned first, kemudian status (Berlaku A-Z sebelum Tidak Berlaku A-Z)
+            // Urutan card: Pinned first, kemudian status (Berlaku A-Z sebelum Tidak Berlaku A-Z), kemudian tingkat match pencarian (Judul -> Subjudul -> Isi Content)
             filtered.sort((a, b) => {
                 if (a.pinned && !b.pinned) return -1;
                 if (!a.pinned && b.pinned) return 1;
@@ -3812,6 +3826,14 @@
 
                 if (aStatus !== bStatus) {
                     return aStatus - bStatus; // 0 (Berlaku) before 1 (Tidak Berlaku)
+                }
+
+                if (lowerSearch) {
+                    const aRank = getSearchMatchRank(a, lowerSearch);
+                    const bRank = getSearchMatchRank(b, lowerSearch);
+                    if (aRank !== bRank) {
+                        return aRank - bRank; // 1 (Judul) before 2 (Subjudul) before 3 (Isi Content)
+                    }
                 }
 
                 return (a.title || '').localeCompare(b.title || '', 'id', { numeric: true, sensitivity: 'base' });
@@ -4735,6 +4757,28 @@
             });
 
             if (filtered.length === 0) return;
+
+            filtered.sort((a, b) => {
+                if (a.pinned && !b.pinned) return -1;
+                if (!a.pinned && b.pinned) return 1;
+
+                const aStatus = (a.status === 'tidak_berlaku' || a.status === 'tidak-berlaku') ? 1 : 0;
+                const bStatus = (b.status === 'tidak_berlaku' || b.status === 'tidak-berlaku') ? 1 : 0;
+
+                if (aStatus !== bStatus) {
+                    return aStatus - bStatus;
+                }
+
+                if (lowerSearch) {
+                    const aRank = getSearchMatchRank(a, lowerSearch);
+                    const bRank = getSearchMatchRank(b, lowerSearch);
+                    if (aRank !== bRank) {
+                        return aRank - bRank;
+                    }
+                }
+
+                return (a.title || '').localeCompare(b.title || '', 'id', { numeric: true, sensitivity: 'base' });
+            });
 
             state.search.currentMatch++;
             if (state.search.currentMatch >= filtered.length) {
