@@ -2353,6 +2353,13 @@
                             </svg>
                             Paste dari Excel
                         </button>
+                        <button class="btn btn-warning" id="deleteFilteredHargaBtn" style="background-color: #f59e0b; color: white; border: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Hapus Terfilter
+                        </button>
                         <button class="btn btn-danger" id="deleteAllHargaBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -2663,6 +2670,57 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelHargaBtn">Batal</button>
                 <button class="btn btn-primary" id="saveHargaBtn">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hapus Harga Berdasarkan Bulan / Paket -->
+    <div id="bulkDeleteHargaModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Hapus Harga (Bulan / Paket)</h2>
+                <button class="modal-close" id="closeBulkDeleteHargaModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 13px;">
+                    Pilih kriteria Bulan atau Paket yang ingin dihapus sekaligus:
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Pilih Bulan</label>
+                    <select class="form-select" id="bulkDeleteBulan">
+                        <option value="">Semua Bulan</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pilih Paket</label>
+                    <select class="form-select" id="bulkDeletePaket">
+                        <option value="">Semua Paket</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pilih Regional (Opsional)</label>
+                    <select class="form-select" id="bulkDeleteRegional">
+                        <option value="">Semua Regional</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pilih Jenis Pelanggan (Opsional)</label>
+                    <select class="form-select" id="bulkDeleteJenis">
+                        <option value="">Semua Jenis</option>
+                    </select>
+                </div>
+                <div id="bulkDeletePreview" style="padding: 12px; background: var(--background-soft); border-radius: var(--radius-sm, 8px); font-size: 13px; color: var(--primary); font-weight: 600; text-align: center; margin-top: 12px; border: 1px solid var(--border);">
+                    Total data yang akan dihapus: 0 item
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBulkDeleteHargaBtn">Batal</button>
+                <button class="btn btn-danger" id="confirmBulkDeleteHargaBtn">Hapus Data Terpilih</button>
             </div>
         </div>
     </div>
@@ -3489,7 +3547,7 @@
                 });
                 if (hargaAdmin) hargaAdmin.style.setProperty('display', 'flex', 'important');
                 if (hargaAction) hargaAction.classList.remove('hidden');
-                if (userFilters) userFilters.style.setProperty('display', 'none', 'important');
+                if (userFilters) userFilters.style.setProperty('display', 'flex', 'important');
                 if (kritikAdmin) {
                     kritikAdmin.style.setProperty('display', 'block', 'important');
                     kritikAdmin.classList.remove('hidden');
@@ -4178,23 +4236,26 @@
             updateSelect('filterRegional', 'Semua Regional', regionals);
             updateSelect('filterJenis', 'Semua Jenis', jeniss);
             updateSelect('filterPaket', 'Semua Paket', pakets);
+
+            updateSelect('bulkDeleteBulan', 'Semua Bulan', bulans);
+            updateSelect('bulkDeleteRegional', 'Semua Regional', regionals);
+            updateSelect('bulkDeleteJenis', 'Semua Jenis', jeniss);
+            updateSelect('bulkDeletePaket', 'Semua Paket', pakets);
         }
 
         function renderPricingTable() {
             let filtered = [...state.hargaLayanan];
 
-            // Apply filters for user
-            if (state.role !== 'admin') {
-                const bulan = document.getElementById('filterBulan')?.value;
-                const regional = document.getElementById('filterRegional')?.value;
-                const jenis = document.getElementById('filterJenis')?.value;
-                const paket = document.getElementById('filterPaket')?.value;
+            // Apply filters for all users including admin
+            const bulan = document.getElementById('filterBulan')?.value;
+            const regional = document.getElementById('filterRegional')?.value;
+            const jenis = document.getElementById('filterJenis')?.value;
+            const paket = document.getElementById('filterPaket')?.value;
 
-                if (bulan) filtered = filtered.filter(h => h.bulan === bulan);
-                if (regional) filtered = filtered.filter(h => h.regional === regional);
-                if (jenis) filtered = filtered.filter(h => h.jenisPelanggan === jenis);
-                if (paket) filtered = filtered.filter(h => h.paket === paket);
-            }
+            if (bulan) filtered = filtered.filter(h => h.bulan === bulan);
+            if (regional) filtered = filtered.filter(h => h.regional === regional);
+            if (jenis) filtered = filtered.filter(h => h.jenisPelanggan === jenis);
+            if (paket) filtered = filtered.filter(h => h.paket === paket);
 
             // Apply sorting
             if (state.sorting.column) {
@@ -4330,8 +4391,155 @@
                 state.hargaLayanan = [];
                 saveAllData();
                 await syncToServer();
+                updateHargaDropdowns();
                 renderPricingTable();
                 showToast('Semua data harga layanan berhasil dihapus!', 'success');
+            }
+        }
+
+        async function deleteFilteredHarga() {
+            if (!state.hargaLayanan || state.hargaLayanan.length === 0) {
+                showToast('Tidak ada data harga layanan!', 'warning');
+                return;
+            }
+
+            const bulan = document.getElementById('filterBulan')?.value;
+            const regional = document.getElementById('filterRegional')?.value;
+            const jenis = document.getElementById('filterJenis')?.value;
+            const paket = document.getElementById('filterPaket')?.value;
+
+            const activeFilters = [];
+            if (bulan) activeFilters.push(`Bulan: "${bulan}"`);
+            if (regional) activeFilters.push(`Regional: "${regional}"`);
+            if (jenis) activeFilters.push(`Jenis: "${jenis}"`);
+            if (paket) activeFilters.push(`Paket: "${paket}"`);
+
+            if (activeFilters.length === 0) {
+                openBulkDeleteHargaModal();
+                return;
+            }
+
+            const toDelete = state.hargaLayanan.filter(h => {
+                if (bulan && h.bulan !== bulan) return false;
+                if (regional && h.regional !== regional) return false;
+                if (jenis && h.jenisPelanggan !== jenis) return false;
+                if (paket && h.paket !== paket) return false;
+                return true;
+            });
+
+            if (toDelete.length === 0) {
+                showToast('Tidak ada data harga yang sesuai dengan filter saat ini!', 'warning');
+                return;
+            }
+
+            const filterSummary = activeFilters.join(', ');
+            if (confirm(`Apakah Anda yakin ingin menghapus ${toDelete.length} data harga layanan (${filterSummary})?\n\nTindakan ini tidak dapat dibatalkan.`)) {
+                const toDeleteIds = new Set(toDelete.map(h => h.id));
+                state.hargaLayanan = state.hargaLayanan.filter(h => !toDeleteIds.has(h.id));
+
+                saveAllData();
+                await syncToServer();
+                updateHargaDropdowns();
+                renderPricingTable();
+                showToast(`${toDelete.length} data harga layanan (${filterSummary}) berhasil dihapus!`, 'success');
+            }
+        }
+
+        function updateBulkDeletePreview() {
+            const bulan = document.getElementById('bulkDeleteBulan')?.value;
+            const regional = document.getElementById('bulkDeleteRegional')?.value;
+            const jenis = document.getElementById('bulkDeleteJenis')?.value;
+            const paket = document.getElementById('bulkDeletePaket')?.value;
+
+            const toDelete = (state.hargaLayanan || []).filter(h => {
+                if (bulan && h.bulan !== bulan) return false;
+                if (regional && h.regional !== regional) return false;
+                if (jenis && h.jenisPelanggan !== jenis) return false;
+                if (paket && h.paket !== paket) return false;
+                return true;
+            });
+
+            const activeFilters = [];
+            if (bulan) activeFilters.push(`Bulan: ${bulan}`);
+            if (paket) activeFilters.push(`Paket: ${paket}`);
+            if (regional) activeFilters.push(`Regional: ${regional}`);
+            if (jenis) activeFilters.push(`Jenis: ${jenis}`);
+
+            const previewEl = document.getElementById('bulkDeletePreview');
+            if (previewEl) {
+                if (activeFilters.length === 0) {
+                    previewEl.innerHTML = `⚠️ Pilih minimal 1 filter (Bulan atau Paket) untuk dihapus.`;
+                    previewEl.style.color = 'var(--text-muted)';
+                } else {
+                    previewEl.innerHTML = `🗑️ Total data yang akan dihapus: <strong>${toDelete.length} item</strong><br><span style="font-size: 11px; font-weight: normal;">(${activeFilters.join(' • ')})</span>`;
+                    previewEl.style.color = toDelete.length > 0 ? 'var(--error)' : 'var(--text-muted)';
+                }
+            }
+        }
+
+        function openBulkDeleteHargaModal() {
+            updateHargaDropdowns();
+
+            const mainBulan = document.getElementById('filterBulan')?.value || '';
+            const mainRegional = document.getElementById('filterRegional')?.value || '';
+            const mainJenis = document.getElementById('filterJenis')?.value || '';
+            const mainPaket = document.getElementById('filterPaket')?.value || '';
+
+            const bBulan = document.getElementById('bulkDeleteBulan');
+            const bRegional = document.getElementById('bulkDeleteRegional');
+            const bJenis = document.getElementById('bulkDeleteJenis');
+            const bPaket = document.getElementById('bulkDeletePaket');
+
+            if (bBulan) bBulan.value = mainBulan;
+            if (bRegional) bRegional.value = mainRegional;
+            if (bJenis) bJenis.value = mainJenis;
+            if (bPaket) bPaket.value = mainPaket;
+
+            updateBulkDeletePreview();
+            document.getElementById('bulkDeleteHargaModal').classList.add('active');
+        }
+
+        async function executeBulkDeleteHarga() {
+            const bulan = document.getElementById('bulkDeleteBulan')?.value;
+            const regional = document.getElementById('bulkDeleteRegional')?.value;
+            const jenis = document.getElementById('bulkDeleteJenis')?.value;
+            const paket = document.getElementById('bulkDeletePaket')?.value;
+
+            const activeFilters = [];
+            if (bulan) activeFilters.push(`Bulan "${bulan}"`);
+            if (paket) activeFilters.push(`Paket "${paket}"`);
+            if (regional) activeFilters.push(`Regional "${regional}"`);
+            if (jenis) activeFilters.push(`Jenis "${jenis}"`);
+
+            if (activeFilters.length === 0) {
+                showToast('Pilih minimal 1 Bulan atau Paket yang ingin dihapus!', 'warning');
+                return;
+            }
+
+            const toDelete = state.hargaLayanan.filter(h => {
+                if (bulan && h.bulan !== bulan) return false;
+                if (regional && h.regional !== regional) return false;
+                if (jenis && h.jenisPelanggan !== jenis) return false;
+                if (paket && h.paket !== paket) return false;
+                return true;
+            });
+
+            if (toDelete.length === 0) {
+                showToast('Tidak ada data harga yang sesuai dengan filter yang dipilih!', 'warning');
+                return;
+            }
+
+            const filterSummary = activeFilters.join(' & ');
+            if (confirm(`Apakah Anda YAKIN ingin menghapus ${toDelete.length} data harga layanan untuk ${filterSummary}?\n\nTindakan ini tidak dapat dibatalkan.`)) {
+                const toDeleteIds = new Set(toDelete.map(h => h.id));
+                state.hargaLayanan = state.hargaLayanan.filter(h => !toDeleteIds.has(h.id));
+
+                saveAllData();
+                await syncToServer();
+                updateHargaDropdowns();
+                renderPricingTable();
+                document.getElementById('bulkDeleteHargaModal').classList.remove('active');
+                showToast(`Berhasil menghapus ${toDelete.length} data harga (${filterSummary})!`, 'success');
             }
         }
 
@@ -5170,6 +5378,23 @@
             if (deleteAllHargaBtn) {
                 deleteAllHargaBtn.addEventListener('click', () => deleteAllHarga());
             }
+            const deleteFilteredHargaBtn = document.getElementById('deleteFilteredHargaBtn');
+            if (deleteFilteredHargaBtn) {
+                deleteFilteredHargaBtn.addEventListener('click', deleteFilteredHarga);
+            }
+
+            document.getElementById('closeBulkDeleteHargaModal')?.addEventListener('click', () => {
+                document.getElementById('bulkDeleteHargaModal').classList.remove('active');
+            });
+            document.getElementById('cancelBulkDeleteHargaBtn')?.addEventListener('click', () => {
+                document.getElementById('bulkDeleteHargaModal').classList.remove('active');
+            });
+            document.getElementById('confirmBulkDeleteHargaBtn')?.addEventListener('click', executeBulkDeleteHarga);
+
+            document.getElementById('bulkDeleteBulan')?.addEventListener('change', updateBulkDeletePreview);
+            document.getElementById('bulkDeleteRegional')?.addEventListener('change', updateBulkDeletePreview);
+            document.getElementById('bulkDeleteJenis')?.addEventListener('change', updateBulkDeletePreview);
+            document.getElementById('bulkDeletePaket')?.addEventListener('change', updateBulkDeletePreview);
             document.getElementById('openLampiranModalBtn').addEventListener('click', () => {
                 renderLampiranList();
                 document.getElementById('lampiranModal').classList.add('active');
