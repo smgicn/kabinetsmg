@@ -343,28 +343,92 @@
         .header-cs-container {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            font-size: 12px;
+            gap: 16px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            justify-content: center;
+            font-size: 11px;
+            scrollbar-width: none;
+        }
+
+        .header-cs-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cs-scroll-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            margin: 0 10px;
+            min-width: 0;
+        }
+
+        .cs-scroll-btn {
+            background: var(--background-soft);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            user-select: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .cs-scroll-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .dark-mode .cs-scroll-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .dark-mode .cs-scroll-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
         }
 
         .cs-card-badge {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: var(--background-soft);
-            border: 1px solid var(--border);
-            padding: 6px 12px;
-            border-radius: var(--radius-lg, 12px);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            gap: 6px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .cs-card-badge:not(:last-child)::after {
+            content: "";
+            display: inline-block;
+            width: 1px;
+            height: 14px;
+            background: var(--border);
+            margin-left: 16px;
         }
 
         .cs-card-badge:hover {
-            border-color: var(--primary);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+            border-color: transparent;
+            transform: none;
+            box-shadow: none;
         }
 
         .cs-badge-title {
@@ -1620,6 +1684,11 @@
             /* font-size removed to match editor and inherit custom styles */
         }
 
+        /* Mobile Bottom Navigation Dock Styles */
+        .mobile-bottom-nav {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .navbar-menu {
                 position: fixed;
@@ -1657,7 +1726,7 @@
             }
 
             .content-card {
-                padding: 20px;
+                padding: 18px;
             }
 
             .content-header {
@@ -1668,9 +1737,123 @@
                 grid-template-columns: 1fr;
             }
 
+            /* Mobile Bottom Nav Dock */
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 60px;
+                background: rgba(255, 255, 255, 0.95);
+                border-top: 1px solid var(--border);
+                box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+                z-index: 999;
+                justify-content: space-around;
+                align-items: center;
+                padding: 0 4px;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+
+            .dark-mode .mobile-bottom-nav {
+                background: rgba(15, 23, 42, 0.95);
+                border-top-color: rgba(255, 255, 255, 0.1);
+            }
+
+            .mobile-bottom-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                flex: 1;
+                height: 100%;
+                background: none;
+                border: none;
+                color: var(--text-secondary);
+                font-size: 11px;
+                font-weight: 500;
+                cursor: pointer;
+                padding: 6px 0;
+                gap: 3px;
+                transition: color 0.2s ease, transform 0.15s ease;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .mobile-bottom-nav-item svg {
+                width: 20px;
+                height: 20px;
+                stroke: currentColor;
+                transition: transform 0.2s ease;
+            }
+
+            .mobile-bottom-nav-item.active {
+                color: var(--primary);
+                font-weight: 700;
+            }
+
+            .mobile-bottom-nav-item.active svg {
+                transform: translateY(-2px);
+            }
+
             .fab {
-                bottom: 16px;
+                bottom: 74px;
                 right: 16px;
+            }
+
+            .main-content {
+                padding-bottom: 75px;
+            }
+
+            /* Prevent iOS Safari auto-zoom on input focus */
+            input[type="text"],
+            input[type="password"],
+            input[type="search"],
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
+
+            /* CS Container touch momentum & snap */
+            .header-cs-container {
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+            }
+
+            .cs-card-badge {
+                scroll-snap-align: start;
+            }
+
+            /* Responsive Search Toggle Row */
+            #searchToggleRow {
+                flex-wrap: wrap !important;
+                gap: 10px !important;
+            }
+
+            #searchToggleRow > div {
+                min-width: 100% !important;
+            }
+
+            /* Responsive Table Containers */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin-bottom: 16px;
+                border-radius: var(--radius-md);
+            }
+
+            /* Responsive Modals on Handphones */
+            .modal {
+                width: 94% !important;
+                max-width: 94% !important;
+                max-height: 88vh !important;
+                margin: auto !important;
+                border-radius: 16px !important;
+                padding: 20px !important;
+            }
+
+            .modal-header h2 {
+                font-size: 18px !important;
             }
         }
 
@@ -1953,14 +2136,81 @@
                 </svg>
             </button>
             <div class="navbar-logo">KABINET</div>
-            <div class="navbar-menu" id="navbarMenu">
-                <button class="active" data-section="konten">Konten</button>
-                <button data-section="harga">Harga Layanan</button>
-                <button data-section="lampiran">Lampiran</button>
-                <button data-section="kritik">Kritik & Saran</button>
-            <button id="editAnnouncementBtn" class="btn btn-secondary" style="display:none;margin-left:12px;">Edit Pengumuman</button>
-</div>
+
+            <!-- CS Contact Badges (AT TOP with < > Scroll Controls) -->
+            <div class="cs-scroll-wrapper">
+                <button type="button" id="csScrollLeftBtn" class="cs-scroll-btn" title="Geser Kiri">‹</button>
+                <div class="header-cs-container" id="headerCsContainer" style="display: flex; gap: 14px; align-items: center; flex: 1; overflow-x: auto; scroll-behavior: smooth;">
+                    <div class="cs-card-badge iconnet-badge">
+                        <div class="cs-badge-title">
+                            <span class="cs-badge-dot pulse-green"></span>
+                            <strong>CS ICONNET</strong>
+                        </div>
+                        <div class="cs-badge-details">
+                            <a href="tel:150678" class="cs-link" title="Telepon CS ICONNET">
+                                <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                <span>Telepon: 150678</span>
+                            </a>
+                            <span class="cs-sep">|</span>
+                            <a href="https://wa.me/6281112002123" target="_blank" rel="noopener" class="cs-link cs-wa" title="Whatsapp CS ICONNET">
+                                <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                                <span>Whatsapp: 0811-1200-2123</span>
+                            </a>
+                            <span class="cs-sep">|</span>
+                            <a href="https://instagram.com/iconnet.here" target="_blank" rel="noopener" class="cs-link cs-ig" title="Instagram ICONNET">
+                                <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                                <span>Instagram: @iconnet.here</span>
+                            </a>
+                            <span class="cs-sep">|</span>
+                            <a href="mailto:cc.iconnet@iconpln.co.id" class="cs-link" title="E-mail CS ICONNET">
+                                <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                <span>E-mail: cc.iconnet@iconpln.co.id</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="cs-card-badge corporate-badge">
+                        <div class="cs-badge-title">
+                            <span class="cs-badge-dot pulse-blue"></span>
+                            <strong>CS Corporate</strong>
+                        </div>
+                        <div class="cs-badge-details">
+                            <a href="tel:1500071" class="cs-link" title="Telepon CS Corporate">
+                                <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                <span>Telepon: 1500071</span>
+                            </a>
+                            <span class="cs-sep">|</span>
+                            <a href="mailto:cs@iconpln.co.id" class="cs-link" title="Email CS Corporate">
+                                <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                <span>Email: cs@iconpln.co.id</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="cs-card-badge humas-badge">
+                        <div class="cs-badge-title">
+                            <span class="cs-badge-dot pulse-purple"></span>
+                            <strong>HUMAS</strong>
+                        </div>
+                        <div class="cs-badge-details">
+                            <a href="mailto:humas@iconpln.co.id" class="cs-link" title="Email HUMAS">
+                                <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                <span>Email: humas@iconpln.co.id</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="csScrollRightBtn" class="cs-scroll-btn" title="Geser Kanan">›</button>
+            </div>
+
             <div class="navbar-actions">
+                <button class="btn btn-secondary" id="editAnnouncementBtn" style="display:none; padding:8px 14px; font-size:13px; gap:6px;" title="Edit Pengumuman">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Edit Pengumuman
+                </button>
                 <button class="dark-mode-toggle" id="darkModeToggle" title="Dark Mode">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -1979,69 +2229,14 @@
                     </div>
                 </div>
 
-                <!-- Fixed Search Bar & CS Information -->
+                <!-- Fixed Search Bar & Navigation Menu (BELOW) -->
                 <div class="fixed-search-bar">
-                    <div class="fixed-search-layout" style="justify-content: flex-end;">
-                        <!-- CS Contact Badges -->
-                        <div class="header-cs-container" style="width: 100%; justify-content: space-between;">
-                            <div class="cs-card-badge iconnet-badge">
-                                <div class="cs-badge-title">
-                                    <span class="cs-badge-dot pulse-green"></span>
-                                    <strong>CS ICONNET</strong>
-                                </div>
-                                <div class="cs-badge-details">
-                                    <a href="tel:150678" class="cs-link" title="Telepon CS ICONNET">
-                                        <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                                        <span>Telepon: 150678</span>
-                                    </a>
-                                    <span class="cs-sep">|</span>
-                                    <a href="https://wa.me/6281112002123" target="_blank" rel="noopener" class="cs-link cs-wa" title="Whatsapp CS ICONNET">
-                                        <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                                        <span>Whatsapp: 0811-1200-2123</span>
-                                    </a>
-                                    <span class="cs-sep">|</span>
-                                    <a href="https://instagram.com/iconnet.here" target="_blank" rel="noopener" class="cs-link cs-ig" title="Instagram ICONNET">
-                                        <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                                        <span>Instagram: @iconnet.here</span>
-                                    </a>
-                                    <span class="cs-sep">|</span>
-                                    <a href="mailto:cc.iconnet@iconpln.co.id" class="cs-link" title="E-mail CS ICONNET">
-                                        <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                        <span>E-mail: cc.iconnet@iconpln.co.id</span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="cs-card-badge corporate-badge">
-                                <div class="cs-badge-title">
-                                    <span class="cs-badge-dot pulse-blue"></span>
-                                    <strong>CS Corporate</strong>
-                                </div>
-                                <div class="cs-badge-details">
-                                    <a href="tel:1500071" class="cs-link" title="Telepon CS Corporate">
-                                        <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                                        <span>Telepon: 1500071</span>
-                                    </a>
-                                    <span class="cs-sep">|</span>
-                                    <a href="mailto:cs@iconpln.co.id" class="cs-link" title="Email CS Corporate">
-                                        <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                        <span>Email: cs@iconpln.co.id</span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="cs-card-badge humas-badge">
-                                <div class="cs-badge-title">
-                                    <span class="cs-badge-dot pulse-purple"></span>
-                                    <strong>HUMAS</strong>
-                                </div>
-                                <div class="cs-badge-details">
-                                    <a href="mailto:humas@iconpln.co.id" class="cs-link" title="Email HUMAS">
-                                        <svg class="cs-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                        <span>Email: humas@iconpln.co.id</span>
-                                    </a>
-                                </div>
-                            </div>
+                    <div class="fixed-search-layout" style="justify-content: center;">
+                        <div class="navbar-menu" id="navbarMenu" style="display: flex; gap: 8px; justify-content: center; width: 100%; flex-wrap: wrap;">
+                            <button class="active" data-section="konten">Konten</button>
+                            <button data-section="harga">Harga Layanan</button>
+                            <button data-section="lampiran">Lampiran</button>
+                            <button data-section="kritik">Kritik & Saran</button>
                         </div>
                     </div>
                     <div id="searchNavHint" class="search-nav-hint" style="display: none;">
@@ -2107,6 +2302,21 @@
                 <div class="section-container">
                     <h2 class="section-title">Harga Layanan</h2>
 
+                    <!-- Note Banner Harga Layanan -->
+                    <div id="hargaNoteCard" class="harga-note-card" style="margin-bottom: 20px; padding: 14px 18px; border-radius: 12px; background: rgba(37, 99, 235, 0.06); border: 1px solid rgba(37, 99, 235, 0.2); display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; transition: all 0.3s ease;">
+                        <div style="display: flex; gap: 12px; align-items: flex-start; flex: 1;">
+                            <div class="note-icon-wrapper" style="font-size: 18px; line-height: 1.2; color: var(--primary); margin-top: 2px;">📌</div>
+                            <div id="hargaNoteDisplay" class="harga-note-text" style="font-size: 14px; line-height: 1.6; color: var(--text-primary); flex: 1;"></div>
+                        </div>
+                        <button id="editHargaNoteBtn" class="btn btn-secondary" style="display: none; padding: 6px 12px; font-size: 12px; white-space: nowrap; gap: 6px; align-items: center; border-radius: 8px; flex-shrink: 0;" title="Edit Catatan Harga Layanan">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            <span>Edit Catatan</span>
+                        </button>
+                    </div>
+
                     <!-- User Filter Dropdowns -->
                     <div id="userFilters" class="hidden"
                         style="margin-bottom: 24px; gap: 12px; flex-wrap: wrap; justify-content: center; display: flex;">
@@ -2153,6 +2363,13 @@
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
                             Tambah Harga
+                        </button>
+                        <button class="btn btn-secondary" id="openEditHargaNoteModalBtn" style="gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Edit Catatan
                         </button>
                         <button class="btn btn-secondary" id="openPasteModalBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -2247,6 +2464,38 @@
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
         </button>
+
+        <!-- Mobile Bottom Navigation Dock -->
+        <nav id="mobileBottomNav" class="mobile-bottom-nav">
+            <button type="button" class="mobile-bottom-nav-item active" data-section="konten">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <span>Konten</span>
+            </button>
+            <button type="button" class="mobile-bottom-nav-item" data-section="harga">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <span>Harga</span>
+            </button>
+            <button type="button" class="mobile-bottom-nav-item" data-section="lampiran">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
+                <span>Lampiran</span>
+            </button>
+            <button type="button" class="mobile-bottom-nav-item" data-section="kritik">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Kritik</span>
+            </button>
+        </nav>
     </div>
 
     <!-- Content Modal -->
@@ -2828,6 +3077,32 @@
         </div>
     </div>
 
+    <!-- Modal Edit Catatan Harga Layanan (Admin Only) -->
+    <div id="hargaNoteModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal" style="max-width: 550px;">
+            <div class="modal-header">
+                <h2>Edit Catatan Harga Layanan</h2>
+                <button class="modal-close" id="closeHargaNoteModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Isi Catatan / Note</label>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Catatan ini akan ditampilkan di atas tabel Harga Layanan untuk seluruh pengguna.</p>
+                    <textarea id="hargaNoteInput" class="form-textarea" style="min-height: 120px; width: 100%; padding: 12px; border-radius: 8px; font-family: inherit; font-size: 14px; border: 1px solid var(--border);" placeholder="Contoh: * Harga belum termasuk PPN 11% dan dapat berubah sewaktu-waktu..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelHargaNoteBtn">Batal</button>
+                <button type="button" class="btn btn-primary" id="saveHargaNoteBtn">Simpan Catatan</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Announcement Popup -->
     <div id="announcementOverlay" class="announcement-overlay" aria-hidden="true">
         <div class="announcement-card" role="dialog" aria-modal="true" aria-labelledby="announcementTitle">
@@ -2909,6 +3184,7 @@
             STORAGE_KEYS: {
                 contents: 'KB1_contents',
                 hargaLayanan: 'KB1_harga',
+                hargaNote: 'KB1_hargaNote',
                 feedbacks: 'KB1_feedbacks',
                 classifications: 'KB1_classifications',
                 quickLinks: 'KB1_quickLinks',
@@ -2948,7 +3224,8 @@
             feedbacks: [],
             classifications: ['INFO', 'KATEGORI', 'PROMO'],
             quickLinks: [],
-            lampiran: []
+            lampiran: [],
+            hargaNote: '* Catatan: Harga yang tertera dapat berubah sewaktu-waktu. Silakan hubungi Customer Service untuk konfirmasi promo berlaku.'
         };
 
         // ========================================
@@ -2963,6 +3240,7 @@
             classifications: [],
             quickLinks: [],
             lampiran: [],
+            hargaNote: '',
             updatedAt: null,
             pagination: { content: 1, harga: 1, feedback: 1 },
             filter: { active: 'all', bulan: '', regional: '', jenis: '', paket: '' },
@@ -3110,6 +3388,7 @@
                     if (docSnap.exists()) {
                         const serverData = docSnap.data();
                         state.hargaLayanan = serverData.hargaLayanan || [];
+                        state.hargaNote = serverData.hargaNote !== undefined ? serverData.hargaNote : (loadFromStorage(CONFIG.STORAGE_KEYS.hargaNote, SAMPLE_DATA.hargaNote));
                         state.classifications = serverData.classifications || SAMPLE_DATA.classifications;
                         state.quickLinks = serverData.quickLinks || [];
                         state.lampiran = serverData.lampiran || [];
@@ -3171,6 +3450,7 @@
             const data = {
                 // contents sekarang disimpan di collection 'contents' per dokumen
                 hargaLayanan: state.hargaLayanan,
+                hargaNote: state.hargaNote || '',
                 classifications: state.classifications,
                 quickLinks: state.quickLinks,
                 lampiran: state.lampiran,
@@ -3406,6 +3686,7 @@
             renderContentList();
             updateHargaDropdowns();
             renderPricingTable();
+            renderHargaNote();
             renderLampiranList();
             renderFeedbackList();
             updateSearchResultCount();
@@ -3427,7 +3708,9 @@
 
             if (updateMenu) {
                 document.querySelectorAll('.navbar-menu button').forEach(b => b.classList.remove('active'));
-                document.querySelector(`.navbar-menu button[data-section="${selectedSection}"]`).classList.add('active');
+                document.querySelector(`.navbar-menu button[data-section="${selectedSection}"]`)?.classList.add('active');
+                document.querySelectorAll('.mobile-bottom-nav-item').forEach(b => b.classList.remove('active'));
+                document.querySelector(`.mobile-bottom-nav-item[data-section="${selectedSection}"]`)?.classList.add('active');
                 localStorage.setItem(CONFIG.STORAGE_KEYS.activeSection, selectedSection);
             }
 
@@ -4075,6 +4358,69 @@
                 state.pagination.harga = page;
                 renderPricingTable();
             });
+        }
+
+        function renderHargaNote() {
+            const displayEl = document.getElementById('hargaNoteDisplay');
+            const editBtn = document.getElementById('editHargaNoteBtn');
+            const cardEl = document.getElementById('hargaNoteCard');
+
+            if (!displayEl) return;
+
+            const noteText = state.hargaNote !== undefined && state.hargaNote !== null ? state.hargaNote : (SAMPLE_DATA.hargaNote || '');
+
+            let formattedText = noteText;
+            if (noteText && !noteText.includes('<p>') && !noteText.includes('<div>')) {
+                formattedText = noteText.replace(/\n/g, '<br>');
+            }
+
+            displayEl.innerHTML = formattedText || '<em style="color: var(--text-muted);">Belum ada catatan harga layanan.</em>';
+
+            if (editBtn) {
+                if (state.role === 'admin') {
+                    editBtn.style.setProperty('display', 'inline-flex', 'important');
+                } else {
+                    editBtn.style.setProperty('display', 'none', 'important');
+                }
+            }
+
+            if (cardEl) {
+                if (!noteText && state.role !== 'admin') {
+                    cardEl.style.display = 'none';
+                } else {
+                    cardEl.style.display = 'flex';
+                }
+            }
+        }
+
+        function openHargaNoteModal() {
+            const inputEl = document.getElementById('hargaNoteInput');
+            if (inputEl) {
+                inputEl.value = state.hargaNote !== undefined && state.hargaNote !== null ? state.hargaNote : (SAMPLE_DATA.hargaNote || '');
+            }
+            const modal = document.getElementById('hargaNoteModal');
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+
+        async function saveHargaNote() {
+            const inputEl = document.getElementById('hargaNoteInput');
+            if (!inputEl) return;
+
+            const newNote = inputEl.value.trim();
+            state.hargaNote = newNote;
+
+            saveToStorage(CONFIG.STORAGE_KEYS.hargaNote, state.hargaNote);
+            await syncToServer();
+            renderHargaNote();
+
+            const modal = document.getElementById('hargaNoteModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+
+            showToast('Catatan Harga Layanan berhasil disimpan!', 'success');
         }
 
         function sortPricing(column) {
@@ -5092,6 +5438,13 @@
                 });
             });
 
+            // Mobile bottom nav
+            document.querySelectorAll('.mobile-bottom-nav-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    navigateToSection(btn.dataset.section);
+                });
+            });
+
             // Search
             document.getElementById('contentSearch').addEventListener('input', searchContent);
             document.getElementById('contentSearch').addEventListener('keypress', (e) => {
@@ -5171,7 +5524,14 @@
                 renderLampiranList();
                 document.getElementById('lampiranModal').classList.add('active');
             });
-            document.getElementById('recoverDataBtn').addEventListener('click', recoverLostData);
+            // CS Scroll buttons (< >)
+            const csContainer = document.getElementById('headerCsContainer');
+            document.getElementById('csScrollLeftBtn')?.addEventListener('click', () => {
+                if (csContainer) csContainer.scrollBy({ left: -220, behavior: 'smooth' });
+            });
+            document.getElementById('csScrollRightBtn')?.addEventListener('click', () => {
+                if (csContainer) csContainer.scrollBy({ left: 220, behavior: 'smooth' });
+            });
 
             // Feedback FAB
             document.getElementById('feedbackFab').addEventListener('click', () => {
@@ -5199,6 +5559,7 @@
             // Modal save buttons
             document.getElementById('saveContentBtn').addEventListener('click', saveContent);
             document.getElementById('saveHargaBtn').addEventListener('click', saveHarga);
+            document.getElementById('saveHargaNoteBtn').addEventListener('click', saveHargaNote);
             document.getElementById('saveFeedbackBtn').addEventListener('click', saveFeedback);
             document.getElementById('saveLampiranBtn').addEventListener('click', saveLampiran);
             document.getElementById('saveReplyBtn').addEventListener('click', saveReply);
@@ -5206,6 +5567,12 @@
             document.getElementById('addQuickLinkBtn').addEventListener('click', addQuickLink);
             document.getElementById('previewParsedBtn').addEventListener('click', previewParsedData);
             document.getElementById('importParsedBtn').addEventListener('click', importParsedData);
+
+            // Edit Harga Note buttons
+            document.getElementById('editHargaNoteBtn')?.addEventListener('click', openHargaNoteModal);
+            document.getElementById('openEditHargaNoteModalBtn')?.addEventListener('click', openHargaNoteModal);
+            document.getElementById('closeHargaNoteModal')?.addEventListener('click', () => document.getElementById('hargaNoteModal').classList.remove('active'));
+            document.getElementById('cancelHargaNoteBtn')?.addEventListener('click', () => document.getElementById('hargaNoteModal').classList.remove('active'));
 
             // Add link button
             document.getElementById('addLinkBtn').addEventListener('click', () => addLinkField());
