@@ -254,10 +254,22 @@
             transition: var(--transition);
         }
 
+        .navbar-brand-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 2px;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
         .navbar-logo {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 800;
             color: var(--primary);
+            line-height: 1;
+            letter-spacing: -0.5px;
         }
 
         .sticky-header-wrapper {
@@ -636,6 +648,30 @@
             border-color: var(--primary);
             background: var(--primary-light);
             box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+        }
+
+        /* Timer badge inside navbar (below logo) — compact & minimal */
+        .navbar-brand-wrapper .nav-timer-badge {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            gap: 5px;
+            font-size: 11px;
+        }
+
+        .navbar-brand-wrapper .nav-timer-badge:hover {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        .navbar-brand-wrapper .timer-clock {
+            font-size: 12px;
+        }
+
+        .navbar-brand-wrapper .timer-date {
+            font-size: 11px;
         }
 
         .timer-live-dot {
@@ -2396,7 +2432,16 @@
                     <line x1="3" y1="18" x2="21" y2="18"></line>
                 </svg>
             </button>
-            <div class="navbar-logo">KABINET</div>
+            <div class="navbar-brand-wrapper">
+                <div class="navbar-logo">KABINET</div>
+                <div class="nav-timer-badge" id="navTimerBadge" title="Waktu Akurat Real-time (Time.is) - Klik untuk salin waktu">
+                    <span class="timer-live-dot pulse-green"></span>
+                    <span class="timer-clock" id="navTimerClock">00:00:00</span>
+                    <span class="timer-zone" id="navTimerZone">WIB</span>
+                    <span class="timer-sep">•</span>
+                    <span class="timer-date" id="navTimerDate">Memuat waktu...</span>
+                </div>
+            </div>
             
             <!-- CS Contact Badges (AT TOP with < > Scroll Controls) -->
             <div class="cs-scroll-wrapper">
@@ -2498,13 +2543,6 @@
                             <button data-section="harga">Harga Layanan</button>
                             <button data-section="lampiran">Lampiran</button>
                             <button data-section="kritik">Kritik & Saran</button>
-                        </div>
-                        <div class="nav-timer-badge" id="navTimerBadge" title="Waktu Akurat Real-time (Time.is) - Klik untuk salin waktu">
-                            <span class="timer-live-dot pulse-green"></span>
-                            <span class="timer-clock" id="navTimerClock">00:00:00</span>
-                            <span class="timer-zone" id="navTimerZone">WIB</span>
-                            <span class="timer-sep">•</span>
-                            <span class="timer-date" id="navTimerDate">Memuat waktu...</span>
                         </div>
                     </div>
                     <div id="searchNavHint" class="search-nav-hint" style="display: none;">
