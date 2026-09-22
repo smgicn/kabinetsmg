@@ -253,22 +253,10 @@
             transition: var(--transition);
         }
 
-        .navbar-brand-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            gap: 2px;
-            flex-shrink: 0;
-            user-select: none;
-        }
-
         .navbar-logo {
-            font-size: 20px;
-            font-weight: 800;
+            font-size: 24px;
+            font-weight: 700;
             color: var(--primary);
-            line-height: 1;
-            letter-spacing: -0.5px;
         }
 
         .sticky-header-wrapper {
@@ -298,11 +286,30 @@
         }
 
         .fixed-search-layout {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            width: 100%;
+            gap: 16px;
+        }
+
+        .fixed-search-left {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .fixed-search-layout .navbar-menu {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fixed-search-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
         }
 
         .fixed-search-container {
@@ -658,30 +665,6 @@
             border-color: var(--primary);
             background: var(--primary-light);
             box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
-        }
-
-        /* Timer badge inside navbar (below logo) — compact & minimal */
-        .navbar-brand-wrapper .nav-timer-badge {
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            padding: 0;
-            gap: 5px;
-            font-size: 11px;
-        }
-
-        .navbar-brand-wrapper .nav-timer-badge:hover {
-            background: transparent;
-            border: none;
-            box-shadow: none;
-        }
-
-        .navbar-brand-wrapper .timer-clock {
-            font-size: 12px;
-        }
-
-        .navbar-brand-wrapper .timer-date {
-            font-size: 11px;
         }
 
         .timer-live-dot {
@@ -1962,6 +1945,22 @@
                 padding: 6px 12px;
             }
 
+            .fixed-search-layout {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .fixed-search-left {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .fixed-search-right {
+                display: none;
+            }
+
             .nav-timer-badge {
                 padding: 4px 10px;
                 font-size: 11px;
@@ -2269,16 +2268,7 @@
                     <line x1="3" y1="18" x2="21" y2="18"></line>
                 </svg>
             </button>
-            <div class="navbar-brand-wrapper">
-                <div class="navbar-logo">KABINET</div>
-                <div class="nav-timer-badge" id="navTimerBadge" title="Waktu Akurat Real-time (Time.is) - Klik untuk salin waktu">
-                    <span class="timer-live-dot pulse-green"></span>
-                    <span class="timer-clock" id="navTimerClock">00:00:00</span>
-                    <span class="timer-zone" id="navTimerZone">WIB</span>
-                    <span class="timer-sep">•</span>
-                    <span class="timer-date" id="navTimerDate">Memuat waktu...</span>
-                </div>
-            </div>
+            <div class="navbar-logo">KABINET</div>
 
             <!-- CS Contact Badges (AT TOP with < > Scroll Controls) -->
             <div class="cs-scroll-wrapper">
@@ -2370,13 +2360,28 @@
 
                 <!-- Fixed Search Bar & Navigation Menu (BELOW) -->
                 <div class="fixed-search-bar">
-                    <div class="fixed-search-layout" style="display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;">
-                        <div class="navbar-menu" id="navbarMenu" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; align-items: center;">
+                    <div class="fixed-search-layout">
+                        <!-- Posisi Jam Digital di kolom logo KABINET -->
+                        <div class="fixed-search-left">
+                            <div class="nav-timer-badge" id="navTimerBadge" title="Waktu Akurat Real-time (Time.is) - Klik untuk salin waktu">
+                                <span class="timer-live-dot pulse-green"></span>
+                                <span class="timer-clock" id="navTimerClock">00:00:00</span>
+                                <span class="timer-zone" id="navTimerZone">WIB</span>
+                                <span class="timer-sep">•</span>
+                                <span class="timer-date" id="navTimerDate">Memuat waktu...</span>
+                            </div>
+                        </div>
+
+                        <!-- Menu Navigator sejajar di tengah -->
+                        <div class="navbar-menu" id="navbarMenu">
                             <button class="active" data-section="konten">Konten</button>
                             <button data-section="harga">Harga Layanan</button>
                             <button data-section="lampiran">Lampiran</button>
-                            <button data-section="kritik">Kritik & Saran</button>
+                            <button data-section="kritik">Kritik &amp; Saran</button>
                         </div>
+
+                        <!-- Penyeimbang kanan agar menu tetap presisi di tengah -->
+                        <div class="fixed-search-right" aria-hidden="true"></div>
                     </div>
                     <div id="searchNavHint" class="search-nav-hint" style="display: none;">
                         Tekan <kbd>Enter</kbd> untuk ke hasil berikutnya
