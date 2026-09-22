@@ -614,6 +614,86 @@
             color: var(--primary);
         }
 
+        /* Time.is Style Navigator Timer Badge */
+        .nav-timer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--background-soft);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm, 8px);
+            padding: 6px 14px;
+            font-size: 13px;
+            color: var(--text-primary);
+            font-family: inherit;
+            user-select: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+        }
+
+        .nav-timer-badge:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+        }
+
+        .timer-live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .timer-clock {
+            font-weight: 700;
+            font-family: 'SF Mono', 'Roboto Mono', 'Cascadia Code', 'Courier New', monospace;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .dark-mode .timer-clock {
+            color: #f8fafc;
+        }
+
+        .timer-zone {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 5px;
+            background: rgba(37, 99, 235, 0.12);
+            color: var(--primary);
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+        }
+
+        .dark-mode .timer-zone {
+            background: rgba(59, 130, 246, 0.25);
+            color: #93c5fd;
+        }
+
+        .timer-sep {
+            color: var(--text-muted);
+            font-size: 11px;
+            opacity: 0.6;
+        }
+
+        .timer-date {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .dark-mode .nav-timer-badge {
+            background: rgba(30, 41, 59, 0.85);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
         .navbar-actions {
             display: flex;
             align-items: center;
@@ -2037,6 +2117,24 @@
                 border-radius: var(--radius-md);
             }
 
+            .fixed-search-bar {
+                padding: 6px 12px;
+            }
+
+            .nav-timer-badge {
+                padding: 4px 10px;
+                font-size: 11px;
+                gap: 6px;
+            }
+
+            .nav-timer-badge .timer-clock {
+                font-size: 12px;
+            }
+
+            .nav-timer-badge .timer-date {
+                font-size: 11px;
+            }
+
             /* Responsive Modals on Handphones */
             .modal {
                 width: 94% !important;
@@ -2394,12 +2492,19 @@
 
                 <!-- Fixed Search Bar & Navigation Menu (BELOW) -->
                 <div class="fixed-search-bar">
-                    <div class="fixed-search-layout" style="justify-content: center;">
-                        <div class="navbar-menu" id="navbarMenu" style="display: flex; gap: 8px; justify-content: center; width: 100%; flex-wrap: wrap;">
+                    <div class="fixed-search-layout" style="display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;">
+                        <div class="navbar-menu" id="navbarMenu" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; align-items: center;">
                             <button class="active" data-section="konten">Konten</button>
                             <button data-section="harga">Harga Layanan</button>
                             <button data-section="lampiran">Lampiran</button>
                             <button data-section="kritik">Kritik & Saran</button>
+                        </div>
+                        <div class="nav-timer-badge" id="navTimerBadge" title="Waktu Akurat Real-time (Time.is) - Klik untuk salin waktu">
+                            <span class="timer-live-dot pulse-green"></span>
+                            <span class="timer-clock" id="navTimerClock">00:00:00</span>
+                            <span class="timer-zone" id="navTimerZone">WIB</span>
+                            <span class="timer-sep">•</span>
+                            <span class="timer-date" id="navTimerDate">Memuat waktu...</span>
                         </div>
                     </div>
                     <div id="searchNavHint" class="search-nav-hint" style="display: none;">
@@ -3868,6 +3973,102 @@
             renderLampiranList();
             renderFeedbackList();
             updateSearchResultCount();
+        }
+
+        // ========================================
+        // MODULE: Real-time Clock (Time.is Style)
+        // ========================================
+        let serverTimeOffset = 0;
+
+        function updateNavTimer() {
+            const clockEl = document.getElementById('navTimerClock');
+            const zoneEl = document.getElementById('navTimerZone');
+            const dateEl = document.getElementById('navTimerDate');
+            if (!clockEl) return;
+
+            const now = new Date(Date.now() + serverTimeOffset);
+
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            clockEl.textContent = `${h}:${m}:${s}`;
+
+            if (zoneEl) {
+                const offset = -now.getTimezoneOffset() / 60;
+                let tz = 'WIB';
+                if (offset === 8) tz = 'WITA';
+                else if (offset === 9) tz = 'WIT';
+                else if (offset !== 7) {
+                    try {
+                        const timeZoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        tz = (timeZoneName.includes('Jakarta') || timeZoneName.includes('Bangkok')) ? 'WIB' : (offset >= 0 ? `UTC+${offset}` : `UTC${offset}`);
+                    } catch (e) {
+                        tz = 'WIB';
+                    }
+                }
+                zoneEl.textContent = tz;
+            }
+
+            if (dateEl) {
+                const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                const dayName = days[now.getDay()];
+                const dayNum = now.getDate();
+                const monthName = months[now.getMonth()];
+                const year = now.getFullYear();
+                dateEl.textContent = `${dayName}, ${dayNum} ${monthName} ${year}`;
+            }
+        }
+
+        function initNavTimer() {
+            updateNavTimer();
+
+            // Drift-free precision tick aligned with millisecond boundary
+            function tick() {
+                updateNavTimer();
+                const now = Date.now();
+                const delay = 1000 - (now % 1000);
+                setTimeout(tick, delay);
+            }
+            const initialDelay = 1000 - (Date.now() % 1000);
+            setTimeout(tick, initialDelay);
+
+            // Sync with HTTP server time header (Time.is precision)
+            try {
+                const start = Date.now();
+                fetch(window.location.href, { method: 'HEAD', cache: 'no-store' })
+                    .then(resp => {
+                        const dateHeader = resp.headers.get('date');
+                        if (dateHeader) {
+                            const end = Date.now();
+                            const latency = (end - start) / 2;
+                            const serverDate = new Date(dateHeader).getTime() + latency;
+                            serverTimeOffset = serverDate - end;
+                            updateNavTimer();
+                        }
+                    })
+                    .catch(() => {});
+            } catch (e) {}
+
+            // Click badge to copy timestamp
+            const badge = document.getElementById('navTimerBadge');
+            if (badge) {
+                badge.addEventListener('click', () => {
+                    const clock = document.getElementById('navTimerClock')?.textContent || '';
+                    const zone = document.getElementById('navTimerZone')?.textContent || '';
+                    const date = document.getElementById('navTimerDate')?.textContent || '';
+                    const fullTimeStr = `${date} ${clock} ${zone}`;
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(fullTimeStr).then(() => {
+                            showToast(`Waktu disalin: ${fullTimeStr}`, 'info');
+                        }).catch(() => {
+                            showToast(fullTimeStr, 'info');
+                        });
+                    } else {
+                        showToast(fullTimeStr, 'info');
+                    }
+                });
+            }
         }
 
         // ========================================
@@ -6216,6 +6417,9 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // Attach all event handlers
             attachEventHandlers();
+
+            // Initialize Real-time Navigator Clock (Time.is)
+            initNavTimer();
 
             // Cek Session User biasa (tanpa Firebase)
             let session = localStorage.getItem(CONFIG.STORAGE_KEYS.session) || sessionStorage.getItem(CONFIG.STORAGE_KEYS.session);
