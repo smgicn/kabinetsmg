@@ -194,6 +194,16 @@ Font Family: 'Poppins', 'Inter', sans-serif
 - Text color
 - Hyperlink insertion
 
+### Hot Case Menu
+
+**Functionality:**
+- Navigation Menu: Accessible via desktop navbar and mobile bottom nav dock
+- Auto Sync with Pinned Content: Pinned cards in "Konten" automatically appear in "Hot Case" as well
+- Unpinning removes the card from "Hot Case" while keeping it in "Konten"
+- Real-time notification badge showing number of active pinned items
+- Dedicated live search bar and pagination for Hot Case cards
+- Supports full card actions: expandable details, external links, and admin CRUD controls
+
 ### Pricing Menu
 
 **Structure:**

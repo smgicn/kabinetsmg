@@ -643,6 +643,43 @@
             color: var(--primary);
         }
 
+        /* Hot Case Navigation Badges */
+        .nav-hotcase-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            margin-left: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1;
+            color: #ffffff;
+            background-color: #ef4444;
+            border-radius: 10px;
+            vertical-align: middle;
+        }
+
+        .mobile-hotcase-badge {
+            position: absolute;
+            top: 4px;
+            right: calc(50% - 18px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: #ef4444;
+            border-radius: 8px;
+            line-height: 1;
+            border: 2px solid var(--background);
+        }
+
         /* Time.is Style Navigator Timer Badge */
         .nav-timer-badge {
             display: inline-flex;
@@ -2375,6 +2412,7 @@
                         <!-- Menu Navigator sejajar di tengah -->
                         <div class="navbar-menu" id="navbarMenu">
                             <button class="active" data-section="konten">Konten</button>
+                            <button data-section="hotcase">Hot Case <span id="hotCaseNavBadge" class="nav-hotcase-badge" style="display:none;">0</span></button>
                             <button data-section="harga">Harga Layanan</button>
                             <button data-section="lampiran">Lampiran</button>
                             <button data-section="kritik">Kritik &amp; Saran</button>
@@ -2438,6 +2476,37 @@
 
                     <!-- Pagination -->
                     <div id="contentPagination" class="pagination"></div>
+                </div>
+            </section>
+
+            <!-- Hot Case Section -->
+            <section id="hotcaseSection" class="hidden">
+                <div class="section-container">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h2 class="section-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #ef4444;">🔥</span> Hot Case
+                            </h2>
+                            <p style="color: var(--text-secondary); font-size: 14px; margin: 0;">Daftar konten penting yang disematkan (Pinned Content)</p>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar for Hot Case -->
+                    <div class="card-search-wrapper" style="margin-bottom: 20px;">
+                        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" class="search-bar" id="hotCaseSearch" placeholder="Cari di Hot Case..." style="padding-right: 75px; font-size: 14px;">
+                        <button type="button" id="clearHotCaseSearchBtn" style="position: absolute; right: 48px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 16px; cursor: pointer; color: var(--text-muted); display: none;" title="Hapus pencarian">✕</button>
+                        <span id="hotCaseSearchResultCount" class="search-result-count"></span>
+                    </div>
+
+                    <!-- Hot Case Card List -->
+                    <div id="hotCaseList" class="content-list"></div>
+
+                    <!-- Hot Case Pagination -->
+                    <div id="hotCasePagination" class="pagination"></div>
                 </div>
             </section>
 
@@ -2619,6 +2688,13 @@
                     <line x1="16" y1="17" x2="8" y2="17"></line>
                 </svg>
                 <span>Konten</span>
+            </button>
+            <button type="button" class="mobile-bottom-nav-item" data-section="hotcase" style="position: relative;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+                </svg>
+                <span>Hot Case</span>
+                <span id="hotCaseMobileBadge" class="mobile-hotcase-badge" style="display:none;">0</span>
             </button>
             <button type="button" class="mobile-bottom-nav-item" data-section="harga">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3386,7 +3462,7 @@
             lampiran: [],
             hargaNote: '',
             updatedAt: null,
-            pagination: { content: 1, harga: 1, feedback: 1 },
+            pagination: { content: 1, hotcase: 1, harga: 1, feedback: 1 },
             filter: { active: 'all', bulan: '', regional: '', jenis: '', paket: '' },
             sorting: { column: null, asc: true },
             search: { term: '', currentMatch: -1 },
@@ -3397,6 +3473,13 @@
         // ========================================
         // MODULE: Utility Functions
         // ========================================
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -3580,6 +3663,8 @@
 
                     if (document.getElementById('mainPage').classList.contains('active')) {
                         renderContentList();
+                        renderHotCaseList();
+                        updateHotCaseBadge();
                     }
                     contentsLoaded = true;
                     checkDone();
@@ -3828,6 +3913,8 @@
             updateFilterPills();
             renderQuickLinks();
             renderContentList();
+            renderHotCaseList();
+            updateHotCaseBadge();
             updateHargaDropdowns();
             renderPricingTable();
             renderHargaNote();
@@ -3936,10 +4023,12 @@
         // MODULE: Navigation
         // ========================================
         function showSection(section, updateMenu = true) {
-            const validSections = ['konten', 'harga', 'lampiran', 'kritik'];
+            const validSections = ['konten', 'hotcase', 'harga', 'lampiran', 'kritik'];
             const selectedSection = validSections.includes(section) ? section : 'konten';
 
             document.getElementById('kontenSection').classList.add('hidden');
+            const hotCaseEl = document.getElementById('hotcaseSection');
+            if (hotCaseEl) hotCaseEl.classList.add('hidden');
             document.getElementById('hargaSection').classList.add('hidden');
             document.getElementById('lampiranSection').classList.add('hidden');
             document.getElementById('kritikSection').classList.add('hidden');
@@ -3954,7 +4043,11 @@
                 localStorage.setItem(CONFIG.STORAGE_KEYS.activeSection, selectedSection);
             }
 
-            if (selectedSection === 'harga') {
+            if (selectedSection === 'konten') {
+                renderContentList();
+            } else if (selectedSection === 'hotcase') {
+                renderHotCaseList();
+            } else if (selectedSection === 'harga') {
                 if (state.role === 'admin') {
                     document.getElementById('hargaAdminControls').style.display = 'flex';
                 } else {
@@ -3970,7 +4063,7 @@
 
         function getSectionFromHash() {
             const hash = window.location.hash.replace('#', '');
-            return ['konten', 'harga', 'lampiran', 'kritik'].includes(hash) ? hash : null;
+            return ['konten', 'hotcase', 'harga', 'lampiran', 'kritik'].includes(hash) ? hash : null;
         }
 
         function navigateToSection(section) {
@@ -4129,6 +4222,62 @@
             return 4;
         }
 
+        function generateContentCardHtml(content, searchTerm = '', isSearchMatch = false) {
+            const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const searchRegex = searchTerm ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
+            const highlightClass = isSearchMatch ? 'search-active' : 'search-highlight';
+
+            const highlightText = (text) => {
+                if (!text || !searchRegex) return text || '';
+                return text.replace(searchRegex, `<span class="${highlightClass}">$1</span>`);
+            };
+
+            const highlightedTitle = highlightText(content.title);
+            const highlightedSubject = highlightText(content.subject);
+            const highlightedContent = highlightText(content.content);
+
+            const materi = content.materi || 'semua';
+            const materiClass = materi === 'outbound' ? 'materi-outbound' : materi === 'back_office' ? 'materi-backoffice' : 'materi-semua';
+            const materiLabel = materi === 'outbound' ? 'Outbound' : materi === 'back_office' ? 'Back Office' : 'Untuk Semua';
+
+            const isTidakBerlaku = content.status === 'tidak_berlaku' || content.status === 'tidak-berlaku';
+            const statusClass = isTidakBerlaku ? 'status-tidak-berlaku' : '';
+
+            return `
+            <div class="content-card ${materiClass} ${content.pinned ? 'pinned' : ''} ${statusClass}" data-id="${content.id}">
+                 <div class="content-header">
+                     <div class="content-title">${highlightedTitle}</div>
+                     <div class="content-meta">
+                         <span class="content-date">${formatDate(content.date)}</span>
+                         <span class="content-materi-tag ${materiClass}">${materiLabel}</span>
+                          ${content.status ? `<span class="content-status ${isTidakBerlaku ? 'tidak-berlaku' : 'berlaku'}">${isTidakBerlaku ? 'Tidak Berlaku' : 'Berlaku'}</span>` : ''}
+                          ${content.pinned ? `<span class="content-pin-badge" style="display:inline-flex; align-items:center; gap:3px; background:rgba(239, 68, 68, 0.08); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.2); border-radius:20px; padding:1px 8px; font-size:11px; font-weight:600;">🔥 Hot Case</span>` : ''}
+                     </div>
+                 </div>
+                <div class="content-subject">${highlightedSubject}</div>
+                <div class="content-actions">
+                    ${content.content && content.content.trim() ? `<button class="btn btn-selengkapnya" data-toggle-details="${content.id}">Selengkapnya</button>` : ''}
+                    ${content.externalLinks && content.externalLinks.length > 0 ? content.externalLinks.map((link, linkIdx) => {
+                        const linkClasses = ['btn-link-kuning', 'btn-link-hijau', 'btn-link-biru', 'btn-link-ungu'];
+                        const colorClass = linkClasses[Math.min(linkIdx, linkClasses.length - 1)];
+                        return `<a href="${link.url}" target="_blank" class="btn ${colorClass}">${link.name}</a>`;
+                    }).join('') : ''}
+                     ${state.role === 'admin' ? `
+                         <button class="btn btn-secondary" data-pin-content="${content.id}">${content.pinned ? 'Unpin' : 'Pin'}</button>
+                         <button class="btn btn-secondary" data-duplicate-content="${content.id}">Duplikat</button>
+                         <button class="btn btn-secondary" data-edit-content="${content.id}">Edit</button>
+                         <button class="btn btn-danger" data-delete-content="${content.id}">Hapus</button>
+                     ` : ''}
+                </div>
+                ${content.content && content.content.trim() ? `
+                <div class="content-details" id="contentDetails${content.id}">
+                    <div class="content-text">${highlightedContent}</div>
+                </div>
+                ` : ''}
+            </div>
+            `;
+        }
+
         function renderContentList() {
             const searchTerm = document.getElementById('contentSearch').value.trim();
             const lowerSearch = searchTerm.toLowerCase();
@@ -4180,60 +4329,8 @@
                 container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Tidak ada konten</div>';
             } else {
                 container.innerHTML = paginated.map((content, i) => {
-                    const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const searchRegex = searchTerm ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
-
                     const isActive = searchTerm && (start + i) === state.search.currentMatch;
-                    const highlightClass = isActive ? 'search-active' : 'search-highlight';
-
-                    const highlightText = (text) => {
-                        if (!text || !searchRegex) return text || '';
-                        return text.replace(searchRegex, `<span class="${highlightClass}">$1</span>`);
-                    };
-
-                    const highlightedTitle = highlightText(content.title);
-                    const highlightedSubject = highlightText(content.subject);
-                    const highlightedContent = highlightText(content.content);
-
-                    const materi = content.materi || 'semua';
-                    const materiClass = materi === 'outbound' ? 'materi-outbound' : materi === 'back_office' ? 'materi-backoffice' : 'materi-semua';
-                    const materiLabel = materi === 'outbound' ? 'Outbound' : materi === 'back_office' ? 'Back Office' : 'Untuk Semua';
-
-                    const isTidakBerlaku = content.status === 'tidak_berlaku' || content.status === 'tidak-berlaku';
-                    const statusClass = isTidakBerlaku ? 'status-tidak-berlaku' : '';
-
-                    return `
-                    <div class="content-card ${materiClass} ${content.pinned ? 'pinned' : ''} ${statusClass}" data-id="${content.id}">
-                         <div class="content-header">
-                             <div class="content-title">${highlightedTitle}</div>
-                             <div class="content-meta">
-                                 <span class="content-date">${formatDate(content.date)}</span>
-                                 <span class="content-materi-tag ${materiClass}">${materiLabel}</span>
-                                  ${content.status ? `<span class="content-status ${isTidakBerlaku ? 'tidak-berlaku' : 'berlaku'}">${isTidakBerlaku ? 'Tidak Berlaku' : 'Berlaku'}</span>` : ''}
-                             </div>
-                         </div>
-                        <div class="content-subject">${highlightedSubject}</div>
-                        <div class="content-actions">
-                            ${content.content && content.content.trim() ? `<button class="btn btn-selengkapnya" data-toggle-details="${content.id}">Selengkapnya</button>` : ''}
-                            ${content.externalLinks && content.externalLinks.length > 0 ? content.externalLinks.map((link, linkIdx) => {
-                        const linkClasses = ['btn-link-kuning', 'btn-link-hijau', 'btn-link-biru', 'btn-link-ungu'];
-                        const colorClass = linkClasses[Math.min(linkIdx, linkClasses.length - 1)];
-                        return `<a href="${link.url}" target="_blank" class="btn ${colorClass}">${link.name}</a>`;
-                    }).join('') : ''}
-                             ${state.role === 'admin' ? `
-                                 <button class="btn btn-secondary" data-pin-content="${content.id}">${content.pinned ? 'Unpin' : 'Pin'}</button>
-                                 <button class="btn btn-secondary" data-duplicate-content="${content.id}">Duplikat</button>
-                                 <button class="btn btn-secondary" data-edit-content="${content.id}">Edit</button>
-                                 <button class="btn btn-danger" data-delete-content="${content.id}">Hapus</button>
-                             ` : ''}
-                        </div>
-                        ${content.content && content.content.trim() ? `
-                        <div class="content-details" id="contentDetails${content.id}">
-                            <div class="content-text">${highlightedContent}</div>
-                        </div>
-                        ` : ''}
-                    </div>
-                `;
+                    return generateContentCardHtml(content, searchTerm, isActive);
                 }).join('');
             }
 
@@ -4241,6 +4338,116 @@
                 state.pagination.content = page;
                 renderContentList();
             });
+        }
+
+        function renderHotCaseList() {
+            const searchInput = document.getElementById('hotCaseSearch');
+            const searchTerm = (searchInput ? searchInput.value : '').trim();
+            const lowerSearch = searchTerm.toLowerCase();
+
+            // Hot Case menampilkan hanya konten yang di-pin
+            const pinned = state.contents.filter(c => c.pinned === true);
+
+            let filtered = pinned.filter(c => {
+                if (!searchTerm) return true;
+                c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                return c._plainText.includes(lowerSearch);
+            });
+
+            const countEl = document.getElementById('hotCaseSearchResultCount');
+            if (countEl) {
+                if (searchTerm) {
+                    countEl.textContent = `${filtered.length} dari ${pinned.length} Hot Case`;
+                } else {
+                    countEl.textContent = `${pinned.length} Hot Case`;
+                }
+            }
+
+            const clearBtn = document.getElementById('clearHotCaseSearchBtn');
+            if (clearBtn) {
+                clearBtn.style.display = searchTerm ? 'block' : 'none';
+            }
+
+            filtered.sort((a, b) => {
+                const aStatus = (a.status === 'tidak_berlaku' || a.status === 'tidak-berlaku') ? 1 : 0;
+                const bStatus = (b.status === 'tidak_berlaku' || b.status === 'tidak-berlaku') ? 1 : 0;
+
+                if (aStatus !== bStatus) {
+                    return aStatus - bStatus;
+                }
+
+                if (lowerSearch) {
+                    const aRank = getSearchMatchRank(a, lowerSearch);
+                    const bRank = getSearchMatchRank(b, lowerSearch);
+                    if (aRank !== bRank) {
+                        return aRank - bRank;
+                    }
+                }
+
+                return (a.title || '').localeCompare(b.title || '', 'id', { numeric: true, sensitivity: 'base' });
+            });
+
+            const totalPages = Math.ceil(filtered.length / CONFIG.ITEMS_PER_PAGE);
+            if (!state.pagination.hotcase) state.pagination.hotcase = 1;
+            if (state.pagination.hotcase > totalPages && totalPages > 0) {
+                state.pagination.hotcase = totalPages;
+            }
+            const start = (state.pagination.hotcase - 1) * CONFIG.ITEMS_PER_PAGE;
+            const paginated = filtered.slice(start, start + CONFIG.ITEMS_PER_PAGE);
+
+            const container = document.getElementById('hotCaseList');
+            if (!container) return;
+
+            if (paginated.length === 0) {
+                if (pinned.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--background); border-radius: var(--radius-md); border: 1px dashed var(--border);">
+                            <div style="font-size: 40px; margin-bottom: 12px;">📌</div>
+                            <h3 style="font-size: 18px; color: var(--text-secondary); margin-bottom: 8px;">Belum Ada Hot Case</h3>
+                            <p style="font-size: 14px; max-width: 440px; margin: 0 auto; line-height: 1.6;">Konten yang di-pin pada menu <strong>Konten</strong> akan otomatis muncul di sini sebagai referensi cepat.</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: var(--text-muted); background: var(--background); border-radius: var(--radius-md); border: 1px dashed var(--border);">
+                            Tidak ada Hot Case yang sesuai dengan pencarian "<strong>${escapeHtml(searchTerm)}</strong>".
+                        </div>
+                    `;
+                }
+            } else {
+                container.innerHTML = paginated.map(content => {
+                    return generateContentCardHtml(content, searchTerm, false);
+                }).join('');
+            }
+
+            renderPagination('hotCasePagination', totalPages, state.pagination.hotcase, (page) => {
+                state.pagination.hotcase = page;
+                renderHotCaseList();
+            });
+        }
+
+        function updateHotCaseBadge() {
+            const pinnedCount = state.contents.filter(c => c.pinned === true).length;
+            const navBadge = document.getElementById('hotCaseNavBadge');
+            const mobileBadge = document.getElementById('hotCaseMobileBadge');
+
+            if (navBadge) {
+                if (pinnedCount > 0) {
+                    navBadge.textContent = pinnedCount;
+                    navBadge.style.display = 'inline-flex';
+                } else {
+                    navBadge.style.display = 'none';
+                }
+            }
+
+            if (mobileBadge) {
+                if (pinnedCount > 0) {
+                    mobileBadge.textContent = pinnedCount;
+                    mobileBadge.style.display = 'flex';
+                } else {
+                    mobileBadge.style.display = 'none';
+                }
+            }
         }
 
         // Content CRUD
@@ -4395,6 +4602,8 @@
 
                 document.getElementById('contentModal').classList.remove('active');
                 renderContentList();
+                renderHotCaseList();
+                updateHotCaseBadge();
                 showToast('Konten berhasil disimpan ke cloud!', 'success');
             } catch (err) {
                 console.error(err);
@@ -4410,6 +4619,8 @@
                 try {
                     await deleteDoc(doc(db, "contents", id));
                     renderContentList();
+                    renderHotCaseList();
+                    updateHotCaseBadge();
                     showToast('Konten berhasil dihapus!', 'success');
                 } catch (err) {
                     console.error(err);
@@ -4479,6 +4690,8 @@
 
                     showToast(`${successCount} konten berhasil dipulihkan!`, 'success');
                     renderContentList();
+                    renderHotCaseList();
+                    updateHotCaseBadge();
                 }
             } catch (e) {
                 console.error("Recovery failed:", e);
@@ -5699,6 +5912,26 @@
                 });
             }
 
+            // Hot Case Search
+            const hotCaseSearch = document.getElementById('hotCaseSearch');
+            if (hotCaseSearch) {
+                hotCaseSearch.addEventListener('input', () => {
+                    state.pagination.hotcase = 1;
+                    renderHotCaseList();
+                });
+            }
+            const clearHotCaseSearchBtn = document.getElementById('clearHotCaseSearchBtn');
+            if (clearHotCaseSearchBtn) {
+                clearHotCaseSearchBtn.addEventListener('click', () => {
+                    if (hotCaseSearch) {
+                        hotCaseSearch.value = '';
+                        state.pagination.hotcase = 1;
+                        renderHotCaseList();
+                        hotCaseSearch.focus();
+                    }
+                });
+            }
+
             // Classification list click events (Move up/down/remove)
             const clsListEl = document.getElementById('classificationList');
             if (clsListEl) {
@@ -6047,7 +6280,8 @@
                 const toggleBtn = e.target.closest('[data-toggle-details]');
                 if (toggleBtn) {
                     const id = toggleBtn.dataset.toggleDetails;
-                    const details = document.getElementById(`contentDetails${id}`);
+                    const card = toggleBtn.closest('.content-card');
+                    const details = card ? card.querySelector('.content-details') : document.getElementById(`contentDetails${id}`);
                     if (details) details.classList.toggle('expanded');
                 }
 
@@ -6113,6 +6347,8 @@
                             console.error("Error updating pin status:", e);
                         }
                         renderContentList();
+                        renderHotCaseList();
+                        updateHotCaseBadge();
                         showToast(content.pinned ? 'Konten di-pin!' : 'Konten di-unpin!', 'success');
                     }
                 }
