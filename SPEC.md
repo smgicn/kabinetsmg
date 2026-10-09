@@ -233,10 +233,32 @@ Font Family: 'Poppins', 'Inter', sans-serif
 ### Search Feature
 
 **Implementation:**
-- Live search (debounced 300ms)
+- Live search (instant calculation & requestAnimationFrame rendering)
 - Search fields: title, subject, content
-- Highlight matches in blue
-- Fuzzy search with typo tolerance
+- **Kata Dasar (Root Words) & Kata Berimbuhan (Affixes)**:
+  - Mendukung pencarian kata dasar dua arah: mencari kata dasar (contoh: "pasang") mencocokkan kata berimbuhan ("memasang", "dipasang", "pemasangan", "terpasang", "pasangkan") dan sebaliknya.
+  - Kamus terdedikasi istilah telekomunikasi & CS yang mencakup prefiks (`me-`, `di-`, `ber-`, `ter-`, `pe-`, `per-`, `se-`, `ke-`), sufiks (`-kan`, `-an`, `-i`, `-nya`), dan konfiks.
+  - Morphological stemmer berbasis aturan bahasa Indonesia dengan perubahan bunyi fonemis (`meny-` -> `s`, `mem-` -> `p`/`b`, `men-` -> `t`/`d`, `meng-` -> `k`/vokal).
+- **Sinonim Telekomunikasi & CS (Domain Synonyms)**:
+  - Kamus sinonim dua arah untuk istilah umum layanan pelanggan & ISP:
+    - `promo` ↔ `diskon` / `potongan` / `cashback` / `voucher` / `benefit` / `penawaran` / `hemat`
+    - `wifi` ↔ `internet` / `koneksi` / `jaringan` / `sinyal` / `broadband` / `online` / `data`
+    - `biaya` ↔ `harga` / `tarif` / `tagihan` / `billing` / `invoice` / `bayar` / `nominal`
+    - `gangguan` ↔ `kendala` / `trouble` / `error` / `rusak` / `problem` / `down` / `los` / `mati` / `putus` / `lemot`
+    - `lemot` ↔ `lambat` / `slow` / `lelet` / `buffering` / `lag`
+    - `pasang` ↔ `instalasi` / `daftar` / `registrasi` / `order` / `psb` / `langganan`
+    - `berhenti` ↔ `putus` / `cabut` / `batal` / `disconnect` / `deaktivasi` / `terminasi` / `tutup`
+    - `pindah` ↔ `relokasi` / `mutasi` / `pindah alamat`
+    - `ubah` ↔ `ganti` / `migrasi` / `update` / `edit`
+    - `perangkat` ↔ `modem` / `ont` / `router` / `stb` / `dekoder` / `hardware` / `kabel`
+    - `sop` ↔ `prosedur` / `alur` / `tata cara` / `panduan` / `petunjuk` / `tutorial` / `langkah`
+- **Pembersihan Tanda Baca (Punctuation Stripping)**:
+  - Otomatis membersihkan tanda baca atau simbol di awalan/akhiran kata kunci (seperti `#promo`, `*catatan*`, `?wifi`, `!penting`, `-tagihan`, `(paket)`).
+  - Teks konten dengan simbol tanda baca juga tetap dapat dicocokkan secara akurat.
+- **Tingkat Prioritas (Search Ranking)**:
+  - Pencarian memprioritaskan: 1) Full phrase match di judul, 2) All tokens di judul, 3) Kata dasar/imbuhan di judul, 4) Sinonim di judul, 5) Diikuti kecocokan pada subjudul dan isi konten.
+- **Safe HTML Text Highlighting**:
+  - Highlighting kata kunci menggunakan regex yang memproteksi tag HTML (`<...>` dan style inline), sehingga struktur format rich text tidak rusak saat kata kunci disorot.
 
 ### Filter System
 
