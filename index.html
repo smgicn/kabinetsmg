@@ -3096,6 +3096,18 @@
                             style="min-height: 80px; max-height: 200px; overflow: auto;" required></div>
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Kata Kunci Pencarian (Keywords)</label>
+                        <input type="text" class="form-input" id="contentKeywordsInput" placeholder="Contoh: pendaftaran baru, pasang baru, registrasi, instalasi">
+                        <div id="keywordSuggestionsContainer" style="margin-top: 6px; display: none; background: var(--background-soft); padding: 8px 12px; border-radius: 8px; border: 1px dashed var(--border);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-size: 11px; font-weight: 600; color: var(--text-muted);">💡 Rekomendasi Kata Kunci (Berdasarkan Judul &amp; Subject):</span>
+                                <button type="button" id="addAllSuggestionsBtn" class="btn-link-sm" style="font-size: 11px; color: var(--primary); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0;">+ Tambah Semua</button>
+                            </div>
+                            <div id="keywordSuggestionsList" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                        </div>
+                        <small style="color: var(--text-muted); font-size: 11px; display: block; margin-top: 4px;">Kata kunci yang dapat dicari pada search bar. Contoh: jika pada judul &amp; subject tertulis "pemasangan baru", masukkan juga "pendaftaran baru" dll.</small>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Konten (Rich Text)</label>
                         <div style="margin-bottom: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
                             <button type="button" class="btn btn-secondary" data-rtf="bold"><strong>B</strong></button>
@@ -4577,7 +4589,9 @@
         }
 
         // ========================================
-        // MODULE: Content Management
+        // MODULE: Content Management & Keyword Search
+        // Hanya berlaku pada Judul, Subject (max 10000 karakter), dan Kata Kunci
+        // Pencarian pada Konten (Rich Text) tidak terdeteksi
         // ========================================
         function stripHtml(html) {
             if (!html) return '';
@@ -4586,33 +4600,204 @@
             return tmp.textContent || tmp.innerText || '';
         }
 
+        // Kamus sinonim & kata kunci terkait (contoh: "pemasangan baru" <-> "pendaftaran baru", dll.)
+        const KEYWORD_SYNONYMS = [
+            ['pemasangan baru', 'pendaftaran baru', 'pasang baru', 'daftar baru', 'registrasi baru', 'order baru', 'psb', 'langganan baru'],
+            ['pemasangan', 'pendaftaran', 'pasang', 'daftar', 'registrasi', 'instalasi', 'order', 'psb'],
+            ['pasang', 'daftar', 'pemasangan', 'pendaftaran', 'instalasi', 'registrasi'],
+            ['pemutusan', 'pencabutan', 'penghentian', 'pembatalan', 'putus', 'cabut', 'berhenti', 'batal', 'terminasi', 'deaktivasi'],
+            ['berhenti berlangganan', 'putus langganan', 'cabut layanan', 'tutup akun', 'batal langganan'],
+            ['berhenti', 'putus', 'cabut', 'batal', 'stop', 'disconnect', 'tutup'],
+            ['pindah alamat', 'relokasi', 'mutasi', 'pindah rumah', 'pindah lokasi'],
+            ['pindah', 'relokasi', 'mutasi'],
+            ['promo', 'promosi', 'diskon', 'potongan harga', 'potongan', 'cashback', 'voucher', 'benefit', 'penawaran', 'hemat'],
+            ['wifi', 'wi-fi', 'internet', 'koneksi', 'jaringan', 'sinyal', 'broadband', 'online', 'data', 'indihome'],
+            ['biaya', 'harga', 'tarif', 'tagihan', 'billing', 'invoice', 'nominal', 'rupiah', 'bayar', 'pembayaran', 'ongkos'],
+            ['tagihan', 'billing', 'invoice', 'pembayaran', 'bayar', 'rekening'],
+            ['lunas', 'melunasi', 'pelunasan', 'terbayar', 'sudah bayar'],
+            ['tunggakan', 'tertunggak', 'belum bayar', 'denda', 'keterlambatan'],
+            ['gangguan', 'kendala', 'trouble', 'error', 'rusak', 'problem', 'down', 'los', 'mati', 'putus', 'lemot'],
+            ['lemot', 'lambat', 'slow', 'lelet', 'buffering', 'lag', 'koneksi lambat'],
+            ['kecepatan', 'speed', 'bandwidth', 'mbps', 'kbps', 'fup'],
+            ['ubah paket', 'ganti paket', 'migrasi', 'upgrade', 'downgrade', 'switch paket'],
+            ['upgrade', 'naik paket', 'tambah kecepatan', 'naik kecepatan'],
+            ['downgrade', 'turun paket', 'turun kecepatan'],
+            ['ubah', 'ganti', 'migrasi', 'switch', 'update', 'edit'],
+            ['isolir', 'terisolir', 'suspend', 'blokir', 'terblokir', 'tutup sementara'],
+            ['unisolir', 'buka isolir', 'reaktivasi', 'aktifkan kembali', 'buka blokir'],
+            ['perangkat', 'alat', 'modem', 'ont', 'router', 'stb', 'set top box', 'dekoder', 'hardware', 'kabel'],
+            ['komplain', 'keluhan', 'laporan', 'aduan', 'pengaduan', 'tiket', 'protes'],
+            ['sop', 'prosedur', 'alur', 'tata cara', 'panduan', 'petunjuk', 'tutorial', 'langkah', 'mekanisme'],
+            ['syarat', 'persyaratan', 'ketentuan', 'sk', 's&k', 'aturan', 'kebijakan', 'regulasi'],
+            ['pelanggan', 'user', 'klien', 'customer', 'konsumen', 'pengguna']
+        ];
+
+        function getRelatedKeywords(term) {
+            if (!term) return [];
+            const t = term.trim().toLowerCase();
+            const related = new Set();
+            KEYWORD_SYNONYMS.forEach(group => {
+                const hasTerm = group.some(w => w.toLowerCase() === t || t.includes(w.toLowerCase()) || w.toLowerCase().includes(t));
+                if (hasTerm) {
+                    group.forEach(w => {
+                        if (w.toLowerCase() !== t) {
+                            related.add(w.toLowerCase());
+                        }
+                    });
+                }
+            });
+            return Array.from(related);
+        }
+
+        function getKeywordSuggestions(title, subject) {
+            const combined = ((title || '') + ' ' + stripHtml(subject || '')).toLowerCase();
+            const suggestions = new Set();
+            KEYWORD_SYNONYMS.forEach(group => {
+                const matched = group.some(term => combined.includes(term.toLowerCase()));
+                if (matched) {
+                    group.forEach(term => {
+                        if (!combined.includes(term.toLowerCase())) {
+                            suggestions.add(term);
+                        }
+                    });
+                }
+            });
+            return Array.from(suggestions);
+        }
+
+        function addKeywordToInput(keyword) {
+            const input = document.getElementById('contentKeywordsInput');
+            if (!input) return;
+            const current = input.value.split(',').map(s => s.trim()).filter(Boolean);
+            if (!current.some(c => c.toLowerCase() === keyword.toLowerCase())) {
+                current.push(keyword);
+                input.value = current.join(', ');
+            }
+            updateKeywordSuggestions();
+        }
+
+        function addAllKeywordSuggestions() {
+            const input = document.getElementById('contentKeywordsInput');
+            if (!input) return;
+            const title = document.getElementById('contentTitleInput')?.value || '';
+            const subject = document.getElementById('contentSubjectInput')?.innerText || '';
+            const suggestions = getKeywordSuggestions(title, subject);
+            const current = input.value.split(',').map(s => s.trim()).filter(Boolean);
+            suggestions.forEach(s => {
+                if (!current.some(c => c.toLowerCase() === s.toLowerCase())) {
+                    current.push(s);
+                }
+            });
+            input.value = current.join(', ');
+            updateKeywordSuggestions();
+        }
+
+        function updateKeywordSuggestions() {
+            const container = document.getElementById('keywordSuggestionsContainer');
+            const list = document.getElementById('keywordSuggestionsList');
+            const input = document.getElementById('contentKeywordsInput');
+            if (!container || !list || !input) return;
+
+            const title = document.getElementById('contentTitleInput')?.value || '';
+            const subject = document.getElementById('contentSubjectInput')?.innerText || '';
+            const suggestions = getKeywordSuggestions(title, subject);
+
+            const currentKeywords = input.value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+            const unadded = suggestions.filter(s => !currentKeywords.includes(s.toLowerCase()));
+
+            if (unadded.length > 0) {
+                container.style.display = 'block';
+                list.innerHTML = unadded.map(s => `
+                    <button type="button" class="btn-keyword-pill" data-keyword="${s}" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgba(37, 99, 235, 0.08); color: var(--primary); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 12px; font-size: 11px; font-weight: 500; cursor: pointer;">
+                        + ${s}
+                    </button>
+                `).join('');
+            } else {
+                container.style.display = 'none';
+                list.innerHTML = '';
+            }
+        }
+
+        // Pencarian HANYA berlaku pada Judul, Subject (max 10000 karakter), dan Kata Kunci.
+        // Konten (Rich Text) TIDAK terdeteksi dalam pencarian.
+        function isContentSearchMatch(card, searchTerm) {
+            if (!searchTerm) return true;
+            const lowerSearch = searchTerm.trim().toLowerCase();
+            if (!lowerSearch) return true;
+
+            const titleText = (card.title || '').toLowerCase();
+            const subjectText = stripHtml(card.subject || '').slice(0, 10000).toLowerCase();
+            const keywordsText = (card.keywords || '').toLowerCase();
+            const searchableText = titleText + ' ' + subjectText + ' ' + keywordsText;
+
+            // 1. Kecocokan langsung pada Judul, Subject, atau Kata Kunci
+            if (searchableText.includes(lowerSearch)) return true;
+
+            // 2. Semua token pencarian cocok pada Judul, Subject, atau Kata Kunci
+            const tokens = lowerSearch.split(/\s+/).filter(Boolean);
+            if (tokens.length > 1 && tokens.every(t => searchableText.includes(t))) {
+                return true;
+            }
+
+            // 3. Kecocokan kata kunci sinonim/terkait (misal cari "pendaftaran baru" mendeteksi "pemasangan baru")
+            const related = getRelatedKeywords(lowerSearch);
+            for (const rel of related) {
+                if (searchableText.includes(rel)) return true;
+                const relTokens = rel.split(/\s+/).filter(Boolean);
+                if (relTokens.length > 1 && relTokens.every(t => searchableText.includes(t))) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         function getSearchMatchRank(card, lowerSearch) {
             if (!lowerSearch) return 0;
             const titleText = (card.title || '').toLowerCase();
             if (titleText.includes(lowerSearch)) return 1;
 
-            const subjectText = stripHtml(card.subject || '').toLowerCase();
+            const subjectText = stripHtml(card.subject || '').slice(0, 10000).toLowerCase();
             if (subjectText.includes(lowerSearch)) return 2;
 
-            const contentText = stripHtml(card.content || '').toLowerCase();
-            if (contentText.includes(lowerSearch)) return 3;
+            const keywordsText = (card.keywords || '').toLowerCase();
+            if (keywordsText.includes(lowerSearch)) return 3;
 
-            return 4;
+            const related = getRelatedKeywords(lowerSearch);
+            if (related.some(r => titleText.includes(r))) return 4;
+            if (related.some(r => subjectText.includes(r))) return 5;
+            if (related.some(r => keywordsText.includes(r))) return 6;
+
+            return 7;
         }
 
         function generateContentCardHtml(content, searchTerm = '', isSearchMatch = false) {
             const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const searchRegex = searchTerm ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
+            const highlightTerms = new Set();
+            if (searchTerm) {
+                const lowerSearch = searchTerm.trim().toLowerCase();
+                highlightTerms.add(lowerSearch);
+                const related = getRelatedKeywords(lowerSearch);
+                related.forEach(r => highlightTerms.add(r));
+            }
             const highlightClass = isSearchMatch ? 'search-active' : 'search-highlight';
 
             const highlightText = (text) => {
-                if (!text || !searchRegex) return text || '';
-                return text.replace(searchRegex, `<span class="${highlightClass}">$1</span>`);
+                if (!text || highlightTerms.size === 0) return text || '';
+                const sorted = Array.from(highlightTerms).sort((a, b) => b.length - a.length);
+                const pattern = sorted.map(t => escapeRegExp(t)).join('|');
+                const searchRegex = new RegExp(`(${pattern})`, 'gi');
+                return text.replace(/(<[^>]+>)|([^<]+)/g, (match, tag, txt) => {
+                    if (tag) return tag;
+                    if (!txt) return '';
+                    return txt.replace(searchRegex, `<span class="${highlightClass}">$1</span>`);
+                });
             };
 
             const highlightedTitle = highlightText(content.title);
             const highlightedSubject = highlightText(content.subject);
-            const highlightedContent = highlightText(content.content);
+            // KONTEN (RICH TEXT) TIDAK DI-HIGHLIGHT KARENA TIDAK TERMASUK DALAM PENCARIAN
+            const highlightedContent = content.content || '';
 
             const materi = content.materi || 'semua';
             const materiClass = materi === 'outbound' ? 'materi-outbound' : materi === 'back_office' ? 'materi-backoffice' : 'materi-semua';
@@ -4660,30 +4845,12 @@
             const searchTerm = document.getElementById('contentSearch').value.trim();
             const lowerSearch = searchTerm.toLowerCase();
 
-            // Debug: log state filter dan jumlah konten untuk verifikasi
-            if (searchTerm) {
-                console.log('[DEBUG] Filter aktif:', state.filter.active, '| Search:', searchTerm);
-                console.log('[DEBUG] Total konten:', state.contents.length);
-                state.contents.forEach(c => {
-                    const cls = c.classification;
-                    const matchFilter = isContentInFilter(c, state.filter.active);
-                    const titleLower = (c.title || '').toLowerCase();
-                    const matchSearch = titleLower.includes(lowerSearch);
-                    if (matchSearch) {
-                        console.log('[DEBUG] Konten match search:', c.title, '| classification:', cls, '| matchFilter:', matchFilter);
-                    }
-                });
-            }
-
             let filtered = state.contents.filter(c => {
                 const matchesFilter = isContentInFilter(c, state.filter.active);
                 if (!matchesFilter) return false;
                 if (!searchTerm) return true;
 
-                // Selalu regenerate _plainText agar cache tidak menyebabkan hasil pencarian
-                // yang salah setelah data diperbarui
-                c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
-                return c._plainText.includes(lowerSearch);
+                return isContentSearchMatch(c, searchTerm);
             });
 
             // Urutan card: Pinned first (diurutkan berdasarkan tanggal pembuatan terbaru), kemudian status (Berlaku sebelum Tidak Berlaku), kemudian tingkat match pencarian, kemudian abjad
@@ -4720,7 +4887,7 @@
                     const aRank = getSearchMatchRank(a, lowerSearch);
                     const bRank = getSearchMatchRank(b, lowerSearch);
                     if (aRank !== bRank) {
-                        return aRank - bRank; // 1 (Judul) before 2 (Subjudul) before 3 (Isi Content)
+                        return aRank - bRank; // 1 (Judul) before 2 (Subjudul) before 3 (Keywords)
                     }
                 }
 
@@ -4763,8 +4930,7 @@
 
             let filtered = pinned.filter(c => {
                 if (!searchTerm) return true;
-                c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
-                return c._plainText.includes(lowerSearch);
+                return isContentSearchMatch(c, searchTerm);
             });
 
             const countEl = document.getElementById('hotCaseSearchResultCount');
@@ -4905,6 +5071,10 @@
                 document.getElementById('contentTextInput').innerHTML = content.content || '';
                 document.getElementById('contentPinned').checked = isDuplicate ? false : (content.pinned || false);
 
+                if (document.getElementById('contentKeywordsInput')) {
+                    document.getElementById('contentKeywordsInput').value = content.keywords || '';
+                }
+
                 if (content.externalLinks && content.externalLinks.length > 0) {
                     content.externalLinks.forEach(link => addLinkField(link.name, link.url));
                 } else {
@@ -4914,6 +5084,9 @@
                 document.getElementById('contentModalTitle').innerText = 'Tambah Konten';
                 document.getElementById('contentId').value = '';
                 document.getElementById('contentSubjectInput').innerHTML = '';
+                if (document.getElementById('contentKeywordsInput')) {
+                    document.getElementById('contentKeywordsInput').value = '';
+                }
                 document.getElementById('contentTextInput').innerHTML = '';
                 selectedCls = state.classifications.length > 0 ? [state.classifications[0]] : ['UMUM'];
                 // Reset status to default
@@ -4926,6 +5099,7 @@
 
             // Panggil SETELAH selectedCls ditentukan agar semua klasifikasi tampil dengan benar
             updateClassificationSelect(selectedCls);
+            updateKeywordSuggestions();
 
             document.getElementById('contentModal').classList.add('active');
         }
@@ -4978,6 +5152,9 @@
                 const dateVal = document.getElementById('contentDateInput').value;
                 const createdAtVal = (existing && existing.createdAt) ? existing.createdAt : (dateVal ? new Date(dateVal).toISOString() : new Date().toISOString());
 
+                const keywordsInput = document.getElementById('contentKeywordsInput');
+                const keywordsVal = keywordsInput ? keywordsInput.value.trim() : '';
+
                 const newContent = {
                     id,
                     title: document.getElementById('contentTitleInput').value.trim(),
@@ -4987,6 +5164,7 @@
                     status,
                     materi,
                     subject: document.getElementById('contentSubjectInput').innerHTML,
+                    keywords: keywordsVal,
                     content: document.getElementById('contentTextInput').innerHTML,
                     externalLinks,
                     pinned: document.getElementById('contentPinned').checked,
@@ -5901,8 +6079,7 @@
                 state.contents.forEach(c => {
                     // Gunakan isContentInFilter agar multi-klasifikasi benar-benar dicek
                     if (!isContentInFilter(c, state.filter.active)) return;
-                    const plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
-                    if (plainText.includes(lowerSearch)) count++;
+                    if (isContentSearchMatch(c, searchTerm)) count++;
                 });
             }
 
@@ -5929,8 +6106,7 @@
             const filtered = state.contents.filter(c => {
                 // Gunakan isContentInFilter agar multi-klasifikasi benar-benar dicek
                 if (!isContentInFilter(c, state.filter.active)) return false;
-                const plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
-                return plainText.includes(lowerSearch);
+                return isContentSearchMatch(c, searchTerm);
             });
 
             if (filtered.length === 0) return;
@@ -6449,6 +6625,18 @@
 
             // Add link button
             document.getElementById('addLinkBtn').addEventListener('click', () => addLinkField());
+
+            // Keyword suggestions events
+            document.getElementById('contentTitleInput')?.addEventListener('input', updateKeywordSuggestions);
+            document.getElementById('contentSubjectInput')?.addEventListener('input', updateKeywordSuggestions);
+            document.getElementById('contentKeywordsInput')?.addEventListener('input', updateKeywordSuggestions);
+            document.getElementById('addAllSuggestionsBtn')?.addEventListener('click', addAllKeywordSuggestions);
+            document.getElementById('keywordSuggestionsList')?.addEventListener('click', (e) => {
+                const pill = e.target.closest('.btn-keyword-pill');
+                if (pill && pill.dataset.keyword) {
+                    addKeywordToInput(pill.dataset.keyword);
+                }
+            });
 
             // Rich text formatting
             document.querySelectorAll('[data-format]').forEach(btn => {

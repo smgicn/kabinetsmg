@@ -162,17 +162,18 @@ Font Family: 'Poppins', 'Inter', sans-serif
   id: string,
   title: string (bold, large),
   date: string (manual input),
-  classification: "INFO" | "KATEGORI" | "PROMO",
-  subject: string (max 200 chars),
+  classification: string[], // Multi-classification support
+  subject: string (max 10000 chars),
+  keywords: string, // Kata kunci pencarian tambahan
   content: string (rich text with formatting),
   externalLinks: [{name: string, url: string}]
 }
 ```
 
 **Operations (Admin Only):**
-- Create: Add new content
+- Create: Add new content with title, date, classification, subject, keywords (with automatic keyword recommendations / pills based on Title and Subject, e.g. "pemasangan baru" -> "pendaftaran baru"), and rich text content
 - Read: View all content
-- Update: Edit existing content
+- Update: Edit existing content & keywords
 - Delete: Remove content
 
 **Operations (User):**
@@ -232,11 +233,14 @@ Font Family: 'Poppins', 'Inter', sans-serif
 
 ### Search Feature
 
-**Implementation:**
-- Live search (debounced 300ms)
-- Search fields: title, subject, content
-- Highlight matches in blue
-- Fuzzy search with typo tolerance
+**Implementation & Rules:**
+- Live search (debounced / real-time)
+- Cakupan Pencarian: **Hanya berlaku pada Judul, Subject (maksimal 10.000 karakter), dan Kata Kunci (Keywords)**.
+- **Konten (Rich Text) TIDAK terdeteksi** dalam pencarian.
+- Kata Kunci Admin: Pada Tambah / Edit Konten, Admin diberikan input kata kunci beserta rekomendasi otomatis sinonim (misal: "pemasangan baru" merekomendasikan "pendaftaran baru").
+- Pencarian kata kunci saling terhubung (sinonim) pada search bar: mencari "pendaftaran baru" mendeteksi konten "pemasangan baru", dan sebaliknya.
+- Highlight kecocokan hanya diterapkan pada Judul dan Subject. Konten (Rich Text) tidak di-highlight.
+- Urutan hasil pencarian memprioritaskan Judul (Rank 1), Subject (Rank 2), dan Keywords (Rank 3).
 
 ### Filter System
 
