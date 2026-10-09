@@ -1029,14 +1029,112 @@
             color: #000000;
         }
 
-        .dark-mode .content-card.pinned {
+        .dark-mode .content-card.pinned,
+        .dark-mode #hotCaseList .content-card {
             background: var(--background);
         }
 
         .dark-mode .content-card.pinned .content-title,
         .dark-mode .content-card.pinned .content-subject,
-        .dark-mode .content-card.pinned .content-text {
-            color: var(--text-primary);
+        .dark-mode .content-card.pinned .content-text,
+        .dark-mode #hotCaseList .content-title,
+        .dark-mode #hotCaseList .content-subject,
+        .dark-mode #hotCaseList .content-text,
+        .dark-mode .content-details .content-text {
+            color: var(--text-primary) !important;
+        }
+
+        .dark-mode .content-card.pinned .content-text *,
+        .dark-mode #hotCaseList .content-text *,
+        .dark-mode .content-details .content-text * {
+            color: inherit;
+        }
+
+        .dark-mode .content-card.pinned .content-text [style*="color: rgb(0, 0, 0)"],
+        .dark-mode .content-card.pinned .content-text [style*="color: rgb(30, 41, 59)"],
+        .dark-mode .content-card.pinned .content-text [style*="color: rgb(34, 34, 34)"],
+        .dark-mode .content-card.pinned .content-text [style*="color: rgb(15, 23, 42)"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #000"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #000000"],
+        .dark-mode .content-card.pinned .content-text [style*="color: black"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #1e293b"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #333"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #333333"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #222"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #222222"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #444"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #444444"],
+        .dark-mode .content-card.pinned .content-text [style*="color: #475569"],
+        .dark-mode .content-card.pinned .content-text font[color="#000000"],
+        .dark-mode .content-card.pinned .content-text font[color="black"],
+        .dark-mode .content-card.pinned .content-text font[color="#000"],
+        .dark-mode .content-card.pinned .content-text font,
+        .dark-mode #hotCaseList .content-text [style*="color: rgb(0, 0, 0)"],
+        .dark-mode #hotCaseList .content-text [style*="color: rgb(30, 41, 59)"],
+        .dark-mode #hotCaseList .content-text [style*="color: #000"],
+        .dark-mode #hotCaseList .content-text [style*="color: #000000"],
+        .dark-mode #hotCaseList .content-text [style*="color: black"],
+        .dark-mode #hotCaseList .content-text font {
+            color: var(--text-primary) !important;
+        }
+
+        .dark-mode .content-card.pinned .content-text [style*="background-color: rgb(255, 255, 255)"],
+        .dark-mode .content-card.pinned .content-text [style*="background-color: #ffffff"],
+        .dark-mode .content-card.pinned .content-text [style*="background-color: #fff"],
+        .dark-mode .content-card.pinned .content-text [style*="background-color: white"],
+        .dark-mode .content-card.pinned .content-text [style*="background: rgb(255, 255, 255)"],
+        .dark-mode .content-card.pinned .content-text [style*="background: #ffffff"],
+        .dark-mode .content-card.pinned .content-text [style*="background: #fff"],
+        .dark-mode .content-card.pinned .content-text [style*="background: white"],
+        .dark-mode #hotCaseList .content-text [style*="background"] {
+            background-color: transparent !important;
+            background: transparent !important;
+        }
+
+        .dark-mode .content-text table th {
+            background-color: var(--background-soft) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border) !important;
+        }
+
+        .dark-mode .content-text table td {
+            color: var(--text-primary) !important;
+            border-color: var(--border) !important;
+        }
+
+        /* Editor Dark Mode Styles for Content & Subject */
+        .dark-mode #contentTextInput,
+        .dark-mode #contentSubjectInput {
+            color: var(--text-primary) !important;
+            background: var(--background) !important;
+        }
+
+        .dark-mode #contentTextInput *,
+        .dark-mode #contentSubjectInput * {
+            color: inherit;
+        }
+
+        .dark-mode #contentTextInput [style*="color: rgb(0, 0, 0)"],
+        .dark-mode #contentTextInput [style*="color: rgb(30, 41, 59)"],
+        .dark-mode #contentTextInput [style*="color: #000"],
+        .dark-mode #contentTextInput [style*="color: #000000"],
+        .dark-mode #contentTextInput [style*="color: black"],
+        .dark-mode #contentTextInput [style*="color: #1e293b"],
+        .dark-mode #contentTextInput [style*="color: #333"],
+        .dark-mode #contentTextInput [style*="color: #333333"],
+        .dark-mode #contentTextInput font[color="#000000"],
+        .dark-mode #contentTextInput font[color="black"],
+        .dark-mode #contentTextInput font {
+            color: var(--text-primary) !important;
+        }
+
+        .dark-mode #contentTextInput [style*="background-color: rgb(255, 255, 255)"],
+        .dark-mode #contentTextInput [style*="background-color: #ffffff"],
+        .dark-mode #contentTextInput [style*="background-color: white"],
+        .dark-mode #contentTextInput [style*="background: rgb(255, 255, 255)"],
+        .dark-mode #contentTextInput [style*="background: white"] {
+            background-color: transparent !important;
+            background: transparent !important;
         }
 
         .content-header {
@@ -1813,7 +1911,7 @@
         .content-title,
         .content-subject,
         .content-text {
-            color: #000000;
+            color: var(--text-primary);
         }
 
         .content-text {
@@ -3497,6 +3595,41 @@
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
         }
 
+        function getContentCreationTime(c) {
+            if (!c) return 0;
+            // 1. Cek createdAt jika ada (Firestore Timestamp, ISO String, atau Date)
+            if (c.createdAt) {
+                if (typeof c.createdAt.toDate === 'function') {
+                    return c.createdAt.toDate().getTime();
+                }
+                if (c.createdAt.seconds) {
+                    return c.createdAt.seconds * 1000;
+                }
+                const t = new Date(c.createdAt).getTime();
+                if (!isNaN(t) && t > 0) return t;
+            }
+            // 2. Cek date / tanggal pembuatan (format YYYY-MM-DD)
+            if (c.date) {
+                const t = new Date(c.date).getTime();
+                if (!isNaN(t) && t > 0) {
+                    // Jika ada id berupa numeric timestamp, gunakan untuk micro-offset bila tanggal sama
+                    if (c.id && !isNaN(Number(c.id)) && Number(c.id) > 1000000000000) {
+                        return Number(c.id);
+                    }
+                    return t;
+                }
+            }
+            if (c.tanggal) {
+                const t = new Date(c.tanggal).getTime();
+                if (!isNaN(t) && t > 0) return t;
+            }
+            // 3. Fallback id jika berupa numeric timestamp
+            if (c.id && !isNaN(Number(c.id)) && Number(c.id) > 1000000000000) {
+                return Number(c.id);
+            }
+            return 0;
+        }
+
         // ========================================
         // MODULE: Storage Functions
         // ========================================
@@ -4291,10 +4424,28 @@
                 return c._plainText.includes(lowerSearch);
             });
 
-            // Urutan card: Pinned first, kemudian status (Berlaku A-Z sebelum Tidak Berlaku A-Z), kemudian tingkat match pencarian (Judul -> Subjudul -> Isi Content)
+            // Urutan card: Pinned first (diurutkan berdasarkan tanggal pembuatan terbaru), kemudian status (Berlaku sebelum Tidak Berlaku), kemudian tingkat match pencarian, kemudian abjad
             filtered.sort((a, b) => {
                 if (a.pinned && !b.pinned) return -1;
                 if (!a.pinned && b.pinned) return 1;
+
+                if (a.pinned && b.pinned) {
+                    const aStatus = (a.status === 'tidak_berlaku' || a.status === 'tidak-berlaku') ? 1 : 0;
+                    const bStatus = (b.status === 'tidak_berlaku' || b.status === 'tidak-berlaku') ? 1 : 0;
+                    if (aStatus !== bStatus) return aStatus - bStatus;
+
+                    if (lowerSearch) {
+                        const aRank = getSearchMatchRank(a, lowerSearch);
+                        const bRank = getSearchMatchRank(b, lowerSearch);
+                        if (aRank !== bRank) return aRank - bRank;
+                    }
+
+                    const timeA = getContentCreationTime(a);
+                    const timeB = getContentCreationTime(b);
+                    if (timeB !== timeA) return timeB - timeA;
+
+                    return (a.title || '').localeCompare(b.title || '', 'id', { numeric: true, sensitivity: 'base' });
+                }
 
                 const aStatus = (a.status === 'tidak_berlaku' || a.status === 'tidak-berlaku') ? 1 : 0;
                 const bStatus = (b.status === 'tidak_berlaku' || b.status === 'tidak-berlaku') ? 1 : 0;
@@ -4382,6 +4533,13 @@
                     if (aRank !== bRank) {
                         return aRank - bRank;
                     }
+                }
+
+                // Urutan card yang telah di-pin sesuai dengan tanggal pembuatan (terbaru ke terlama) bukan berdasarkan abjad
+                const timeA = getContentCreationTime(a);
+                const timeB = getContentCreationTime(b);
+                if (timeB !== timeA) {
+                    return timeB - timeA;
                 }
 
                 return (a.title || '').localeCompare(b.title || '', 'id', { numeric: true, sensitivity: 'base' });
@@ -4573,10 +4731,15 @@
                 const materiRadio = document.querySelector('input[name="contentMateri"]:checked');
                 const materi = materiRadio ? materiRadio.value : 'semua';
 
+                const existing = state.contents.find(c => c.id === id);
+                const dateVal = document.getElementById('contentDateInput').value;
+                const createdAtVal = (existing && existing.createdAt) ? existing.createdAt : (dateVal ? new Date(dateVal).toISOString() : new Date().toISOString());
+
                 const newContent = {
                     id,
                     title: document.getElementById('contentTitleInput').value.trim(),
-                    date: document.getElementById('contentDateInput').value,
+                    date: dateVal,
+                    createdAt: createdAtVal,
                     classification: checkedClassifications,
                     status,
                     materi,
@@ -6160,15 +6323,32 @@
                 }
 
                 if (!imageFound) {
-                    // Clean up pasted HTML (remove Word/Web junk styles)
-                    const contentToPaste = html || text;
-                    const cleanHTML = contentToPaste
-                        .replace(/style="[^"]*"/gi, '') // Remove inline styles
-                        .replace(/class="[^"]*"/gi, '') // Remove classes
-                        .replace(/<o:p>.*?<\/o:p>/gi, '') // Remove Word tags
-                        .replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
+                    // Check if Shift was held (SHIFT+CTRL+V) or plain text was pasted
+                    const isShiftPaste = e.shiftKey || !html;
 
-                            document.execCommand('insertHTML', false, cleanHTML);
+                    if (isShiftPaste) {
+                        // Plain text paste (SHIFT+CTRL+V): Escape and preserve line breaks with <br>, no styling so it adapts to dark mode
+                        const plainText = text || '';
+                        const formattedText = escapeHtml(plainText).replace(/\r\n|\r|\n/g, '<br>');
+                        document.execCommand('insertHTML', false, formattedText);
+                    } else {
+                        // Rich HTML paste: sanitize Word/Web styles and remove dark text colors & white backgrounds that break dark mode
+                        let cleanHTML = html
+                            .replace(/<o:p>.*?<\/o:p>/gi, '') // Remove Word tags
+                            .replace(/<!--[\s\S]*?-->/g, '') // Remove comments
+                            .replace(/class="[^"]*"/gi, '') // Remove classes
+                            .replace(/<font[^>]*>/gi, '') // Remove opening font tags
+                            .replace(/<\/font>/gi, '') // Remove closing font tags
+                            .replace(/style="([^"]*)"/gi, (match, styleContent) => {
+                                let cleaned = styleContent
+                                    .replace(/color\s*:\s*(#000000|#000|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgb\(\s*30\s*,\s*41\s*,\s*59\s*\)|#1e293b|#333|#333333|#222|#222222)[^;]*;?/gi, '')
+                                    .replace(/background(-color)?\s*:\s*(#ffffff|#fff|white|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))[^;]*;?/gi, '')
+                                    .trim();
+                                return cleaned ? `style="${cleaned}"` : '';
+                            });
+                        
+                        document.execCommand('insertHTML', false, cleanHTML);
+                    }
                 }
             };
 

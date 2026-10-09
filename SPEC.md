@@ -202,6 +202,8 @@ Font Family: 'Poppins', 'Inter', sans-serif
 - Unpinning removes the card from "Hot Case" while keeping it in "Konten"
 - Real-time notification badge showing number of active pinned items
 - Dedicated live search bar and pagination for Hot Case cards
+- Sorting by Creation Date: Urutan kartu di Hot Case dan kartu pinned disusun berdasarkan tanggal pembuatan (terbaru ke terlama), bukan berdasarkan abjad
+- Full Dark Mode Support: Konten (Rich Text) dan detail kartu sepenuhnya mendukung mode dark, termasuk paste plain text via SHIFT+CTRL+V dan sanitasi style gelap otomatis agar tulisan tetap terang dan terbaca
 - Supports full card actions: expandable details, external links, and admin CRUD controls
 
 ### Pricing Menu
