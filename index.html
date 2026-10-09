@@ -4577,8 +4577,7 @@
         }
 
         // ========================================
-        // MODULE: Content Management & Smart Search Engine
-        // Kata Dasar, Kata Berimbuhan, Sinonim, & Tanda Baca
+        // MODULE: Content Management
         // ========================================
         function stripHtml(html) {
             if (!html) return '';
@@ -4587,470 +4586,28 @@
             return tmp.textContent || tmp.innerText || '';
         }
 
-        function cleanSearchPunctuation(str) {
-            if (!str) return '';
-            // Hapus tanda baca di awal dan di akhir (misalnya: #promo -> promo, *catatan* -> catatan, ?wifi -> wifi, !penting -> penting)
-            return str.replace(/^[\s#*?!@$%^&_=+~`'"()[\]{}<>/\\:;,.-]+|[\s#*?!@$%^&_=+~`'"()[\]{}<>/\\:;,.-]+$/g, '').trim();
-        }
-
-        function escapeRegExp(str) {
-            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-
-        // Kamus kata dasar dan imbuhannya yang sering muncul di telekomunikasi / customer service / aplikasi
-        const INDONESIAN_ROOT_MAP = {
-            'pasang': ['pasang', 'memasang', 'dipasang', 'pemasangan', 'terpasang', 'pasangkan', 'berpasang'],
-            'daftar': ['daftar', 'mendaftar', 'didaftar', 'pendaftaran', 'terdaftar', 'daftarkan', 'berdaftar'],
-            'langgan': ['langgan', 'berlangganan', 'pelanggan', 'langganan', 'melanggan'],
-            'hubung': ['hubung', 'menghubungi', 'dihubungi', 'menghubungkan', 'dihubungkan', 'hubungan', 'penghubung', 'terhubung', 'berhubungan'],
-            'sambung': ['sambung', 'menyambung', 'disambung', 'penyambung', 'penyambungan', 'tersambung', 'sambungan'],
-            'putus': ['putus', 'memutus', 'diputus', 'memutuskan', 'diputuskan', 'pemutusan', 'terputus', 'putusan'],
-            'cabut': ['cabut', 'mencabut', 'dicabut', 'pencabutan', 'tercabut'],
-            'henti': ['henti', 'berhenti', 'menghentikan', 'dihentikan', 'penghentian', 'terhenti'],
-            'batal': ['batal', 'membatalkan', 'dibatalkan', 'pembatalan', 'terbatal'],
-            'tutup': ['tutup', 'menutup', 'ditutup', 'penutupan', 'tertutup'],
-            'buka': ['buka', 'membuka', 'dibuka', 'pembukaan', 'terbuka'],
-            'pindah': ['pindah', 'berpindah', 'memindah', 'memindahkan', 'dipindahkan', 'pemindahan', 'perpindahan'],
-            'ubah': ['ubah', 'mengubah', 'diubah', 'perubahan', 'pengubahan', 'berubah', 'terubah'],
-            'ganti': ['ganti', 'mengganti', 'diganti', 'pergantian', 'penggantian', 'berganti', 'terganti'],
-            'tambah': ['tambah', 'menambah', 'ditambah', 'menambahkan', 'ditambahkan', 'penambahan', 'pertambahan', 'tertambah', 'tambahan'],
-            'kurang': ['kurang', 'mengurangi', 'dikurangi', 'pengurangan', 'berkurang', 'terkurang'],
-            'naik': ['naik', 'menaiki', 'menaikkan', 'dinaikkan', 'kenaikan', 'penaikan'],
-            'turun': ['turun', 'menuruni', 'menurunkan', 'diturunkan', 'penurunan'],
-            'bayar': ['bayar', 'membayar', 'dibayar', 'pembayaran', 'terbayar', 'bayaran'],
-            'tagih': ['tagih', 'menagih', 'ditagih', 'penagihan', 'tagihan', 'tertagih'],
-            'lunas': ['lunas', 'melunasi', 'dilunasi', 'pelunasan'],
-            'ganggu': ['ganggu', 'mengganggu', 'diganggu', 'gangguan', 'terganggu'],
-            'kendala': ['kendala', 'berkendala', 'terkendala'],
-            'masalah': ['masalah', 'bermasalah', 'mempermasalahkan'],
-            'rusak': ['rusak', 'merusak', 'dirusak', 'kerusakan'],
-            'lapor': ['lapor', 'melapor', 'melaporkan', 'dilaporkan', 'laporan', 'pelaporan', 'pelapor'],
-            'aduh': ['aduh', 'mengadu', 'pengaduan', 'aduan'],
-            'keluh': ['keluh', 'mengeluh', 'keluhan'],
-            'komplain': ['komplain', 'berkomplain', 'mengomplain'],
-            'klaim': ['klaim', 'mengklaim', 'diklaim'],
-            'uji': ['uji', 'menguji', 'diuji', 'pengujian', 'ujian'],
-            'tes': ['tes', 'mengetes', 'dites', 'pengetesan'],
-            'cek': ['cek', 'mengecek', 'dicek', 'pengecekan'],
-            'periksa': ['periksa', 'memeriksa', 'diperiksa', 'pemeriksaan'],
-            'kirim': ['kirim', 'mengirim', 'dikirim', 'mengirimkan', 'dikirimkan', 'pengiriman', 'terkirim', 'kiriman', 'pengirim'],
-            'terima': ['terima', 'menerima', 'diterima', 'penerimaan', 'terima', 'penerima'],
-            'buat': ['buat', 'membuat', 'dibuat', 'pembuatan', 'terbuat', 'buatan'],
-            'guna': ['guna', 'menggunakan', 'digunakan', 'penggunaan', 'pengguna', 'berguna'],
-            'pakai': ['pakai', 'memakai', 'dipakai', 'pemakaian', 'terpakai'],
-            'catat': ['catat', 'mencatat', 'dicatat', 'pencatatan', 'catatan', 'tercatat'],
-            'tulis': ['tulis', 'menulis', 'ditulis', 'penulisan', 'tulisan', 'tertulis'],
-            'baca': ['baca', 'membaca', 'dibaca', 'pembacaan', 'bacaan'],
-            'atur': ['atur', 'mengatur', 'diatur', 'pengaturan', 'peraturan', 'aturan', 'teratur'],
-            'setel': ['setel', 'menyetel', 'disetel', 'penyetelan', 'setelan'],
-            'ulang': ['ulang', 'mengulang', 'diulang', 'pengulangan', 'perulangan', 'terulang'],
-            'aktif': ['aktif', 'mengaktifkan', 'diaktifkan', 'pengaktifan', 'keaktifan', 'aktivasi'],
-            'nonaktif': ['nonaktif', 'menonaktifkan', 'dinonaktifkan', 'penonaktifan', 'deaktivasi'],
-            'isolir': ['isolir', 'mengisolir', 'diisolir', 'pengisolisiran', 'terisolir', 'isoliran'],
-            'blokir': ['blokir', 'memblokir', 'diblokir', 'pemblokiran', 'terblokir'],
-            'simpan': ['simpan', 'menyimpan', 'disimpan', 'penyimpanan', 'tersimpan', 'simpanan'],
-            'hapus': ['hapus', 'menghapus', 'dihapus', 'penghapusan', 'terhapus'],
-            'cari': ['cari', 'mencari', 'dicari', 'pencarian'],
-            'temu': ['temu', 'menemukan', 'ditemukan', 'penemuan', 'pertemuan'],
-            'bantu': ['bantu', 'membantu', 'dibantu', 'bantuan', 'pembantu'],
-            'tolong': ['tolong', 'menolong', 'ditolong', 'pertolongan'],
-            'layan': ['layan', 'melayani', 'dilayani', 'pelayanan', 'layanan', 'pelayan'],
-            'jual': ['jual', 'menjual', 'dijual', 'penjualan', 'terjual', 'jualan'],
-            'beli': ['beli', 'membeli', 'dibeli', 'pembelian', 'pembeli'],
-            'pesan': ['pesan', 'memesan', 'dipesan', 'pemesanan', 'pesanan'],
-            'tarif': ['tarif', 'bertarif', 'mentarifkan'],
-            'biaya': ['biaya', 'membiayai', 'dibiayai', 'pembiayaan', 'berbiaya'],
-            'syarat': ['syarat', 'bersyarat', 'persyaratan', 'mensyaratkan'],
-            'tentu': ['tentu', 'menentukan', 'ditentukan', 'ketentuan', 'penentuan'],
-            'sesuai': ['sesuai', 'menyesuaikan', 'disesuaikan', 'penyesuaian', 'kesesuaian'],
-            'sepakat': ['sepakat', 'menyepakati', 'disepakati', 'kesepakatan'],
-            'janji': ['janji', 'berjanji', 'perjanjian'],
-            'informasi': ['informasi', 'menginformasikan', 'diinformasikan'],
-            'beritahu': ['beritahu', 'memberitahu', 'diberitahu', 'pemberitahuan'],
-            'konfirmasi': ['konfirmasi', 'mengonfirmasi', 'dikonfirmasi', 'pengonfirmasian'],
-            'validasi': ['validasi', 'memvalidasi', 'divalidasi'],
-            'verifikasi': ['verifikasi', 'memverifikasi', 'diverifikasi']
-        };
-
-        const INDONESIAN_AFFIX_TO_ROOT = {};
-        for (const [root, affixes] of Object.entries(INDONESIAN_ROOT_MAP)) {
-            INDONESIAN_AFFIX_TO_ROOT[root] = root;
-            for (const af of affixes) {
-                INDONESIAN_AFFIX_TO_ROOT[af] = root;
-            }
-        }
-
-        function stemIndonesianWord(word) {
-            if (!word || word.length <= 3) return word;
-            word = word.toLowerCase();
-
-            if (INDONESIAN_AFFIX_TO_ROOT[word]) {
-                return INDONESIAN_AFFIX_TO_ROOT[word];
-            }
-
-            let w = word;
-            w = w.replace(/(lah|kah|tah|pun)$/, '');
-            w = w.replace(/(ku|mu|nya)$/, '');
-
-            if (INDONESIAN_AFFIX_TO_ROOT[w]) {
-                return INDONESIAN_AFFIX_TO_ROOT[w];
-            }
-
-            let withoutSuffix = w.replace(/(kan|an|i)$/, '');
-            if (withoutSuffix.length >= 3 && INDONESIAN_AFFIX_TO_ROOT[withoutSuffix]) {
-                return INDONESIAN_AFFIX_TO_ROOT[withoutSuffix];
-            }
-
-            const prefixRules = [
-                { regex: /^meny([aiueo])/, replace: 's$1' },
-                { regex: /^mem([aiueo])/, replace: 'p$1' },
-                { regex: /^mem([bpf])/, replace: '$1' },
-                { regex: /^men([aiueo])/, replace: 't$1' },
-                { regex: /^men([dtcj])/, replace: '$1' },
-                { regex: /^meng([aiueo])/, replace: '$1' },
-                { regex: /^meng([ghkq])/, replace: '$1' },
-                { regex: /^menges([a-z]+)/, replace: '$1' },
-                { regex: /^me([lrmnw])/, replace: '$1' },
-                { regex: /^peny([aiueo])/, replace: 's$1' },
-                { regex: /^pem([aiueo])/, replace: 'p$1' },
-                { regex: /^pem([bpf])/, replace: '$1' },
-                { regex: /^pen([aiueo])/, replace: 't$1' },
-                { regex: /^pen([dtcj])/, replace: '$1' },
-                { regex: /^peng([aiueo])/, replace: '$1' },
-                { regex: /^peng([ghkq])/, replace: '$1' },
-                { regex: /^per([a-z]+)/, replace: '$1' },
-                { regex: /^pel([a-z]+)/, replace: '$1' },
-                { regex: /^pe([a-z]+)/, replace: '$1' },
-                { regex: /^ber([a-z]+)/, replace: '$1' },
-                { regex: /^belajar$/, replace: 'ajar' },
-                { regex: /^be([a-z]+)/, replace: '$1' },
-                { regex: /^ter([a-z]+)/, replace: '$1' },
-                { regex: /^te([a-z]+)/, replace: '$1' },
-                { regex: /^di([a-z]+)/, replace: '$1' },
-                { regex: /^ke([a-z]+)/, replace: '$1' },
-                { regex: /^se([a-z]+)/, replace: '$1' }
-            ];
-
-            for (let p of prefixRules) {
-                if (p.regex.test(w)) {
-                    let candidate = w.replace(p.regex, p.replace);
-                    let candidateNoSuffix = candidate.replace(/(kan|an|i)$/, '');
-                    if (INDONESIAN_AFFIX_TO_ROOT[candidate]) return INDONESIAN_AFFIX_TO_ROOT[candidate];
-                    if (INDONESIAN_AFFIX_TO_ROOT[candidateNoSuffix]) return INDONESIAN_AFFIX_TO_ROOT[candidateNoSuffix];
-                    if (candidateNoSuffix.length >= 3) return candidateNoSuffix;
-                    if (candidate.length >= 3) return candidate;
-                }
-            }
-
-            if (withoutSuffix.length >= 3) return withoutSuffix;
-            return w;
-        }
-
-        function getAffixesForWord(word) {
-            if (!word) return [];
-            word = word.toLowerCase();
-            const root = INDONESIAN_AFFIX_TO_ROOT[word] || stemIndonesianWord(word) || word;
-            const results = new Set([word, root]);
-
-            if (INDONESIAN_ROOT_MAP[root]) {
-                for (const af of INDONESIAN_ROOT_MAP[root]) {
-                    results.add(af);
-                }
-            } else {
-                results.add('me' + root);
-                results.add('mem' + root);
-                results.add('men' + root);
-                results.add('meng' + root);
-                results.add('di' + root);
-                results.add('di' + root + 'kan');
-                results.add('me' + root + 'kan');
-                results.add('ber' + root);
-                results.add('ter' + root);
-                results.add('pe' + root);
-                results.add('pe' + root + 'an');
-                results.add(root + 'an');
-                results.add(root + 'kan');
-                results.add(root + 'i');
-                results.add(root + 'nya');
-            }
-            return Array.from(results);
-        }
-
-        const INDONESIAN_SYNONYM_GROUPS = [
-            ['promo', 'promosi', 'diskon', 'potongan', 'cashback', 'voucher', 'benefit', 'penawaran', 'potongan harga', 'hemat'],
-            ['wifi', 'wi-fi', 'internet', 'koneksi', 'jaringan', 'network', 'sinyal', 'broadband', 'online', 'data', 'hotspot', 'wlan', 'indihome'],
-            ['biaya', 'harga', 'tarif', 'tagihan', 'billing', 'invoice', 'nominal', 'rupiah', 'bayar', 'pembayaran', 'ongkos', 'fee', 'charge'],
-            ['lunas', 'melunasi', 'pelunasan', 'terbayar', 'sudah bayar'],
-            ['tunggakan', 'tertunggak', 'belum bayar', 'denda', 'keterlambatan'],
-            ['gangguan', 'kendala', 'trouble', 'error', 'rusak', 'problem', 'down', 'los', 'mati', 'putus', 'terputus', 'interupsi', 'padam', 'off', 'bermasalah', 'tidak bisa'],
-            ['lemot', 'lambat', 'slow', 'lelet', 'buffering', 'lag', 'drop', 'menurun'],
-            ['kecepatan', 'speed', 'bandwidth', 'mbps', 'kbps', 'fup', 'kuota'],
-            ['komplain', 'keluhan', 'laporan', 'lapor', 'aduan', 'pengaduan', 'tiket', 'keluh', 'protes'],
-            ['pasang', 'memasang', 'pemasangan', 'instalasi', 'daftar', 'mendaftar', 'pendaftaran', 'registrasi', 'order', 'pasang baru', 'psb', 'berlangganan', 'langgan'],
-            ['berhenti', 'stop', 'putus', 'pemutusan', 'cabut', 'pencabutan', 'batal', 'pembatalan', 'disconnect', 'deaktivasi', 'terminasi', 'tutup'],
-            ['isolir', 'terisolir', 'suspend', 'blokir', 'terblokir', 'nonaktif'],
-            ['unisolir', 'buka isolir', 'reaktivasi', 'aktifkan kembali', 'buka blokir'],
-            ['pindah', 'berpindah', 'pemindahan', 'relokasi', 'mutasi', 'pindah alamat', 'move'],
-            ['ubah', 'mengubah', 'perubahan', 'ganti', 'mengganti', 'pergantian', 'penggantian', 'tukar', 'switch', 'migrasi', 'update', 'edit'],
-            ['naik', 'kenaikan', 'menaikkan', 'upgrade', 'tambah kecepatan'],
-            ['turun', 'penurunan', 'menurunkan', 'downgrade'],
-            ['tambah', 'penambahan', 'ekstra', 'addon', 'add-on', 'tambahan'],
-            ['perangkat', 'alat', 'modem', 'ont', 'router', 'stb', 'set top box', 'dekoder', 'hardware', 'cpe', 'kabel', 'fiber'],
-            ['reset', 'restart', 'reboot', 'setel ulang'],
-            ['aktif', 'active', 'berjalan', 'hidup', 'berlaku', 'valid', 'efektif'],
-            ['nonaktif', 'mati', 'deaktivasi', 'tidak aktif', 'expired', 'kadaluarsa', 'hangus', 'tidak berlaku'],
-            ['sop', 'prosedur', 'alur', 'tata cara', 'panduan', 'petunjuk', 'tutorial', 'langkah', 'flow', 'mekanisme', 'pedoman'],
-            ['syarat', 'persyaratan', 'ketentuan', 'sk', 's&k', 'aturan', 'kebijakan', 'regulasi', 'kriteria'],
-            ['pelanggan', 'langganan', 'user', 'klien', 'customer', 'konsumen', 'nasabah', 'pengguna'],
-            ['kontak', 'call center', 'contact center', 'telepon', 'telp', 'wa', 'whatsapp', 'hotline', 'hubungi', 'nomor'],
-            ['catatan', 'keterangan', 'memo', 'info', 'informasi', 'pemberitahuan', 'pengumuman', 'penjelasan'],
-            ['cek', 'mengecek', 'pengecekan', 'periksa', 'memeriksa', 'pemeriksaan', 'verifikasi', 'validasi', 'konfirmasi', 'lihat'],
-            ['petugas', 'teknisi', 'staf', 'agent', 'cs', 'customer service', 'operator', 'lapangan']
-        ];
-
-        const INDONESIAN_SYNONYM_MAP = {};
-        INDONESIAN_SYNONYM_GROUPS.forEach(group => {
-            group.forEach(word => {
-                const key = word.toLowerCase();
-                if (!INDONESIAN_SYNONYM_MAP[key]) {
-                    INDONESIAN_SYNONYM_MAP[key] = new Set();
-                }
-                group.forEach(other => {
-                    if (other.toLowerCase() !== key) {
-                        INDONESIAN_SYNONYM_MAP[key].add(other.toLowerCase());
-                    }
-                });
-            });
-        });
-
-        function getSynonymsForWord(word) {
-            if (!word) return [];
-            word = word.toLowerCase();
-            const syns = new Set();
-
-            if (INDONESIAN_SYNONYM_MAP[word]) {
-                INDONESIAN_SYNONYM_MAP[word].forEach(s => syns.add(s));
-            }
-
-            const root = INDONESIAN_AFFIX_TO_ROOT[word] || stemIndonesianWord(word);
-            if (root && root !== word && INDONESIAN_SYNONYM_MAP[root]) {
-                INDONESIAN_SYNONYM_MAP[root].forEach(s => syns.add(s));
-            }
-
-            return Array.from(syns);
-        }
-
-        function tokenizeSearchQuery(query) {
-            if (!query) return [];
-            return query.split(/\s+/)
-                .map(t => cleanSearchPunctuation(t).toLowerCase())
-                .filter(t => t.length > 0);
-        }
-
-        function expandSearchToken(token) {
-            if (!token) return { original: '', roots: [], affixes: [], synonyms: [], allVariants: [] };
-            const original = token.toLowerCase();
-            const root = INDONESIAN_AFFIX_TO_ROOT[original] || stemIndonesianWord(original) || original;
-            const roots = (root && root !== original) ? [root] : [original];
-
-            const affixes = getAffixesForWord(original);
-            if (root && root !== original) {
-                getAffixesForWord(root).forEach(af => {
-                    if (!affixes.includes(af)) affixes.push(af);
-                });
-            }
-
-            const synonyms = getSynonymsForWord(original);
-            if (root && root !== original) {
-                getSynonymsForWord(root).forEach(syn => {
-                    if (!synonyms.includes(syn)) synonyms.push(syn);
-                });
-            }
-
-            const synonymAffixes = [];
-            for (const syn of synonyms) {
-                const synAfs = getAffixesForWord(syn);
-                for (const sa of synAfs) {
-                    if (!synonyms.includes(sa) && !affixes.includes(sa) && !synonymAffixes.includes(sa)) {
-                        synonymAffixes.push(sa);
-                    }
-                }
-            }
-
-            return {
-                original,
-                roots: Array.from(new Set(roots)),
-                affixes: Array.from(new Set(affixes)),
-                synonyms: Array.from(new Set([...synonyms, ...synonymAffixes])),
-                allVariants: Array.from(new Set([original, ...roots, ...affixes, ...synonyms, ...synonymAffixes]))
-            };
-        }
-
-        function getSearchHighlightRegex(searchTerm) {
-            const cleaned = cleanSearchPunctuation(searchTerm);
-            if (!cleaned) return null;
-            const tokens = tokenizeSearchQuery(searchTerm);
-            if (tokens.length === 0) return null;
-
-            const wordsToHighlight = new Set();
-            if (tokens.length > 1) {
-                wordsToHighlight.add(cleaned.toLowerCase());
-            }
-
-            tokens.forEach(tok => {
-                const exp = expandSearchToken(tok);
-                wordsToHighlight.add(exp.original);
-                exp.roots.forEach(r => wordsToHighlight.add(r));
-                exp.affixes.forEach(af => wordsToHighlight.add(af));
-                exp.synonyms.forEach(syn => wordsToHighlight.add(syn));
-            });
-
-            const list = Array.from(wordsToHighlight)
-                .filter(w => w && w.length >= 2)
-                .sort((a, b) => b.length - a.length);
-
-            if (list.length === 0) return null;
-            const pattern = list.map(w => escapeRegExp(w)).join('|');
-            return new RegExp(`(${pattern})`, 'gi');
-        }
-
-        function highlightHtmlText(html, regex, highlightClass) {
-            if (!html || !regex) return html || '';
-            // Proteksi tag HTML: hanya highlight teks di luar kurung tag <...>
-            return html.replace(/(<[^>]+>)|([^<]+)/g, (match, tag, text) => {
-                if (tag) return tag;
-                if (!text) return '';
-                return text.replace(regex, `<span class="${highlightClass}">$1</span>`);
-            });
-        }
-
-        let _searchExpansionCache = { term: null, cleanTerm: '', tokens: [], tokenExpansions: [], highlightRegex: null };
-
-        function getExpandedQueryData(searchTerm) {
-            if (!searchTerm) return null;
-            const cleanTerm = cleanSearchPunctuation(searchTerm).toLowerCase();
-            if (!cleanTerm) return null;
-
-            if (_searchExpansionCache.term === searchTerm) {
-                return _searchExpansionCache;
-            }
-
-            const tokens = tokenizeSearchQuery(searchTerm);
-            const tokenExpansions = tokens.map(tok => expandSearchToken(tok));
-            const highlightRegex = getSearchHighlightRegex(searchTerm);
-
-            _searchExpansionCache = {
-                term: searchTerm,
-                cleanTerm,
-                tokens,
-                tokenExpansions,
-                highlightRegex
-            };
-            return _searchExpansionCache;
-        }
-
-        function isCardContentSearchMatch(card, searchTerm) {
-            if (!searchTerm) return true;
-            const queryData = getExpandedQueryData(searchTerm);
-            if (!queryData || queryData.tokens.length === 0) return true;
-
+        function getSearchMatchRank(card, lowerSearch) {
+            if (!lowerSearch) return 0;
             const titleText = (card.title || '').toLowerCase();
+            if (titleText.includes(lowerSearch)) return 1;
+
             const subjectText = stripHtml(card.subject || '').toLowerCase();
+            if (subjectText.includes(lowerSearch)) return 2;
+
             const contentText = stripHtml(card.content || '').toLowerCase();
-            const fullText = titleText + ' ' + subjectText + ' ' + contentText;
-            const normalizedFullText = fullText.replace(/[\s#*?!@$%^&_=+~`'"()[\]{}<>/\\:;,.-]+/g, ' ');
+            if (contentText.includes(lowerSearch)) return 3;
 
-            // Fast check 1: kecocokan langsung dari query bersih
-            if (fullText.includes(queryData.cleanTerm) || normalizedFullText.includes(queryData.cleanTerm)) {
-                return true;
-            }
-
-            // Setiap token pencarian harus cocok (kata asli, kata dasar, kata berimbuhan, atau sinonim)
-            return queryData.tokenExpansions.every(exp => {
-                if (fullText.includes(exp.original) || normalizedFullText.includes(exp.original)) {
-                    return true;
-                }
-                return exp.allVariants.some(variant => {
-                    return fullText.includes(variant) || normalizedFullText.includes(variant);
-                });
-            });
-        }
-
-        function getSearchMatchRank(card, searchTerm) {
-            if (!searchTerm) return 0;
-            const queryData = getExpandedQueryData(searchTerm);
-            if (!queryData || queryData.tokens.length === 0) return 0;
-
-            const titleText = (card.title || '').toLowerCase();
-            const subjectText = stripHtml(card.subject || '').toLowerCase();
-            const contentText = stripHtml(card.content || '').toLowerCase();
-            const normTitle = titleText.replace(/[\s#*?!@$%^&_=+~`'"()[\]{}<>/\\:;,.-]+/g, ' ');
-            const normSubject = subjectText.replace(/[\s#*?!@$%^&_=+~`'"()[\]{}<>/\\:;,.-]+/g, ' ');
-            const normContent = contentText.replace(/[\s#*?!@$%^&_=+~`'"()[\]{}<>/\\:;,.-]+/g, ' ');
-
-            const clean = queryData.cleanTerm;
-
-            // 1-3: Kecocokan persis seluruh frasa
-            if (titleText.includes(clean) || normTitle.includes(clean)) return 1;
-            if (subjectText.includes(clean) || normSubject.includes(clean)) return 2;
-            if (contentText.includes(clean) || normContent.includes(clean)) return 3;
-
-            // 4-6: Semua token asli cocok
-            const allTokensInTitle = queryData.tokens.every(t => titleText.includes(t) || normTitle.includes(t));
-            if (allTokensInTitle) return 4;
-
-            const allTokensInSubject = queryData.tokens.every(t => subjectText.includes(t) || normSubject.includes(t));
-            if (allTokensInSubject) return 5;
-
-            const allTokensInContent = queryData.tokens.every(t => contentText.includes(t) || normContent.includes(t));
-            if (allTokensInContent) return 6;
-
-            // 7-9: Kecocokan kata dasar / berimbuhan
-            const hasRootAffixInTitle = queryData.tokenExpansions.some(exp =>
-                exp.roots.some(r => titleText.includes(r) || normTitle.includes(r)) ||
-                exp.affixes.some(a => titleText.includes(a) || normTitle.includes(a))
-            );
-            if (hasRootAffixInTitle) return 7;
-
-            const hasRootAffixInSubject = queryData.tokenExpansions.some(exp =>
-                exp.roots.some(r => subjectText.includes(r) || normSubject.includes(r)) ||
-                exp.affixes.some(a => subjectText.includes(a) || normSubject.includes(a))
-            );
-            if (hasRootAffixInSubject) return 8;
-
-            const hasRootAffixInContent = queryData.tokenExpansions.some(exp =>
-                exp.roots.some(r => contentText.includes(r) || normContent.includes(r)) ||
-                exp.affixes.some(a => contentText.includes(a) || normContent.includes(a))
-            );
-            if (hasRootAffixInContent) return 9;
-
-            // 10-12: Kecocokan sinonim
-            const hasSynonymInTitle = queryData.tokenExpansions.some(exp =>
-                exp.synonyms.some(s => titleText.includes(s) || normTitle.includes(s))
-            );
-            if (hasSynonymInTitle) return 10;
-
-            const hasSynonymInSubject = queryData.tokenExpansions.some(exp =>
-                exp.synonyms.some(s => subjectText.includes(s) || normSubject.includes(s))
-            );
-            if (hasSynonymInSubject) return 11;
-
-            const hasSynonymInContent = queryData.tokenExpansions.some(exp =>
-                exp.synonyms.some(s => contentText.includes(s) || normContent.includes(s))
-            );
-            if (hasSynonymInContent) return 12;
-
-            return 13;
+            return 4;
         }
 
         function generateContentCardHtml(content, searchTerm = '', isSearchMatch = false) {
-            const queryData = searchTerm ? getExpandedQueryData(searchTerm) : null;
-            const highlightRegex = queryData ? queryData.highlightRegex : null;
+            const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const searchRegex = searchTerm ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
             const highlightClass = isSearchMatch ? 'search-active' : 'search-highlight';
 
             const highlightText = (text) => {
-                if (!text || !highlightRegex) return text || '';
-                return highlightHtmlText(text, highlightRegex, highlightClass);
+                if (!text || !searchRegex) return text || '';
+                return text.replace(searchRegex, `<span class="${highlightClass}">$1</span>`);
             };
 
             const highlightedTitle = highlightText(content.title);
@@ -5101,13 +4658,32 @@
 
         function renderContentList() {
             const searchTerm = document.getElementById('contentSearch').value.trim();
+            const lowerSearch = searchTerm.toLowerCase();
+
+            // Debug: log state filter dan jumlah konten untuk verifikasi
+            if (searchTerm) {
+                console.log('[DEBUG] Filter aktif:', state.filter.active, '| Search:', searchTerm);
+                console.log('[DEBUG] Total konten:', state.contents.length);
+                state.contents.forEach(c => {
+                    const cls = c.classification;
+                    const matchFilter = isContentInFilter(c, state.filter.active);
+                    const titleLower = (c.title || '').toLowerCase();
+                    const matchSearch = titleLower.includes(lowerSearch);
+                    if (matchSearch) {
+                        console.log('[DEBUG] Konten match search:', c.title, '| classification:', cls, '| matchFilter:', matchFilter);
+                    }
+                });
+            }
 
             let filtered = state.contents.filter(c => {
                 const matchesFilter = isContentInFilter(c, state.filter.active);
                 if (!matchesFilter) return false;
                 if (!searchTerm) return true;
 
-                return isCardContentSearchMatch(c, searchTerm);
+                // Selalu regenerate _plainText agar cache tidak menyebabkan hasil pencarian
+                // yang salah setelah data diperbarui
+                c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                return c._plainText.includes(lowerSearch);
             });
 
             // Urutan card: Pinned first (diurutkan berdasarkan tanggal pembuatan terbaru), kemudian status (Berlaku sebelum Tidak Berlaku), kemudian tingkat match pencarian, kemudian abjad
@@ -5120,9 +4696,9 @@
                     const bStatus = (b.status === 'tidak_berlaku' || b.status === 'tidak-berlaku') ? 1 : 0;
                     if (aStatus !== bStatus) return aStatus - bStatus;
 
-                    if (searchTerm) {
-                        const aRank = getSearchMatchRank(a, searchTerm);
-                        const bRank = getSearchMatchRank(b, searchTerm);
+                    if (lowerSearch) {
+                        const aRank = getSearchMatchRank(a, lowerSearch);
+                        const bRank = getSearchMatchRank(b, lowerSearch);
                         if (aRank !== bRank) return aRank - bRank;
                     }
 
@@ -5140,11 +4716,11 @@
                     return aStatus - bStatus; // 0 (Berlaku) before 1 (Tidak Berlaku)
                 }
 
-                if (searchTerm) {
-                    const aRank = getSearchMatchRank(a, searchTerm);
-                    const bRank = getSearchMatchRank(b, searchTerm);
+                if (lowerSearch) {
+                    const aRank = getSearchMatchRank(a, lowerSearch);
+                    const bRank = getSearchMatchRank(b, lowerSearch);
                     if (aRank !== bRank) {
-                        return aRank - bRank; // Urutkan berdasarkan relevansi match
+                        return aRank - bRank; // 1 (Judul) before 2 (Subjudul) before 3 (Isi Content)
                     }
                 }
 
@@ -5180,13 +4756,15 @@
         function renderHotCaseList() {
             const searchInput = document.getElementById('hotCaseSearch');
             const searchTerm = (searchInput ? searchInput.value : '').trim();
+            const lowerSearch = searchTerm.toLowerCase();
 
             // Hot Case menampilkan hanya konten yang di-pin
             const pinned = state.contents.filter(c => c.pinned === true);
 
             let filtered = pinned.filter(c => {
                 if (!searchTerm) return true;
-                return isCardContentSearchMatch(c, searchTerm);
+                c._plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                return c._plainText.includes(lowerSearch);
             });
 
             const countEl = document.getElementById('hotCaseSearchResultCount');
@@ -5211,9 +4789,9 @@
                     return aStatus - bStatus;
                 }
 
-                if (searchTerm) {
-                    const aRank = getSearchMatchRank(a, searchTerm);
-                    const bRank = getSearchMatchRank(b, searchTerm);
+                if (lowerSearch) {
+                    const aRank = getSearchMatchRank(a, lowerSearch);
+                    const bRank = getSearchMatchRank(b, lowerSearch);
                     if (aRank !== bRank) {
                         return aRank - bRank;
                     }
@@ -6315,6 +5893,7 @@
             if (hint) hint.style.display = searchTerm ? 'block' : 'none';
 
             // Hitung jumlah hasil pencarian secara instan
+            const lowerSearch = searchTerm.toLowerCase();
             let count = 0;
             if (!searchTerm) {
                 count = state.contents.filter(c => isContentInFilter(c, state.filter.active)).length;
@@ -6322,7 +5901,8 @@
                 state.contents.forEach(c => {
                     // Gunakan isContentInFilter agar multi-klasifikasi benar-benar dicek
                     if (!isContentInFilter(c, state.filter.active)) return;
-                    if (isCardContentSearchMatch(c, searchTerm)) count++;
+                    const plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                    if (plainText.includes(lowerSearch)) count++;
                 });
             }
 
@@ -6344,11 +5924,13 @@
         function navigateToNextMatch() {
             const searchTerm = document.getElementById('contentSearch').value.trim();
             if (!searchTerm) return;
+            const lowerSearch = searchTerm.toLowerCase();
 
             const filtered = state.contents.filter(c => {
                 // Gunakan isContentInFilter agar multi-klasifikasi benar-benar dicek
                 if (!isContentInFilter(c, state.filter.active)) return false;
-                return isCardContentSearchMatch(c, searchTerm);
+                const plainText = ((c.title || '') + ' ' + (c.subject || '') + ' ' + stripHtml(c.content || '')).toLowerCase();
+                return plainText.includes(lowerSearch);
             });
 
             if (filtered.length === 0) return;
@@ -6364,9 +5946,9 @@
                     return aStatus - bStatus;
                 }
 
-                if (searchTerm) {
-                    const aRank = getSearchMatchRank(a, searchTerm);
-                    const bRank = getSearchMatchRank(b, searchTerm);
+                if (lowerSearch) {
+                    const aRank = getSearchMatchRank(a, lowerSearch);
+                    const bRank = getSearchMatchRank(b, lowerSearch);
                     if (aRank !== bRank) {
                         return aRank - bRank;
                     }
@@ -7137,8 +6719,7 @@
             const classNoResult = document.getElementById('classificationNoResult');
 
             function filterClassificationPills(term) {
-                const q = cleanSearchPunctuation(term).toLowerCase();
-                const queryData = q ? getExpandedQueryData(term) : null;
+                const q = term.trim().toLowerCase();
                 const pills = document.querySelectorAll('#filterContainer .filter-pill');
                 let visibleCount = 0;
                 pills.forEach(pill => {
@@ -7149,21 +6730,11 @@
                         visibleCount++;
                         return;
                     }
-                    if (!q) {
+                    if (!q || label.includes(q)) {
                         pill.classList.remove('hidden-by-search');
                         visibleCount++;
                     } else {
-                        const normLabel = label.replace(/[\s#*?!@$%^&_=+~`'"()[\]{}<>/\\:;,.-]+/g, ' ');
-                        const isMatch = label.includes(q) || normLabel.includes(q) ||
-                            (queryData && queryData.tokenExpansions.some(exp =>
-                                exp.allVariants.some(v => label.includes(v) || normLabel.includes(v))
-                            ));
-                        if (isMatch) {
-                            pill.classList.remove('hidden-by-search');
-                            visibleCount++;
-                        } else {
-                            pill.classList.add('hidden-by-search');
-                        }
+                        pill.classList.add('hidden-by-search');
                     }
                 });
                 if (classNoResult) {
