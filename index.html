@@ -2731,7 +2731,7 @@
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
-                            <input type="text" class="search-bar" id="contentSearch" placeholder="Cari judul, subject, atau isi..." style="padding-right: 75px; font-size: 14px;">
+                            <input type="text" class="search-bar" id="contentSearch" placeholder="Cari judul, subject, atau kata kunci..." style="padding-right: 75px; font-size: 14px;">
                             <button type="button" id="clearSearchBtn" style="position: absolute; right: 48px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 16px; cursor: pointer; color: var(--text-muted); display: none;" title="Hapus pencarian">✕</button>
                             <span id="searchResultCount" class="search-result-count"></span>
                         </div>
@@ -4619,9 +4619,9 @@
             ['gangguan', 'kendala', 'trouble', 'error', 'rusak', 'problem', 'down', 'los', 'mati', 'putus', 'lemot'],
             ['lemot', 'lambat', 'slow', 'lelet', 'buffering', 'lag', 'koneksi lambat'],
             ['kecepatan', 'speed', 'bandwidth', 'mbps', 'kbps', 'fup'],
-            ['ubah paket', 'ganti paket', 'migrasi', 'upgrade', 'downgrade', 'switch paket'],
-            ['upgrade', 'naik paket', 'tambah kecepatan', 'naik kecepatan'],
-            ['downgrade', 'turun paket', 'turun kecepatan'],
+            ['ubah paket', 'ganti paket', 'migrasi', 'switch paket', 'perubahan paket'],
+            ['upgrade', 'naik paket', 'tambah kecepatan', 'naik kecepatan', 'tambah paket', 'tingkatkan layanan'],
+            ['downgrade', 'turun paket', 'turun kecepatan', 'kurang paket', 'turunkan layanan'],
             ['ubah', 'ganti', 'migrasi', 'switch', 'update', 'edit'],
             ['isolir', 'terisolir', 'suspend', 'blokir', 'terblokir', 'tutup sementara'],
             ['unisolir', 'buka isolir', 'reaktivasi', 'aktifkan kembali', 'buka blokir'],
@@ -4633,32 +4633,26 @@
         ];
 
         function getRelatedKeywords(term) {
-            if (!term) return [];
-            const t = term.trim().toLowerCase();
-            const related = new Set();
-            KEYWORD_SYNONYMS.forEach(group => {
-                const hasTerm = group.some(w => w.toLowerCase() === t || t.includes(w.toLowerCase()) || w.toLowerCase().includes(t));
-                if (hasTerm) {
-                    group.forEach(w => {
-                        if (w.toLowerCase() !== t) {
-                            related.add(w.toLowerCase());
-                        }
-                    });
-                }
-            });
-            return Array.from(related);
+            return [];
         }
 
         function getKeywordSuggestions(title, subject) {
             const combined = ((title || '') + ' ' + stripHtml(subject || '')).toLowerCase();
             const suggestions = new Set();
+            const hasUpgrade = /\b(upgrade|naik\s*paket|tambah\s*kecepatan)\b/i.test(combined);
+            const hasDowngrade = /\b(downgrade|turun\s*paket|turun\s*kecepatan)\b/i.test(combined);
+
             KEYWORD_SYNONYMS.forEach(group => {
                 const matched = group.some(term => combined.includes(term.toLowerCase()));
                 if (matched) {
                     group.forEach(term => {
-                        if (!combined.includes(term.toLowerCase())) {
-                            suggestions.add(term);
-                        }
+                        const termLower = term.toLowerCase();
+                        if (combined.includes(termLower)) return;
+                        // Hindari merekomendasikan upgrade jika konten membahas downgrade (tanpa upgrade)
+                        if (hasDowngrade && !hasUpgrade && /\b(upgrade|naik\s*paket|tambah\s*kecepatan)\b/i.test(termLower)) return;
+                        // Hindari merekomendasikan downgrade jika konten membahas upgrade (tanpa downgrade)
+                        if (hasUpgrade && !hasDowngrade && /\b(downgrade|turun\s*paket|turun\s*kecepatan)\b/i.test(termLower)) return;
+                        suggestions.add(term);
                     });
                 }
             });
@@ -4718,73 +4712,447 @@
             }
         }
 
-        // Pencarian HANYA berlaku pada Judul, Subject (max 10000 karakter), dan Kata Kunci.
-        // Konten (Rich Text) TIDAK terdeteksi dalam pencarian.
-        function isContentSearchMatch(card, searchTerm) {
-            if (!searchTerm) return true;
-            const lowerSearch = searchTerm.trim().toLowerCase();
-            if (!lowerSearch) return true;
+        // ========================================
+        // SEARCH ENGINE: Judul, Subject (max 10000 char), dan Kata Kunci Pencarian (Keywords)
+        // Aturan:
+        // 1. Cakupan HANYA merujuk pada Judul konten, Subject (max 10000 karakter), dan Kata Kunci Pencarian (Keywords).
+        //    Selain ketiga bidang tersebut (seperti Konten / Rich Text, links, dll.) TIDAK DIPERBOLEHKAN MUNCUL.
+        // 2. Mendukung pencocokan kalimat (frasa), kata dasar, dan kata yang sudah mendapatkan imbuhan.
+        // 3. TIDAK BERLAKU sinonim yang tidak ada di Kata Kunci Pencarian (Keywords).
+        // ========================================
 
-            const titleText = (card.title || '').toLowerCase();
-            const subjectText = stripHtml(card.subject || '').slice(0, 10000).toLowerCase();
-            const keywordsText = (card.keywords || '').toLowerCase();
-            const searchableText = titleText + ' ' + subjectText + ' ' + keywordsText;
+        const INDONESIAN_ROOT_MAP = {
+            'pasang': ['pasang', 'memasang', 'dipasang', 'pemasangan', 'terpasang', 'pasangkan', 'memasangkan', 'dipasangkan', 'berpasang'],
+            'daftar': ['daftar', 'mendaftar', 'didaftar', 'pendaftaran', 'terdaftar', 'daftarkan', 'mendaftarkan', 'didaftarkan', 'berdaftar'],
+            'langgan': ['langgan', 'berlangganan', 'pelanggan', 'langganan', 'melanggan'],
+            'hubung': ['hubung', 'menghubungi', 'dihubungi', 'menghubungkan', 'dihubungkan', 'hubungan', 'penghubung', 'terhubung', 'berhubungan'],
+            'sambung': ['sambung', 'menyambung', 'disambung', 'penyambung', 'penyambungan', 'tersambung', 'sambungan'],
+            'putus': ['putus', 'memutus', 'diputus', 'memutuskan', 'diputuskan', 'pemutusan', 'terputus', 'putusan'],
+            'cabut': ['cabut', 'mencabut', 'dicabut', 'pencabutan', 'tercabut', 'mencabutkan', 'dicabutkan'],
+            'henti': ['henti', 'berhenti', 'menghentikan', 'dihentikan', 'penghentian', 'terhenti'],
+            'batal': ['batal', 'membatalkan', 'dibatalkan', 'pembatalan', 'terbatal'],
+            'tutup': ['tutup', 'menutup', 'ditutup', 'penutupan', 'tertutup', 'tutupkan'],
+            'buka': ['buka', 'membuka', 'dibuka', 'pembukaan', 'terbuka', 'bukakan'],
+            'pindah': ['pindah', 'berpindah', 'memindah', 'memindahkan', 'dipindahkan', 'pemindahan', 'perpindahan'],
+            'ubah': ['ubah', 'mengubah', 'diubah', 'perubahan', 'pengubahan', 'berubah', 'terubah', 'ubahkan'],
+            'ganti': ['ganti', 'mengganti', 'diganti', 'pergantian', 'penggantian', 'berganti', 'terganti', 'gantikan'],
+            'tambah': ['tambah', 'menambah', 'ditambah', 'menambahkan', 'ditambahkan', 'penambahan', 'pertambahan', 'tertambah', 'tambahan'],
+            'kurang': ['kurang', 'mengurangi', 'dikurangi', 'pengurangan', 'berkurang', 'terkurang'],
+            'naik': ['naik', 'menaiki', 'menaikkan', 'dinaikkan', 'kenaikan', 'penaikan'],
+            'turun': ['turun', 'menuruni', 'menurunkan', 'diturunkan', 'penurunan'],
+            'bayar': ['bayar', 'membayar', 'dibayar', 'pembayaran', 'terbayar', 'bayaran', 'membayarkan', 'dibayarkan'],
+            'tagih': ['tagih', 'menagih', 'ditagih', 'penagihan', 'tagihan', 'tertagih'],
+            'lunas': ['lunas', 'melunasi', 'dilunasi', 'pelunasan', 'terlunasi'],
+            'tunggak': ['tunggak', 'menunggak', 'tertunggak', 'tunggakan', 'penunggak'],
+            'ganggu': ['ganggu', 'mengganggu', 'diganggu', 'gangguan', 'terganggu'],
+            'kendala': ['kendala', 'berkendala', 'terkendala'],
+            'masalah': ['masalah', 'bermasalah', 'mempermasalahkan'],
+            'rusak': ['rusak', 'merusak', 'dirusak', 'kerusakan', 'merusakkan'],
+            'lapor': ['lapor', 'melapor', 'melaporkan', 'dilaporkan', 'laporan', 'pelaporan', 'pelapor', 'terlapor'],
+            'aduh': ['aduh', 'mengadu', 'pengaduan', 'aduan', 'diadukan'],
+            'keluh': ['keluh', 'mengeluh', 'keluhan', 'dikeluhkan'],
+            'komplain': ['komplain', 'berkomplain', 'mengomplain', 'dikomplain'],
+            'klaim': ['klaim', 'mengklaim', 'diklaim', 'pengklaiman'],
+            'uji': ['uji', 'menguji', 'diuji', 'pengujian', 'ujian'],
+            'tes': ['tes', 'mengetes', 'dites', 'pengetesan'],
+            'cek': ['cek', 'mengecek', 'dicek', 'pengecekan', 'tercek'],
+            'periksa': ['periksa', 'memeriksa', 'diperiksa', 'pemeriksaan', 'terperiksa'],
+            'kirim': ['kirim', 'mengirim', 'dikirim', 'mengirimkan', 'dikirimkan', 'pengiriman', 'terkirim', 'kiriman', 'pengirim'],
+            'terima': ['terima', 'menerima', 'diterima', 'penerimaan', 'terima', 'penerima'],
+            'buat': ['buat', 'membuat', 'dibuat', 'pembuatan', 'terbuat', 'buatan', 'membuatkan'],
+            'guna': ['guna', 'menggunakan', 'digunakan', 'penggunaan', 'pengguna', 'berguna'],
+            'pakai': ['pakai', 'memakai', 'dipakai', 'pemakaian', 'terpakai', 'pakaikan'],
+            'catat': ['catat', 'mencatat', 'dicatat', 'pencatatan', 'catatan', 'tercatat'],
+            'tulis': ['tulis', 'menulis', 'ditulis', 'penulisan', 'tulisan', 'tertulis'],
+            'baca': ['baca', 'membaca', 'dibaca', 'pembacaan', 'bacaan'],
+            'atur': ['atur', 'mengatur', 'diatur', 'pengaturan', 'peraturan', 'aturan', 'teratur'],
+            'setel': ['setel', 'menyetel', 'disetel', 'penyetelan', 'setelan'],
+            'ulang': ['ulang', 'mengulang', 'diulang', 'pengulangan', 'perulangan', 'terulang'],
+            'aktif': ['aktif', 'mengaktifkan', 'diaktifkan', 'pengaktifan', 'keaktifan', 'aktivasi', 'pengaktif'],
+            'nonaktif': ['nonaktif', 'menonaktifkan', 'dinonaktifkan', 'penonaktifan', 'deaktivasi'],
+            'isolir': ['isolir', 'mengisolir', 'diisolir', 'pengisolisiran', 'terisolir', 'isoliran'],
+            'blokir': ['blokir', 'memblokir', 'diblokir', 'pemblokiran', 'terblokir'],
+            'simpan': ['simpan', 'menyimpan', 'disimpan', 'penyimpanan', 'tersimpan', 'simpanan'],
+            'hapus': ['hapus', 'menghapus', 'dihapus', 'penghapusan', 'terhapus'],
+            'cari': ['cari', 'mencari', 'dicari', 'pencarian', 'tercari', 'pencari'],
+            'temu': ['temu', 'menemukan', 'ditemukan', 'penemuan', 'pertemuan'],
+            'bantu': ['bantu', 'membantu', 'dibantu', 'bantuan', 'pembantu'],
+            'tolong': ['tolong', 'menolong', 'ditolong', 'pertolongan'],
+            'layan': ['layan', 'melayani', 'dilayani', 'pelayanan', 'layanan', 'pelayan'],
+            'jual': ['jual', 'menjual', 'dijual', 'penjualan', 'terjual', 'jualan', 'penjual'],
+            'beli': ['beli', 'membeli', 'dibeli', 'pembelian', 'pembeli'],
+            'pesan': ['pesan', 'memesan', 'dipesan', 'pemesanan', 'pesanan', 'pemesan'],
+            'tarif': ['tarif', 'bertarif', 'mentarifkan'],
+            'biaya': ['biaya', 'membiayai', 'dibiayai', 'pembiayaan', 'berbiaya'],
+            'syarat': ['syarat', 'bersyarat', 'persyaratan', 'mensyaratkan', 'disyaratkan'],
+            'tentu': ['tentu', 'menentukan', 'ditentukan', 'ketentuan', 'penentuan', 'tertentu'],
+            'sesuai': ['sesuai', 'menyesuaikan', 'disesuaikan', 'penyesuaian', 'kesesuaian'],
+            'sepakat': ['sepakat', 'menyepakati', 'disepakati', 'kesepakatan'],
+            'janji': ['janji', 'berjanji', 'perjanjian', 'menjanjikan'],
+            'informasi': ['informasi', 'menginformasikan', 'diinformasikan', 'terinformasi'],
+            'beritahu': ['beritahu', 'memberitahu', 'diberitahu', 'pemberitahuan'],
+            'konfirmasi': ['konfirmasi', 'mengonfirmasi', 'dikonfirmasi', 'pengonfirmasian'],
+            'validasi': ['validasi', 'memvalidasi', 'divalidasi'],
+            'verifikasi': ['verifikasi', 'memverifikasi', 'diverifikasi'],
+            'hitung': ['hitung', 'menghitung', 'dihitung', 'perhitungan', 'hitungan'],
+            'potong': ['potong', 'memotong', 'dipotong', 'potongan', 'pemotongan'],
+            'sedia': ['sedia', 'menyediakan', 'disediakan', 'tersedia', 'ketersediaan', 'penyediaan'],
+            'butuh': ['butuh', 'membutuhkan', 'dibutuhkan', 'kebutuhan'],
+            'laku': ['laku', 'berlaku', 'memberlakukan', 'diberlakukan', 'keberlakuan'],
+            'kendali': ['kendali', 'mengendalikan', 'dikendalikan', 'pengendali', 'pengendalian'],
+            'kelola': ['kelola', 'mengelola', 'dikelola', 'pengelolaan', 'pengelola'],
+            'arah': ['arah', 'mengarahkan', 'diarahkan', 'pengarahan', 'arahan'],
+            'pandu': ['pandu', 'memandu', 'dipandu', 'panduan'],
+            'petunjuk': ['petunjuk', 'menunjuk', 'ditunjuk', 'menunjukkan', 'ditunjukkan'],
+            'masuk': ['masuk', 'memasuki', 'memasukkan', 'dimasukkan', 'pemasukan', 'kemasukan', 'termasuk'],
+            'keluar': ['keluar', 'mengeluarkan', 'dikeluarkan', 'pengeluaran'],
+            'ambil': ['ambil', 'mengambil', 'diambil', 'pengambilan'],
+            'antar': ['antar', 'mengantar', 'diantar', 'pengantaran'],
+            'jemput': ['jemput', 'menjemput', 'dijemput', 'penjemputan'],
+            'cepat': ['cepat', 'mempercepat', 'dipercepat', 'kecepatan', 'percepatan'],
+            'lambat': ['lambat', 'melambat', 'terlambat', 'keterlambatan'],
+            'tingkat': ['tingkat', 'meningkat', 'meningkatkan', 'ditingkatkan', 'peningkatan']
+        };
 
-            // 1. Kecocokan langsung pada Judul, Subject, atau Kata Kunci
-            if (searchableText.includes(lowerSearch)) return true;
+        const INDONESIAN_AFFIX_TO_ROOT = {};
+        for (const [root, affixes] of Object.entries(INDONESIAN_ROOT_MAP)) {
+            INDONESIAN_AFFIX_TO_ROOT[root] = root;
+            for (const af of affixes) {
+                INDONESIAN_AFFIX_TO_ROOT[af] = root;
+            }
+        }
 
-            // 2. Semua token pencarian cocok pada Judul, Subject, atau Kata Kunci
-            const tokens = lowerSearch.split(/\s+/).filter(Boolean);
-            if (tokens.length > 1 && tokens.every(t => searchableText.includes(t))) {
-                return true;
+        function cleanSearchPunctuation(str) {
+            if (!str) return '';
+            return str.replace(/^[\s#*?!@$%^&_=+~`'"()[\]{}<>/\\:;,.-]+|[\s#*?!@$%^&_=+~`'"()[\]{}<>/\\:;,.-]+$/g, '').trim();
+        }
+
+        function tokenizeSearchQuery(query) {
+            if (!query) return [];
+            return query.split(/\s+/)
+                .map(t => cleanSearchPunctuation(t).toLowerCase())
+                .filter(t => t.length > 0);
+        }
+
+        function stemIndonesianWord(word) {
+            if (!word || word.length <= 3) return word;
+            word = word.toLowerCase();
+
+            if (INDONESIAN_AFFIX_TO_ROOT[word]) {
+                return INDONESIAN_AFFIX_TO_ROOT[word];
             }
 
-            // 3. Kecocokan kata kunci sinonim/terkait (misal cari "pendaftaran baru" mendeteksi "pemasangan baru")
-            const related = getRelatedKeywords(lowerSearch);
-            for (const rel of related) {
-                if (searchableText.includes(rel)) return true;
-                const relTokens = rel.split(/\s+/).filter(Boolean);
-                if (relTokens.length > 1 && relTokens.every(t => searchableText.includes(t))) {
-                    return true;
+            let w = word;
+            w = w.replace(/(lah|kah|tah|pun)$/, '');
+            w = w.replace(/(ku|mu|nya)$/, '');
+
+            if (INDONESIAN_AFFIX_TO_ROOT[w]) {
+                return INDONESIAN_AFFIX_TO_ROOT[w];
+            }
+
+            let withoutSuffix = w.replace(/(kan|an|i)$/, '');
+            if (withoutSuffix.length >= 3 && INDONESIAN_AFFIX_TO_ROOT[withoutSuffix]) {
+                return INDONESIAN_AFFIX_TO_ROOT[withoutSuffix];
+            }
+
+            const prefixRules = [
+                { regex: /^meny([aiueo])/, replace: 's$1' },
+                { regex: /^mem([aiueo])/, replace: 'p$1' },
+                { regex: /^mem([bpf])/, replace: '$1' },
+                { regex: /^men([aiueo])/, replace: 't$1' },
+                { regex: /^men([dtcj])/, replace: '$1' },
+                { regex: /^meng([aiueo])/, replace: '$1' },
+                { regex: /^meng([ghkq])/, replace: '$1' },
+                { regex: /^menges([a-z]+)/, replace: '$1' },
+                { regex: /^me([lrmnw])/, replace: '$1' },
+                { regex: /^peny([aiueo])/, replace: 's$1' },
+                { regex: /^pem([aiueo])/, replace: 'p$1' },
+                { regex: /^pem([bpf])/, replace: '$1' },
+                { regex: /^pen([aiueo])/, replace: 't$1' },
+                { regex: /^pen([dtcj])/, replace: '$1' },
+                { regex: /^peng([aiueo])/, replace: '$1' },
+                { regex: /^peng([ghkq])/, replace: '$1' },
+                { regex: /^per([a-z]+)/, replace: '$1' },
+                { regex: /^pel([a-z]+)/, replace: '$1' },
+                { regex: /^pe([a-z]+)/, replace: '$1' },
+                { regex: /^ber([a-z]+)/, replace: '$1' },
+                { regex: /^belajar$/, replace: 'ajar' },
+                { regex: /^be([a-z]+)/, replace: '$1' },
+                { regex: /^ter([a-z]+)/, replace: '$1' },
+                { regex: /^te([a-z]+)/, replace: '$1' },
+                { regex: /^di([a-z]+)/, replace: '$1' },
+                { regex: /^ke([a-z]+)/, replace: '$1' },
+                { regex: /^se([a-z]+)/, replace: '$1' }
+            ];
+
+            for (let p of prefixRules) {
+                if (p.regex.test(w)) {
+                    let candidate = w.replace(p.regex, p.replace);
+                    let candidateNoSuffix = candidate.replace(/(kan|an|i)$/, '');
+                    if (INDONESIAN_AFFIX_TO_ROOT[candidate]) return INDONESIAN_AFFIX_TO_ROOT[candidate];
+                    if (INDONESIAN_AFFIX_TO_ROOT[candidateNoSuffix]) return INDONESIAN_AFFIX_TO_ROOT[candidateNoSuffix];
+                    if (candidateNoSuffix.length >= 3) return candidateNoSuffix;
+                    if (candidate.length >= 3) return candidate;
                 }
             }
 
-            return false;
+            if (withoutSuffix.length >= 3) return withoutSuffix;
+            return w;
         }
 
-        function getSearchMatchRank(card, lowerSearch) {
-            if (!lowerSearch) return 0;
-            const titleText = (card.title || '').toLowerCase();
-            if (titleText.includes(lowerSearch)) return 1;
+        function getWordVariants(word) {
+            if (!word) return [];
+            word = word.toLowerCase();
+            const root = INDONESIAN_AFFIX_TO_ROOT[word] || stemIndonesianWord(word) || word;
+            const variants = new Set([word, root]);
 
+            if (INDONESIAN_ROOT_MAP[root]) {
+                INDONESIAN_ROOT_MAP[root].forEach(af => variants.add(af));
+            }
+            if (INDONESIAN_ROOT_MAP[word]) {
+                INDONESIAN_ROOT_MAP[word].forEach(af => variants.add(af));
+            }
+
+            variants.add('me' + root);
+            variants.add('mem' + root);
+            variants.add('men' + root);
+            variants.add('meng' + root);
+            variants.add('di' + root);
+            variants.add('di' + root + 'kan');
+            variants.add('me' + root + 'kan');
+            variants.add('ber' + root);
+            variants.add('ter' + root);
+            variants.add('pe' + root);
+            variants.add('pe' + root + 'an');
+            variants.add('per' + root + 'an');
+            variants.add('ke' + root + 'an');
+            variants.add(root + 'an');
+            variants.add(root + 'kan');
+            variants.add(root + 'i');
+            variants.add(root + 'nya');
+
+            return Array.from(variants).filter(v => v && v.length >= 2);
+        }
+
+        // Pencarian HANYA berlaku pada Judul, Subject (max 10000 karakter), dan Kata Kunci.
+        // Konten (Rich Text) TIDAK terdeteksi dalam pencarian.
+        // Mendukung kalimat, kata dasar, dan kata berimbuhan.
+        // Tidak berlaku sinonim yang tidak ada di Kata Kunci Pencarian (Keywords).
+        // Pencarian HANYA berlaku pada Judul, Subject (max 10000 karakter), dan Kata Kunci.
+        // Konten (Rich Text) TIDAK terdeteksi dalam pencarian.
+        // Mendukung kalimat, kata dasar, dan kata berimbuhan.
+        // Tidak berlaku sinonim yang tidak ada di Kata Kunci Pencarian (Keywords).
+        function isContentSearchMatch(card, searchTerm) {
+            if (!searchTerm) return true;
+            const cleanTerm = cleanSearchPunctuation(searchTerm).trim();
+            if (!cleanTerm) return true;
+            const lowerSearch = cleanTerm.toLowerCase();
+
+            const titleText = (card.title || '').toLowerCase();
             const subjectText = stripHtml(card.subject || '').slice(0, 10000).toLowerCase();
-            if (subjectText.includes(lowerSearch)) return 2;
+
+            // Proteksi Konflik Antonim (Upgrade vs Downgrade):
+            // Jika user mencari seputar 'upgrade', jangan pernah tampilkan kartu khusus 'downgrade', dan sebaliknya.
+            const queryHasUpgrade = /\b(upgrade|naik\s*paket|tambah\s*kecepatan)\b/i.test(lowerSearch);
+            const queryHasDowngrade = /\b(downgrade|turun\s*paket|turun\s*kecepatan)\b/i.test(lowerSearch);
+            const cardText = `${titleText} ${subjectText}`;
+            const cardHasUpgrade = /\b(upgrade|naik\s*paket|tambah\s*kecepatan)\b/i.test(cardText);
+            const cardHasDowngrade = /\b(downgrade|turun\s*paket|turun\s*kecepatan)\b/i.test(cardText);
+
+            if (queryHasUpgrade && !queryHasDowngrade && cardHasDowngrade && !cardHasUpgrade) {
+                return false;
+            }
+            if (queryHasDowngrade && !queryHasUpgrade && cardHasUpgrade && !cardHasDowngrade) {
+                return false;
+            }
+
+            let keywordsText = (card.keywords || '').toLowerCase();
+            // Netralkan kontaminasi antonim pada keywords kartu jika kartu khusus salah satu kategori
+            if (queryHasUpgrade && !queryHasDowngrade && cardHasDowngrade && !cardHasUpgrade) {
+                keywordsText = keywordsText.replace(/\b(upgrade|naik\s*paket|tambah\s*kecepatan)\b/gi, '').trim();
+            }
+            if (queryHasDowngrade && !queryHasUpgrade && cardHasUpgrade && !cardHasDowngrade) {
+                keywordsText = keywordsText.replace(/\b(downgrade|turun\s*paket|turun\s*kecepatan)\b/gi, '').trim();
+            }
+
+            const searchableText = `${titleText} ${subjectText} ${keywordsText}`.trim();
+
+            // 1. Kecocokan langsung pada Judul, Subject, atau Kata Kunci (frasa / kalimat utuh)
+            if (searchableText.includes(lowerSearch)) return true;
+
+            // 2. Tokenisasi pencarian
+            const tokens = tokenizeSearchQuery(cleanTerm);
+            if (tokens.length === 0) return true;
+
+            const wordsInCard = searchableText.split(/[\s,.;:!?/\\()\[\]{}"'+*#@~`^&]+/).filter(w => w.length > 0);
+            const exactWordsInCard = new Set(wordsInCard);
+            const rootsInCard = new Set();
+            wordsInCard.forEach(w => {
+                const root = INDONESIAN_AFFIX_TO_ROOT[w] || stemIndonesianWord(w);
+                if (root) rootsInCard.add(root);
+            });
+
+            return tokens.every(token => {
+                if (token.length <= 2) {
+                    return exactWordsInCard.has(token);
+                }
+
+                // a. Cocok kata persis atau substring dalam searchableText
+                if (exactWordsInCard.has(token) || searchableText.includes(token)) return true;
+
+                // b. Cocok via kata dasar (root)
+                const tokenRoot = INDONESIAN_AFFIX_TO_ROOT[token] || stemIndonesianWord(token);
+                if (tokenRoot && (rootsInCard.has(tokenRoot) || exactWordsInCard.has(tokenRoot))) {
+                    return true;
+                }
+
+                // c. Cocok via variasi imbuhan kata
+                const variants = getWordVariants(token);
+                for (const v of variants) {
+                    if (exactWordsInCard.has(v) || (v.length >= 3 && searchableText.includes(v))) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+        }
+
+        function getSearchMatchRank(card, searchTerm) {
+            if (!searchTerm) return 0;
+            const cleanTerm = cleanSearchPunctuation(searchTerm).trim();
+            if (!cleanTerm) return 0;
+            const lowerSearch = cleanTerm.toLowerCase();
+
+            const titleText = (card.title || '').toLowerCase();
+            const subjectText = stripHtml(card.subject || '').slice(0, 10000).toLowerCase();
+
+            // Bila ada konflik antonim, jangan beri ranking kecocokan
+            const queryHasUpgrade = /\b(upgrade|naik\s*paket|tambah\s*kecepatan)\b/i.test(lowerSearch);
+            const queryHasDowngrade = /\b(downgrade|turun\s*paket|turun\s*kecepatan)\b/i.test(lowerSearch);
+            const cardText = `${titleText} ${subjectText}`;
+            const cardHasUpgrade = /\b(upgrade|naik\s*paket|tambah\s*kecepatan)\b/i.test(cardText);
+            const cardHasDowngrade = /\b(downgrade|turun\s*paket|turun\s*kecepatan)\b/i.test(cardText);
+            if ((queryHasUpgrade && !queryHasDowngrade && cardHasDowngrade && !cardHasUpgrade) ||
+                (queryHasDowngrade && !queryHasUpgrade && cardHasUpgrade && !cardHasDowngrade)) {
+                return 999;
+            }
 
             const keywordsText = (card.keywords || '').toLowerCase();
+
+            // 1. Cek kecocokan di Judul (Rank 1)
+            if (titleText.includes(lowerSearch)) return 1;
+
+            const tokens = tokenizeSearchQuery(cleanTerm);
+            if (tokens.length > 0) {
+                const titleWords = titleText.split(/[\s,.;:!?/\\()\[\]{}"'+*#@~`^&]+/).filter(w => w.length > 0);
+                const titleWordSet = new Set(titleWords);
+                const titleRoots = new Set();
+                titleWords.forEach(w => {
+                    const r = INDONESIAN_AFFIX_TO_ROOT[w] || stemIndonesianWord(w);
+                    if (r) titleRoots.add(r);
+                });
+
+                const matchTitle = tokens.every(token => {
+                    if (token.length <= 2) return titleWordSet.has(token);
+                    if (titleText.includes(token) || titleWordSet.has(token)) return true;
+                    const tr = INDONESIAN_AFFIX_TO_ROOT[token] || stemIndonesianWord(token);
+                    if (tr && (titleRoots.has(tr) || titleWordSet.has(tr))) return true;
+                    const vars = getWordVariants(token);
+                    return vars.some(v => titleWordSet.has(v) || (v.length >= 3 && titleText.includes(v)));
+                });
+                if (matchTitle) return 1;
+            }
+
+            // 2. Cek kecocokan di Subject (Rank 2)
+            if (subjectText.includes(lowerSearch)) return 2;
+            if (tokens.length > 0) {
+                const subjWords = subjectText.split(/[\s,.;:!?/\\()\[\]{}"'+*#@~`^&]+/).filter(w => w.length > 0);
+                const subjWordSet = new Set(subjWords);
+                const subjRoots = new Set();
+                subjWords.forEach(w => {
+                    const r = INDONESIAN_AFFIX_TO_ROOT[w] || stemIndonesianWord(w);
+                    if (r) subjRoots.add(r);
+                });
+
+                const matchSubj = tokens.every(token => {
+                    if (token.length <= 2) return subjWordSet.has(token);
+                    if (subjectText.includes(token) || subjWordSet.has(token)) return true;
+                    const tr = INDONESIAN_AFFIX_TO_ROOT[token] || stemIndonesianWord(token);
+                    if (tr && (subjRoots.has(tr) || subjWordSet.has(tr))) return true;
+                    const vars = getWordVariants(token);
+                    return vars.some(v => subjWordSet.has(v) || (v.length >= 3 && subjectText.includes(v)));
+                });
+                if (matchSubj) return 2;
+            }
+
+            // 3. Cek kecocokan di Keywords (Rank 3)
             if (keywordsText.includes(lowerSearch)) return 3;
+            if (tokens.length > 0) {
+                const kwWords = keywordsText.split(/[\s,.;:!?/\\()\[\]{}"'+*#@~`^&]+/).filter(w => w.length > 0);
+                const kwWordSet = new Set(kwWords);
+                const kwRoots = new Set();
+                kwWords.forEach(w => {
+                    const r = INDONESIAN_AFFIX_TO_ROOT[w] || stemIndonesianWord(w);
+                    if (r) kwRoots.add(r);
+                });
 
-            const related = getRelatedKeywords(lowerSearch);
-            if (related.some(r => titleText.includes(r))) return 4;
-            if (related.some(r => subjectText.includes(r))) return 5;
-            if (related.some(r => keywordsText.includes(r))) return 6;
+                const matchKw = tokens.every(token => {
+                    if (token.length <= 2) return kwWordSet.has(token);
+                    if (keywordsText.includes(token) || kwWordSet.has(token)) return true;
+                    const tr = INDONESIAN_AFFIX_TO_ROOT[token] || stemIndonesianWord(token);
+                    if (tr && (kwRoots.has(tr) || kwWordSet.has(tr))) return true;
+                    const vars = getWordVariants(token);
+                    return vars.some(v => kwWordSet.has(v) || (v.length >= 3 && keywordsText.includes(v)));
+                });
+                if (matchKw) return 3;
+            }
 
-            return 7;
+            // 4. Kecocokan kombinasi lintas Judul, Subject, Keywords
+            return 4;
         }
 
         function generateContentCardHtml(content, searchTerm = '', isSearchMatch = false) {
             const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const highlightTerms = new Set();
             if (searchTerm) {
-                const lowerSearch = searchTerm.trim().toLowerCase();
-                highlightTerms.add(lowerSearch);
-                const related = getRelatedKeywords(lowerSearch);
-                related.forEach(r => highlightTerms.add(r));
+                const cleanTerm = cleanSearchPunctuation(searchTerm).trim().toLowerCase();
+                if (cleanTerm) {
+                    highlightTerms.add(cleanTerm);
+                    const tokens = tokenizeSearchQuery(cleanTerm);
+                    tokens.forEach(tok => {
+                        highlightTerms.add(tok);
+                        const root = INDONESIAN_AFFIX_TO_ROOT[tok] || stemIndonesianWord(tok);
+                        if (root && root.length >= 2) {
+                            highlightTerms.add(root);
+                        }
+                        const variants = getWordVariants(tok);
+                        variants.forEach(v => {
+                            if (v && v.length >= 3) highlightTerms.add(v);
+                        });
+                    });
+
+                    // Pastikan kata antonim tidak di-highlight
+                    const queryHasUpgrade = /\b(upgrade|naik\s*paket|tambah\s*kecepatan)\b/i.test(cleanTerm);
+                    const queryHasDowngrade = /\b(downgrade|turun\s*paket|turun\s*kecepatan)\b/i.test(cleanTerm);
+                    if (queryHasUpgrade && !queryHasDowngrade) {
+                        highlightTerms.delete('downgrade');
+                        highlightTerms.delete('turun paket');
+                        highlightTerms.delete('turun kecepatan');
+                    }
+                    if (queryHasDowngrade && !queryHasUpgrade) {
+                        highlightTerms.delete('upgrade');
+                        highlightTerms.delete('naik paket');
+                        highlightTerms.delete('tambah kecepatan');
+                    }
+                }
             }
             const highlightClass = isSearchMatch ? 'search-active' : 'search-highlight';
 
             const highlightText = (text) => {
                 if (!text || highlightTerms.size === 0) return text || '';
-                const sorted = Array.from(highlightTerms).sort((a, b) => b.length - a.length);
+                const sorted = Array.from(highlightTerms).filter(t => t && t.length >= 2).sort((a, b) => b.length - a.length);
+                if (sorted.length === 0) return text || '';
                 const pattern = sorted.map(t => escapeRegExp(t)).join('|');
                 const searchRegex = new RegExp(`(${pattern})`, 'gi');
                 return text.replace(/(<[^>]+>)|([^<]+)/g, (match, tag, txt) => {

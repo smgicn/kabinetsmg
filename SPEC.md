@@ -235,10 +235,11 @@ Font Family: 'Poppins', 'Inter', sans-serif
 
 **Implementation & Rules:**
 - Live search (debounced / real-time)
-- Cakupan Pencarian: **Hanya berlaku pada Judul, Subject (maksimal 10.000 karakter), dan Kata Kunci (Keywords)**.
-- **Konten (Rich Text) TIDAK terdeteksi** dalam pencarian.
-- Kata Kunci Admin: Pada Tambah / Edit Konten, Admin diberikan input kata kunci beserta rekomendasi otomatis sinonim (misal: "pemasangan baru" merekomendasikan "pendaftaran baru").
-- Pencarian kata kunci saling terhubung (sinonim) pada search bar: mencari "pendaftaran baru" mendeteksi konten "pemasangan baru", dan sebaliknya.
+- Cakupan Pencarian: **Hanya berlaku pada Judul, Subject (maksimal 10.000 karakter), dan Kata Kunci Pencarian (Keywords)**.
+- **Konten (Rich Text) TIDAK terdeteksi** dalam pencarian dan selain ketiga bidang di atas tidak diperbolehkan muncul.
+- **Dukungan Morfologi Kata**: Pencarian berlaku untuk kalimat (frasa), kata dasar, maupun kata yang sudah mendapatkan imbuhan (misal: "pasang" mendeteksi "pemasangan", "memasang", dan sebaliknya).
+- **Aturan Sinonim**: **Tidak berlaku sinonim yang tidak ada di Kata Kunci Pencarian (Keywords)**. Sinonim tidak akan memunculkan kartu secara otomatis jika kata tersebut tidak tersimpan di kolom Kata Kunci Pencarian (Keywords) atau terdapat di Judul/Subject.
+- Kata Kunci Admin: Pada Tambah / Edit Konten, Admin diberikan input kata kunci beserta rekomendasi otomatis sinonim (misal: "pemasangan baru" merekomendasikan "+ pendaftaran baru", "+ pasang baru"). Admin dapat mengklik saran tersebut agar tersimpan di Kata Kunci Pencarian (Keywords).
 - Highlight kecocokan hanya diterapkan pada Judul dan Subject. Konten (Rich Text) tidak di-highlight.
 - Urutan hasil pencarian memprioritaskan Judul (Rank 1), Subject (Rank 2), dan Keywords (Rank 3).
 
