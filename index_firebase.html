@@ -40,6 +40,7 @@
             --background-alt: #334155;
             --text-primary: #F1F5F9;
             --text-secondary: #94A3B8;
+            --text-muted: #94A3B8;
             --border: #475569;
         }
 
@@ -1019,24 +1020,14 @@
         }
 
         /* Dark mode specific rules for cards */
-        .dark-mode .content-card:not(.pinned) {
-            background: #ffffff;
-        }
-
-        .dark-mode .content-card:not(.pinned) .content-title,
-        .dark-mode .content-card:not(.pinned) .content-subject,
-        .dark-mode .content-card:not(.pinned) .content-text {
-            color: #000000;
-        }
-
-        .dark-mode .content-card.pinned,
-        .dark-mode #hotCaseList .content-card {
+        .dark-mode .content-card {
             background: var(--background);
+            border-color: var(--border);
         }
 
-        .dark-mode .content-card.pinned .content-title,
-        .dark-mode .content-card.pinned .content-subject,
-        .dark-mode .content-card.pinned .content-text,
+        .dark-mode .content-card .content-title,
+        .dark-mode .content-card .content-subject,
+        .dark-mode .content-card .content-text,
         .dark-mode #hotCaseList .content-title,
         .dark-mode #hotCaseList .content-subject,
         .dark-mode #hotCaseList .content-text,
@@ -1044,49 +1035,101 @@
             color: var(--text-primary) !important;
         }
 
-        .dark-mode .content-card.pinned .content-text *,
+        .dark-mode .content-card .content-text *,
         .dark-mode #hotCaseList .content-text *,
         .dark-mode .content-details .content-text * {
             color: inherit;
         }
 
-        .dark-mode .content-card.pinned .content-text [style*="color: rgb(0, 0, 0)"],
-        .dark-mode .content-card.pinned .content-text [style*="color: rgb(30, 41, 59)"],
-        .dark-mode .content-card.pinned .content-text [style*="color: rgb(34, 34, 34)"],
-        .dark-mode .content-card.pinned .content-text [style*="color: rgb(15, 23, 42)"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #000"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #000000"],
-        .dark-mode .content-card.pinned .content-text [style*="color: black"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #1e293b"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #333"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #333333"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #222"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #222222"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #444"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #444444"],
-        .dark-mode .content-card.pinned .content-text [style*="color: #475569"],
-        .dark-mode .content-card.pinned .content-text font[color="#000000"],
-        .dark-mode .content-card.pinned .content-text font[color="black"],
-        .dark-mode .content-card.pinned .content-text font[color="#000"],
-        .dark-mode .content-card.pinned .content-text font,
+        .dark-mode .content-card.pinned {
+            background: rgba(37, 99, 235, 0.08);
+            border-left: 3px solid var(--primary);
+        }
+
+        .dark-mode .content-card .content-text [style*="color: rgb(0, 0, 0)"],
+        .dark-mode .content-card .content-text [style*="color: rgb(0,0,0)"],
+        .dark-mode .content-card .content-text [style*="color:rgb(0, 0, 0)"],
+        .dark-mode .content-card .content-text [style*="color:rgb(0,0,0)"],
+        .dark-mode .content-card .content-text [style*="color: rgb(30, 41, 59)"],
+        .dark-mode .content-card .content-text [style*="color: rgb(30,41,59)"],
+        .dark-mode .content-card .content-text [style*="color: rgb(34, 34, 34)"],
+        .dark-mode .content-card .content-text [style*="color: rgb(34,34,34)"],
+        .dark-mode .content-card .content-text [style*="color: rgb(15, 23, 42)"],
+        .dark-mode .content-card .content-text [style*="color: rgb(15,23,42)"],
+        .dark-mode .content-card .content-text [style*="color: #000"],
+        .dark-mode .content-card .content-text [style*="color: #000000"],
+        .dark-mode .content-card .content-text [style*="color:#000"],
+        .dark-mode .content-card .content-text [style*="color:#000000"],
+        .dark-mode .content-card .content-text [style*="color: black"],
+        .dark-mode .content-card .content-text [style*="color:black"],
+        .dark-mode .content-card .content-text [style*="color: windowtext"],
+        .dark-mode .content-card .content-text [style*="color:windowtext"],
+        .dark-mode .content-card .content-text [style*="color: #1e293b"],
+        .dark-mode .content-card .content-text [style*="color: #333"],
+        .dark-mode .content-card .content-text [style*="color: #333333"],
+        .dark-mode .content-card .content-text [style*="color: #222"],
+        .dark-mode .content-card .content-text [style*="color: #222222"],
+        .dark-mode .content-card .content-text [style*="color: #444"],
+        .dark-mode .content-card .content-text [style*="color: #444444"],
+        .dark-mode .content-card .content-text [style*="color: #475569"],
+        .dark-mode .content-card .content-text font[color="#000000"],
+        .dark-mode .content-card .content-text font[color="black"],
+        .dark-mode .content-card .content-text font[color="#000"],
+        .dark-mode .content-card .content-text font,
         .dark-mode #hotCaseList .content-text [style*="color: rgb(0, 0, 0)"],
+        .dark-mode #hotCaseList .content-text [style*="color: rgb(0,0,0)"],
         .dark-mode #hotCaseList .content-text [style*="color: rgb(30, 41, 59)"],
+        .dark-mode #hotCaseList .content-text [style*="color: rgb(34, 34, 34)"],
+        .dark-mode #hotCaseList .content-text [style*="color: rgb(15, 23, 42)"],
         .dark-mode #hotCaseList .content-text [style*="color: #000"],
         .dark-mode #hotCaseList .content-text [style*="color: #000000"],
         .dark-mode #hotCaseList .content-text [style*="color: black"],
-        .dark-mode #hotCaseList .content-text font {
+        .dark-mode #hotCaseList .content-text [style*="color: #1e293b"],
+        .dark-mode #hotCaseList .content-text [style*="color: #333"],
+        .dark-mode #hotCaseList .content-text [style*="color: #333333"],
+        .dark-mode #hotCaseList .content-text [style*="color: #222"],
+        .dark-mode #hotCaseList .content-text [style*="color: #222222"],
+        .dark-mode #hotCaseList .content-text [style*="color: #444"],
+        .dark-mode #hotCaseList .content-text [style*="color: #444444"],
+        .dark-mode #hotCaseList .content-text [style*="color: #475569"],
+        .dark-mode #hotCaseList .content-text font,
+        .dark-mode .content-details .content-text [style*="color: rgb(0, 0, 0)"],
+        .dark-mode .content-details .content-text [style*="color: rgb(0,0,0)"],
+        .dark-mode .content-details .content-text [style*="color: rgb(30, 41, 59)"],
+        .dark-mode .content-details .content-text [style*="color: rgb(34, 34, 34)"],
+        .dark-mode .content-details .content-text [style*="color: rgb(15, 23, 42)"],
+        .dark-mode .content-details .content-text [style*="color: #000"],
+        .dark-mode .content-details .content-text [style*="color: #000000"],
+        .dark-mode .content-details .content-text [style*="color: black"],
+        .dark-mode .content-details .content-text [style*="color: #1e293b"],
+        .dark-mode .content-details .content-text [style*="color: #333"],
+        .dark-mode .content-details .content-text [style*="color: #333333"],
+        .dark-mode .content-details .content-text [style*="color: #222"],
+        .dark-mode .content-details .content-text [style*="color: #222222"],
+        .dark-mode .content-details .content-text [style*="color: #444"],
+        .dark-mode .content-details .content-text [style*="color: #444444"],
+        .dark-mode .content-details .content-text [style*="color: #475569"],
+        .dark-mode .content-details .content-text font {
             color: var(--text-primary) !important;
         }
 
-        .dark-mode .content-card.pinned .content-text [style*="background-color: rgb(255, 255, 255)"],
-        .dark-mode .content-card.pinned .content-text [style*="background-color: #ffffff"],
-        .dark-mode .content-card.pinned .content-text [style*="background-color: #fff"],
-        .dark-mode .content-card.pinned .content-text [style*="background-color: white"],
-        .dark-mode .content-card.pinned .content-text [style*="background: rgb(255, 255, 255)"],
-        .dark-mode .content-card.pinned .content-text [style*="background: #ffffff"],
-        .dark-mode .content-card.pinned .content-text [style*="background: #fff"],
-        .dark-mode .content-card.pinned .content-text [style*="background: white"],
-        .dark-mode #hotCaseList .content-text [style*="background"] {
+        .dark-mode .content-card .content-text [style*="background-color: rgb(255, 255, 255)"],
+        .dark-mode .content-card .content-text [style*="background-color: rgb(255,255,255)"],
+        .dark-mode .content-card .content-text [style*="background-color: #ffffff"],
+        .dark-mode .content-card .content-text [style*="background-color: #fff"],
+        .dark-mode .content-card .content-text [style*="background-color: white"],
+        .dark-mode .content-card .content-text [style*="background: rgb(255, 255, 255)"],
+        .dark-mode .content-card .content-text [style*="background: rgb(255,255,255)"],
+        .dark-mode .content-card .content-text [style*="background: #ffffff"],
+        .dark-mode .content-card .content-text [style*="background: #fff"],
+        .dark-mode .content-card .content-text [style*="background: white"],
+        .dark-mode .content-card .content-text [style*="background-color:#ffffff"],
+        .dark-mode .content-card .content-text [style*="background:#ffffff"],
+        .dark-mode .content-card .content-text [style*="background-color:white"],
+        .dark-mode .content-card .content-text [style*="background:white"],
+        .dark-mode .content-card .content-text [style*="background"],
+        .dark-mode #hotCaseList .content-text [style*="background"],
+        .dark-mode .content-details .content-text [style*="background"] {
             background-color: transparent !important;
             background: transparent !important;
         }
@@ -6902,13 +6945,17 @@
                         let cleanHTML = html
                             .replace(/<o:p>.*?<\/o:p>/gi, '') // Remove Word tags
                             .replace(/<!--[\s\S]*?-->/g, '') // Remove comments
-                            .replace(/class="[^"]*"/gi, '') // Remove classes
+                            .replace(/class=["'][^"']*["']/gi, '') // Remove classes
                             .replace(/<font[^>]*>/gi, '') // Remove opening font tags
                             .replace(/<\/font>/gi, '') // Remove closing font tags
-                            .replace(/style="([^"]*)"/gi, (match, styleContent) => {
+                            .replace(/color=["'][^"']*["']/gi, '') // Remove HTML color attributes
+                            .replace(/bgcolor=["'][^"']*["']/gi, '') // Remove HTML bgcolor attributes
+                            .replace(/style=(["'])(.*?)\1/gi, (match, quote, styleContent) => {
                                 let cleaned = styleContent
-                                    .replace(/color\s*:\s*(#000000|#000|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgb\(\s*30\s*,\s*41\s*,\s*59\s*\)|#1e293b|#333|#333333|#222|#222222)[^;]*;?/gi, '')
-                                    .replace(/background(-color)?\s*:\s*(#ffffff|#fff|white|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))[^;]*;?/gi, '')
+                                    .replace(/color\s*:\s*(#000000|#000|black|windowtext|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*[^)]+\)|rgb\(\s*30\s*,\s*41\s*,\s*59\s*\)|rgb\(\s*34\s*,\s*34\s*,\s*34\s*\)|rgb\(\s*15\s*,\s*23\s*,\s*42\s*\)|#1e293b|#333|#333333|#222|#222222|#444|#444444|#475569|#111|#111827|#1f2937)[^;]*;?/gi, '')
+                                    .replace(/background(-color)?\s*:\s*(#ffffff|#fff|white|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\)|rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*[^)]+\)|#fafafa|#f8fafc|#f9fafb|#f1f5f9)[^;]*;?/gi, '')
+                                    .replace(/;\s*;/g, ';')
+                                    .replace(/^[\s;]+|[\s;]+$/g, '')
                                     .trim();
                                 return cleaned ? `style="${cleaned}"` : '';
                             });
