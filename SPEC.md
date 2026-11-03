@@ -92,6 +92,7 @@ Font Family: 'Poppins', 'Inter', sans-serif
 - Rounded: 12px
 - Shadow: soft
 - Hover: slight lift effect
+- Status Tidak Berlaku: Card berlatar merah muda (#fef2f2 / dark mode #3b1517), border merah (#ef4444), badge status merah "Tidak Berlaku", serta judul otomatis dicoret (strikethrough)
 
 **Search Bar:**
 - Centered position

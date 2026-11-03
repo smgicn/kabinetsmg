@@ -1443,6 +1443,9 @@
         }
 
         /* Card Tidak Berlaku - Bold Red Styling */
+        .content-card.status-tidak-berlaku .content-title {
+            text-decoration: line-through !important;
+        }
         .content-card.status-tidak-berlaku {
             background: #fef2f2 !important;
             border: 2px solid #ef4444 !important;
@@ -6670,14 +6673,16 @@
             } else {
                 container.innerHTML = state.lampiran.map(lamp => {
                     const date = new Date(lamp.tanggal || lamp.createdAt).toLocaleDateString('id-ID');
+                    const isLampTidakBerlaku = lamp.status === 'tidak_berlaku' || lamp.status === 'tidak-berlaku';
+                    const lampStatusClass = isLampTidakBerlaku ? 'status-tidak-berlaku' : '';
                     return `
-                    <div class="content-card ${lamp.pinned ? 'pinned' : ''}" data-id="${lamp.id}">
+                    <div class="content-card ${lamp.pinned ? 'pinned' : ''} ${lampStatusClass}" data-id="${lamp.id}">
                         <div class="content-header">
                             <div class="content-title">${lamp.judul}</div>
                             <div class="content-meta">
                                 <span class="content-date">${date}</span>
                                 <span class="content-classification" style="background: var(--primary-light); color: var(--primary);">${lamp.kategori}</span>
-                                 ${lamp.status ? `<span class="content-status ${lamp.status === 'berlaku' ? 'berlaku' : 'tidak-berlaku'}">${lamp.status === 'berlaku' ? 'Berlaku' : 'Tidak Berlaku'}</span>` : ''}
+                                 ${lamp.status ? `<span class="content-status ${isLampTidakBerlaku ? 'tidak-berlaku' : 'berlaku'}">${isLampTidakBerlaku ? 'Tidak Berlaku' : 'Berlaku'}</span>` : ''}
                             </div>
                         </div>
                         ${lamp.deskripsi ? `<div class="content-subject">${lamp.deskripsi}</div>` : ''}
