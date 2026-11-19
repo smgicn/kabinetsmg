@@ -30,3 +30,15 @@ Untuk mempublikasikan file ke Firebase Hosting project `kabinnet12-d8305`:
 firebase use kabinnet12-d8305
 firebase deploy --only hosting
 ```
+
+---
+
+## 4. Deployment Aturan Keamanan Firestore (Firestore Security Rules)
+Untuk menerapkan aturan keamanan database terbaru yang telah dikonfigurasi di `firestore.rules`:
+```bash
+firebase deploy --only firestore:rules
+```
+Atau untuk deploy hosting sekaligus security rules:
+```bash
+firebase deploy
+```

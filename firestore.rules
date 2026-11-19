@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function: cek apakah request terautentikasi
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function: cek apakah akun adalah admin
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == "admin@kabinnet.com" ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
+      );
+    }
+
+    // Koleksi Konten (Knowledge Base)
+    // Pengguna publik dan user terautentikasi dapat membaca; hanya admin yang dapat membuat, mengubah, atau menghapus
+    match /contents/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Konfigurasi Aplikasi & Pengumuman
+    // Publik dapat membaca; hanya admin yang dapat memperbarui
+    match /app/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Kritik & Saran (Feedbacks)
+    // Siapa pun dapat mengirim kritik & saran dengan validasi data teks yang aman
+    // Hanya admin yang berhak membaca, membalas, dan menghapus pesan feedback
+    match /feedbacks/{id} {
+      allow create: if request.resource.data.name is string &&
+                    request.resource.data.name.size() <= 100 &&
+                    request.resource.data.message is string &&
+                    request.resource.data.message.size() > 0 &&
+                    request.resource.data.message.size() <= 3000;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Koleksi User (Profil / Role)
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Blokir akses ke koleksi lain yang tidak didefinisikan secara eksplisit
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

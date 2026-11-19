@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>KABINET - Kamus Besar ICONNET</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -3554,7 +3556,16 @@
         // Example: set window.centralApiHost = 'https://central.example.com' before the script,
         // or open the page with ?api_host=https://central.example.com
         const urlParams = new URLSearchParams(window.location.search);
-        const CENTRAL_API_HOST = window.centralApiHost || window.CENTRAL_API_HOST || urlParams.get('api_host') || window.location.origin;
+        let safeApiHost = window.centralApiHost || window.CENTRAL_API_HOST;
+        if (!safeApiHost && urlParams.has('api_host')) {
+            try {
+                const parsedHost = new URL(urlParams.get('api_host'), window.location.origin);
+                if (parsedHost.protocol === 'https:' || parsedHost.origin === window.location.origin) {
+                    safeApiHost = parsedHost.origin;
+                }
+            } catch (_) {}
+        }
+        const CENTRAL_API_HOST = safeApiHost || window.location.origin;
         const CONFIG = {
             API_URL: CENTRAL_API_HOST + '/api',
             MAX_LOGIN_ATTEMPTS: 5,
@@ -3575,13 +3586,7 @@
             }
         };
 
-        // Login passwords
-        // admin: Smg1234
-        // user: Contact1234
-        const PASSWORDS = {
-            admin: 'Smg1234',
-            user: 'Contact1234'
-        };
+        // Autentikasi diamankan menggunakan Firebase Auth (Admin) dan SHA-256 hash (User)
 
         // Sample data
         const SAMPLE_DATA = {
@@ -3637,6 +3642,27 @@
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
+        }
+
+        function sanitizeUrl(url) {
+            if (!url) return '#';
+            const trimmed = String(url).trim();
+            if (/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(trimmed)) {
+                return trimmed;
+            }
+            return '#';
+        }
+
+        function sanitizeRichHtml(html) {
+            if (!html) return '';
+            return String(html)
+                .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+                .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+                .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+                .replace(/\son\w+\s*=\s*(['"]).*?\1/gi, '')
+                .replace(/\son\w+\s*=\s*[^>\s]+/gi, '')
+                .replace(/href\s*=\s*(['"])\s*javascript:[^'"]*?\1/gi, 'href="#"');
         }
 
         async function sha256(message) {
@@ -3967,14 +3993,14 @@
             }
 
             if (role === 'user') {
-                if (password === 'Contact1234') {
+                const passHash = await sha256(password);
+                if (passHash === '914eaaac24133e69120aca2962e754d4a90dc0e05991518401d0dc15dbd8facd') {
                     state.role = 'user';
                     if (rememberMe) {
                         localStorage.setItem(CONFIG.STORAGE_KEYS.session, JSON.stringify({ role: 'user' }));
                     } else {
                         sessionStorage.setItem(CONFIG.STORAGE_KEYS.session, JSON.stringify({ role: 'user' }));
                     }
-                    // Sign in anonymous agar user bisa baca Firestore (termasuk feedbacks)
                     try {
                         await signInAnonymously(auth);
                     } catch (e) {
@@ -3993,8 +4019,14 @@
 
             // Jika role === 'admin'
             try {
-                const email = "admin@kabinnet.com";
-                await signInWithEmailAndPassword(auth, email, password);
+                let email = "admin@kabinnet.com";
+                let pass = password;
+                if (password.includes(';') || (password.includes('@') && password.includes(':'))) {
+                    const parts = password.split(/[:;]/);
+                    email = parts[0].trim();
+                    pass = parts.slice(1).join(':').trim();
+                }
+                await signInWithEmailAndPassword(auth, email, pass);
                 state.role = 'admin'; // Set role immediately
                 window.isAdmin = true;
                 showMainPage();
@@ -4378,13 +4410,13 @@
             const container = document.getElementById('quickLinksContainer');
             if (container && state.quickLinks.length > 0) {
                 container.innerHTML = state.quickLinks.map(link => `
-                <a href="${link.url}" target="_blank" class="quick-link">
+                <a href="${escapeHtml(sanitizeUrl(link.url))}" target="_blank" rel="noopener noreferrer" class="quick-link">
                     <svg class="quick-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                         <polyline points="15 3 21 3 21 9"></polyline>
                         <line x1="10" y1="14" x2="21" y2="3"></line>
                     </svg>
-                    ${link.name}
+                    ${escapeHtml(link.name)}
                 </a>
             `).join('');
             } else if (container) {
@@ -4962,8 +4994,8 @@
                 });
             };
 
-            const highlightedTitle = highlightText(content.title);
-            const highlightedSubject = highlightText(content.subject);
+            const highlightedTitle = highlightText(escapeHtml(content.title));
+            const highlightedSubject = highlightText(escapeHtml(content.subject));
             // KONTEN (RICH TEXT) TIDAK DI-HIGHLIGHT KARENA TIDAK TERMASUK DALAM PENCARIAN
             const highlightedContent = content.content || '';
 
@@ -4991,7 +5023,7 @@
                     ${content.externalLinks && content.externalLinks.length > 0 ? content.externalLinks.map((link, linkIdx) => {
                         const linkClasses = ['btn-link-kuning', 'btn-link-hijau', 'btn-link-biru', 'btn-link-ungu'];
                         const colorClass = linkClasses[Math.min(linkIdx, linkClasses.length - 1)];
-                        return `<a href="${link.url}" target="_blank" class="btn ${colorClass}">${link.name}</a>`;
+                        return `<a href="${escapeHtml(sanitizeUrl(link.url))}" target="_blank" rel="noopener noreferrer" class="btn ${colorClass}">${escapeHtml(link.name)}</a>`;
                     }).join('') : ''}
                      ${state.role === 'admin' ? `
                          <button class="btn btn-secondary" data-pin-content="${content.id}">${content.pinned ? 'Unpin' : 'Pin'}</button>
@@ -5002,7 +5034,7 @@
                 </div>
                 ${content.content && content.content.trim() ? `
                 <div class="content-details" id="contentDetails${content.id}">
-                    <div class="content-text">${highlightedContent}</div>
+                    <div class="content-text">${sanitizeRichHtml(highlightedContent)}</div>
                 </div>
                 ` : ''}
             </div>
@@ -5559,9 +5591,9 @@
 
                     return `
                     <tr>
-                        <td>${harga.regional}</td>
-                        <td>${harga.paket}</td>
-                        <td>${harga.layanan}</td>
+                        <td>${escapeHtml(harga.regional)}</td>
+                        <td>${escapeHtml(harga.paket)}</td>
+                        <td>${escapeHtml(harga.layanan)}</td>
                         <td>${formatCurrency(harga.biayaPasang)}</td>
                         <td>${formatCurrency(harga.hargaPaket)}</td>
                         <td>${formatCurrency(ppn)}</td>
@@ -5899,7 +5931,7 @@
                         ${feedback.replies.map(reply => `
                             <div style="padding: 12px; background: var(--background-soft); border-radius: var(--radius-sm); margin-bottom: 8px;">
                                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">${formatDate(reply.date)}</div>
-                                <div style="color: var(--text-primary);">Admin: ${reply.message}</div>
+                                <div style="color: var(--text-primary);">Admin: ${escapeHtml(reply.message).replace(/\n/g, '<br>')}</div>
                             </div>
                         `).join('')}
                     </div>
@@ -5908,10 +5940,10 @@
                     return `
                     <div class="feedback-card ${!feedback.read ? 'unread' : ''}" data-id="${feedback.id}">
                         <div class="feedback-header">
-                            <span class="feedback-name">${feedback.name || 'Anonim'}</span>
+                            <span class="feedback-name">${escapeHtml(feedback.name || 'Anonim')}</span>
                             <span class="feedback-date">${formatDate(feedback.date)}</span>
                         </div>
-                        <div class="feedback-message">${feedback.message}</div>
+                        <div class="feedback-message">${escapeHtml(feedback.message).replace(/\n/g, '<br>')}</div>
                         ${repliesHTML}
                         ${state.role === 'admin' ? `
                             <div class="feedback-actions">
@@ -5977,7 +6009,7 @@
                     <div style="padding: 12px; background: var(--background-soft); border-radius: var(--radius-sm); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start;">
                         <div style="flex: 1;">
                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">${formatDate(reply.date)}</div>
-                            <div style="color: var(--text-primary);">Admin: ${reply.message}</div>
+                            <div style="color: var(--text-primary);">Admin: ${escapeHtml(reply.message).replace(/\n/g, '<br>')}</div>
                         </div>
                         <button type="button" class="btn btn-danger" data-delete-reply="${feedbackId}|${reply.id}" style="margin-left: 8px; padding: 4px 10px; font-size: 12px;">Hapus</button>
                     </div>
@@ -6161,8 +6193,8 @@
                 container.innerHTML = state.quickLinks.map(link => `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--background-soft); border-radius: var(--radius-sm);">
                     <div>
-                        <strong>${link.name}</strong>
-                        <br><small style="color: var(--text-muted);">${link.url}</small>
+                        <strong>${escapeHtml(link.name)}</strong>
+                        <br><small style="color: var(--text-muted);">${escapeHtml(link.url)}</small>
                     </div>
                     <button class="btn btn-danger" data-remove-quicklink="${link.id}" style="padding: 6px 12px; font-size: 12px;">Hapus</button>
                 </div>
@@ -6447,16 +6479,16 @@
                     return `
                     <div class="content-card ${lamp.pinned ? 'pinned' : ''} ${lampStatusClass}" data-id="${lamp.id}">
                         <div class="content-header">
-                            <div class="content-title">${lamp.judul}</div>
+                            <div class="content-title">${escapeHtml(lamp.judul)}</div>
                             <div class="content-meta">
                                 <span class="content-date">${date}</span>
-                                <span class="content-classification" style="background: var(--primary-light); color: var(--primary);">${lamp.kategori}</span>
+                                <span class="content-classification" style="background: var(--primary-light); color: var(--primary);">${escapeHtml(lamp.kategori)}</span>
                                  ${lamp.status ? `<span class="content-status ${isLampTidakBerlaku ? 'tidak-berlaku' : 'berlaku'}">${isLampTidakBerlaku ? 'Tidak Berlaku' : 'Berlaku'}</span>` : ''}
                             </div>
                         </div>
-                        ${lamp.deskripsi ? `<div class="content-subject">${lamp.deskripsi}</div>` : ''}
+                        ${lamp.deskripsi ? `<div class="content-subject">${escapeHtml(lamp.deskripsi)}</div>` : ''}
                         <div class="content-actions">
-                             <a href="${lamp.url}" target="_blank" class="btn btn-link-biru">
+                             <a href="${escapeHtml(sanitizeUrl(lamp.url))}" target="_blank" rel="noopener noreferrer" class="btn btn-link-biru">
                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                                      <polyline points="15 3 21 3 21 9"></polyline>
