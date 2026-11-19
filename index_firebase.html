@@ -1467,10 +1467,20 @@
             border: 1px solid #ffffff;
         }
 
+        .content-subject,
+        .content-subject * {
+            font-size: 14px !important;
+        }
+
         .content-subject {
-            font-size: 14px;
             color: var(--text-muted);
             margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        #contentSubjectInput,
+        #contentSubjectInput * {
+            font-size: 14px !important;
             line-height: 1.5;
         }
 
@@ -3124,7 +3134,7 @@
                             <button type="button" class="btn btn-secondary" data-format="underline"><u>U</u></button>
                         </div>
                         <div contenteditable="true" class="form-textarea" id="contentSubjectInput"
-                            style="min-height: 80px; max-height: 200px; overflow: auto;" required></div>
+                            style="min-height: 80px; max-height: 200px; overflow: auto; font-size: 14px;" required></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Kata Kunci Pencarian (Keywords)</label>
