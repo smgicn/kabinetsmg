@@ -5207,8 +5207,8 @@
                 });
             };
 
-            const highlightedTitle = highlightText(escapeHtml(content.title));
-            const highlightedSubject = highlightText(escapeHtml(content.subject));
+            const highlightedTitle = highlightText(content.title);
+            const highlightedSubject = highlightText(sanitizeRichHtml(content.subject));
             // KONTEN (RICH TEXT) TIDAK DI-HIGHLIGHT KARENA TIDAK TERMASUK DALAM PENCARIAN
             const highlightedContent = content.content || '';
 
