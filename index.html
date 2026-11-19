@@ -1175,6 +1175,15 @@
             background: var(--primary-light);
         }
 
+        .sidebar-toggle-btn.sidebar-open {
+            width: 220px;
+            box-sizing: border-box;
+        }
+
+        .sidebar-toggle-btn.sidebar-open .toggle-icon {
+            margin-left: auto;
+        }
+
         .sidebar-toggle-btn svg {
             transition: transform 0.3s ease;
         }
@@ -1330,9 +1339,10 @@
         }
 
         .section-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 24px 24px 0;
+            max-width: 100%;
+            margin: 0;
+            padding: 20px 24px 0;
+            box-sizing: border-box;
         }
 
         .content-card:hover {
@@ -2456,6 +2466,15 @@
                 min-width: 100% !important;
             }
 
+            .sidebar-toggle-btn.sidebar-open {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            .section-container {
+                padding: 16px 12px 0 !important;
+            }
+
             /* Responsive Table Containers */
             .table-responsive {
                 overflow-x: auto;
@@ -2954,7 +2973,7 @@
                     </div>
 
                     <!-- Toggle Button & Card Search Bar Row -->
-                    <div id="searchToggleRow" style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: nowrap;">
+                    <div id="searchToggleRow" style="display: flex; align-items: center; gap: 24px; margin-bottom: 16px; flex-wrap: nowrap;">
                         <button id="sidebarToggleBtn" class="sidebar-toggle-btn sidebar-open" title="Tampilkan/Sembunyikan Klasifikasi" style="margin-bottom: 0; flex-shrink: 0;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="3" width="7" height="18" rx="1"></rect>
