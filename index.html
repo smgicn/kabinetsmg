@@ -2693,6 +2693,13 @@
                     </svg>
                     Edit Pengumuman
                 </button>
+                <button class="btn btn-secondary" id="changePasswordBtn" style="display:none; padding:8px 14px; font-size:13px; gap:6px;" title="Ubah Kata Sandi">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Ubah Kata Sandi
+                </button>
                 <button class="dark-mode-toggle" id="darkModeToggle" title="Dark Mode">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -3696,9 +3703,80 @@
         </div>
     </div>
 
+        <!-- Modal Ubah Kata Sandi (Admin Only) -->
+    <div id="changePasswordModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2>Ubah Kata Sandi</h2>
+                <button class="modal-close" id="closeChangePasswordModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Pilihan Target Akun -->
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 8px;">Pilih Akun yang Ingin Diubah</label>
+                    <div style="display: flex; gap: 12px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; flex: 1; justify-content: center; background: var(--background-soft);">
+                            <input type="radio" name="pwdTargetRole" value="admin" checked style="accent-color: var(--primary);">
+                            <span style="font-weight: 500;">Kata Sandi Admin</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; flex: 1; justify-content: center; background: var(--background-soft);">
+                            <input type="radio" name="pwdTargetRole" value="user" style="accent-color: var(--primary);">
+                            <span style="font-weight: 500;">Kata Sandi User</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Bagian Ubah Password Admin -->
+                <div id="adminPasswordSection">
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+                        Mengubah kata sandi akun Firebase Admin yang sedang aktif (<strong>admin@kabinnet.com</strong>).
+                    </p>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label">Kata Sandi Baru Admin</label>
+                        <input type="password" id="newAdminPassword" class="form-input" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--background); color: var(--text-primary);" placeholder="Minimal 6 karakter" autocomplete="new-password">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label">Konfirmasi Kata Sandi Baru Admin</label>
+                        <input type="password" id="confirmAdminPassword" class="form-input" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--background); color: var(--text-primary);" placeholder="Ulangi kata sandi baru" autocomplete="new-password">
+                    </div>
+                </div>
+
+                <!-- Bagian Ubah Password User -->
+                <div id="userPasswordSection" style="display: none;">
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+                        Mengubah kata sandi akses bersama untuk seluruh pengguna dengan role <strong>User</strong>. Perubahan akan tersimpan ke cloud dan berlaku otomatis.
+                    </p>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label">Kata Sandi Baru User</label>
+                        <input type="password" id="newUserPassword" class="form-input" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--background); color: var(--text-primary);" placeholder="Masukkan kata sandi baru untuk User" autocomplete="new-password">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label">Konfirmasi Kata Sandi Baru User</label>
+                        <input type="password" id="confirmUserPassword" class="form-input" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--background); color: var(--text-primary);" placeholder="Ulangi kata sandi baru" autocomplete="new-password">
+                    </div>
+                </div>
+
+                <!-- Checkbox Tampilkan Password -->
+                <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); cursor: pointer; margin-top: 4px;">
+                    <input type="checkbox" id="toggleNewPwdVisible">
+                    <span>Tampilkan kata sandi</span>
+                </label>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button type="button" class="btn btn-secondary" id="cancelChangePasswordBtn">Batal</button>
+                <button type="button" class="btn btn-primary" id="saveChangePasswordBtn">Simpan Kata Sandi</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDoc, serverTimestamp, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -4122,6 +4200,116 @@
             }
         }
 
+        
+        function openChangePasswordModal() {
+            const modal = document.getElementById('changePasswordModal');
+            if (!modal) return;
+            document.getElementById('newAdminPassword').value = '';
+            document.getElementById('confirmAdminPassword').value = '';
+            document.getElementById('newUserPassword').value = '';
+            document.getElementById('confirmUserPassword').value = '';
+            const toggleVisible = document.getElementById('toggleNewPwdVisible');
+            if (toggleVisible) toggleVisible.checked = false;
+            ['newAdminPassword', 'confirmAdminPassword', 'newUserPassword', 'confirmUserPassword'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.type = 'password';
+            });
+
+            const adminRadio = document.querySelector('input[name="pwdTargetRole"][value="admin"]');
+            if (adminRadio) adminRadio.checked = true;
+            document.getElementById('adminPasswordSection').style.display = 'block';
+            document.getElementById('userPasswordSection').style.display = 'none';
+
+            modal.classList.add('active');
+        }
+
+        async function handleSaveNewPassword() {
+            const targetRole = document.querySelector('input[name="pwdTargetRole"]:checked')?.value || 'admin';
+            const saveBtn = document.getElementById('saveChangePasswordBtn');
+
+            if (targetRole === 'admin') {
+                const newPass = document.getElementById('newAdminPassword').value;
+                const confirmPass = document.getElementById('confirmAdminPassword').value;
+
+                if (!newPass || newPass.length < 6) {
+                    showToast('Kata sandi admin minimal 6 karakter!', 'warning');
+                    return;
+                }
+                if (newPass !== confirmPass) {
+                    showToast('Konfirmasi kata sandi admin tidak cocok!', 'warning');
+                    return;
+                }
+
+                if (!auth.currentUser) {
+                    showToast('Sesi admin tidak ditemukan. Silakan login ulang.', 'error');
+                    return;
+                }
+
+                try {
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = 'Menyimpan...';
+
+                    await updatePassword(auth.currentUser, newPass);
+                    showToast('Kata sandi Admin berhasil diperbarui!', 'success');
+                    document.getElementById('changePasswordModal').classList.remove('active');
+                } catch (err) {
+                    console.error('Error update password admin:', err);
+                    if (err.code === 'auth/requires-recent-login') {
+                        const currentPass = prompt('Demi keamanan Google Firebase, silakan masukkan kata sandi Admin Anda saat ini untuk konfirmasi:');
+                        if (currentPass) {
+                            try {
+                                const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPass);
+                                await reauthenticateWithCredential(auth.currentUser, credential);
+                                await updatePassword(auth.currentUser, newPass);
+                                showToast('Kata sandi Admin berhasil diperbarui!', 'success');
+                                document.getElementById('changePasswordModal').classList.remove('active');
+                            } catch (reauthErr) {
+                                showToast('Konfirmasi gagal: ' + reauthErr.message, 'error');
+                            }
+                        }
+                    } else {
+                        showToast('Gagal mengubah kata sandi: ' + err.message, 'error');
+                    }
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Simpan Kata Sandi';
+                }
+            } else if (targetRole === 'user') {
+                const newPass = document.getElementById('newUserPassword').value;
+                const confirmPass = document.getElementById('confirmUserPassword').value;
+
+                if (!newPass || newPass.length < 4) {
+                    showToast('Kata sandi user minimal 4 karakter!', 'warning');
+                    return;
+                }
+                if (newPass !== confirmPass) {
+                    showToast('Konfirmasi kata sandi user tidak cocok!', 'warning');
+                    return;
+                }
+
+                try {
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = 'Menyimpan...';
+
+                    const newHash = await sha256(newPass);
+                    await setDoc(doc(db, "app", "security"), {
+                        userPassHash: newHash,
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+
+                    localStorage.setItem('KB1_userPassHash', newHash);
+                    showToast('Kata sandi User berhasil diperbarui!', 'success');
+                    document.getElementById('changePasswordModal').classList.remove('active');
+                } catch (err) {
+                    console.error('Error update password user:', err);
+                    showToast('Gagal menyimpan kata sandi user: ' + err.message, 'error');
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Simpan Kata Sandi';
+                }
+            }
+        }
+
         async function saveAnnouncement() {
             const title = document.getElementById('annEditTitle').value.trim();
             const body = document.getElementById('annEditBody').innerHTML.trim();
@@ -4163,8 +4351,23 @@
             }
 
             if (role === 'user') {
+                let validUserHash = '914eaaac24133e69120aca2962e754d4a90dc0e05991518401d0dc15dbd8facd';
+                try {
+                    const secDoc = await getDoc(doc(db, "app", "security"));
+                    if (secDoc.exists() && secDoc.data().userPassHash) {
+                        validUserHash = secDoc.data().userPassHash;
+                        localStorage.setItem('KB1_userPassHash', validUserHash);
+                    } else {
+                        const cached = localStorage.getItem('KB1_userPassHash');
+                        if (cached) validUserHash = cached;
+                    }
+                } catch (_) {
+                    const cached = localStorage.getItem('KB1_userPassHash');
+                    if (cached) validUserHash = cached;
+                }
+
                 const passHash = await sha256(password);
-                if (passHash === '914eaaac24133e69120aca2962e754d4a90dc0e05991518401d0dc15dbd8facd') {
+                if (passHash === validUserHash) {
                     state.role = 'user';
                     if (rememberMe) {
                         localStorage.setItem(CONFIG.STORAGE_KEYS.session, JSON.stringify({ role: 'user' }));
@@ -4284,6 +4487,8 @@
             const userFilters = document.getElementById('userFilters');
             const kritikAdmin = document.getElementById('kritikAdminControls');
             const quickLinksAdmin = document.getElementById('quickLinksAdminControls');
+            const editAnnBtn = document.getElementById('editAnnouncementBtn');
+            const changePwdBtn = document.getElementById('changePasswordBtn');
 
             console.log('Current Role:', state.role); // Debug info
 
@@ -4294,15 +4499,15 @@
                 });
                 if (hargaAdmin) hargaAdmin.style.setProperty('display', 'flex', 'important');
                 if (hargaAction) hargaAction.classList.remove('hidden');
-                if (userFilters) userFilters.style.setProperty('display', 'flex', 'important');
+                if (userFilters) userFilters.style.setProperty('display', 'none', 'important');
                 if (kritikAdmin) {
                     kritikAdmin.style.setProperty('display', 'block', 'important');
                     kritikAdmin.classList.remove('hidden');
                 }
                 if (quickLinksAdmin) quickLinksAdmin.classList.remove('hidden');
-                // Show Edit Pengumuman button for admin
-                const editAnnBtn = document.getElementById('editAnnouncementBtn');
+                // Show Edit Pengumuman & Ubah Password buttons for admin
                 if (editAnnBtn) editAnnBtn.style.setProperty('display', 'inline-flex', 'important');
+                if (changePwdBtn) changePwdBtn.style.setProperty('display', 'inline-flex', 'important');
             } else {
                 adminControls.forEach(el => {
                     el.style.setProperty('display', 'none', 'important');
@@ -4314,9 +4519,9 @@
                     kritikAdmin.style.setProperty('display', 'none', 'important');
                 }
                 if (quickLinksAdmin) quickLinksAdmin.classList.add('hidden');
-                // Hide Edit Pengumuman button for non-admin
-                const editAnnBtn = document.getElementById('editAnnouncementBtn');
+                // Hide Edit Pengumuman & Ubah Password buttons for non-admin
                 if (editAnnBtn) editAnnBtn.style.setProperty('display', 'none', 'important');
+                if (changePwdBtn) changePwdBtn.style.setProperty('display', 'none', 'important');
             }
 
             updateClassificationSelect();
@@ -6838,6 +7043,46 @@
             }
 
             // Announcement Edit Modal Events (Admin)
+            const changePwdBtn = document.getElementById('changePasswordBtn');
+            const changePwdModal = document.getElementById('changePasswordModal');
+            if (changePwdBtn && changePwdModal) {
+                changePwdBtn.addEventListener('click', () => {
+                    openChangePasswordModal();
+                });
+                document.getElementById('closeChangePasswordModal')?.addEventListener('click', () => {
+                    changePwdModal.classList.remove('active');
+                });
+                document.getElementById('cancelChangePasswordBtn')?.addEventListener('click', () => {
+                    changePwdModal.classList.remove('active');
+                });
+                document.getElementById('saveChangePasswordBtn')?.addEventListener('click', async () => {
+                    await handleSaveNewPassword();
+                });
+
+                document.querySelectorAll('input[name="pwdTargetRole"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        const target = e.target.value;
+                        const adminSec = document.getElementById('adminPasswordSection');
+                        const userSec = document.getElementById('userPasswordSection');
+                        if (target === 'admin') {
+                            adminSec.style.display = 'block';
+                            userSec.style.display = 'none';
+                        } else {
+                            adminSec.style.display = 'none';
+                            userSec.style.display = 'block';
+                        }
+                    });
+                });
+
+                document.getElementById('toggleNewPwdVisible')?.addEventListener('change', (e) => {
+                    const isVisible = e.target.checked;
+                    ['newAdminPassword', 'confirmAdminPassword', 'newUserPassword', 'confirmUserPassword'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.type = isVisible ? 'text' : 'password';
+                    });
+                });
+            }
+
             const editAnnBtn = document.getElementById('editAnnouncementBtn');
             if (editAnnBtn) {
                 editAnnBtn.addEventListener('click', () => {

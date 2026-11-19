@@ -85,6 +85,7 @@ Font Family: 'Poppins', 'Inter', sans-serif
 - Password input with show/hide toggle
 - Login button (primary blue)
 - Error message display
+- Menu Ubah Kata Sandi (Admin Only): Tersedia tombol di navbar saat login sebagai Admin untuk mengubah kata sandi akun Admin sendiri (langsung diperbarui di Firebase Authentication) maupun mengubah kata sandi bersama untuk akun User (hash SHA-256 tersinkronisasi ke Firestore `app/security`).
 
 **Content Cards:**
 - Horizontal layout (full width)
