@@ -762,6 +762,133 @@
             gap: 12px;
         }
 
+        /* Header Hamburger Menu Dropdown (Satuan Garis Tiga) */
+        .header-menu-wrapper {
+            position: relative;
+        }
+
+        .btn-hamburger-header {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background-soft);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-hamburger-header:hover,
+        .btn-hamburger-header.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+        }
+
+        .header-menu-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 220px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 1100;
+            animation: fadeInDown 0.2s ease forwards;
+        }
+
+        .header-menu-dropdown.active {
+            display: flex;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px 10px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 4px;
+        }
+
+        .header-menu-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-menu-role-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .header-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px 14px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .header-menu-item:hover {
+            background: var(--background-soft);
+            color: var(--primary);
+        }
+
+        .header-menu-item svg {
+            flex-shrink: 0;
+        }
+
+        .header-menu-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 6px;
+        }
+
+        .header-menu-item.item-logout {
+            color: var(--error);
+        }
+
+        .header-menu-item.item-logout:hover {
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--error);
+        }
+
         .dark-mode-toggle {
             width: 40px;
             height: 40px;
@@ -2686,26 +2813,68 @@
             </div>
 
             <div class="navbar-actions">
-                <button class="btn btn-secondary" id="editAnnouncementBtn" style="display:none; padding:8px 14px; font-size:13px; gap:6px;" title="Edit Pengumuman">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                    </svg>
-                    Edit Pengumuman
-                </button>
-                <button class="btn btn-secondary" id="changePasswordBtn" style="display:none; padding:8px 14px; font-size:13px; gap:6px;" title="Ubah Kata Sandi">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    Ubah Kata Sandi
-                </button>
-                <button class="dark-mode-toggle" id="darkModeToggle" title="Dark Mode">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                </button>
-                <button class="logout-btn" id="logoutBtn" style="display: none;">Keluar</button>
+                <!-- Menu Garis Tiga (Dropdown Navigasi & Pengaturan) -->
+                <div class="header-menu-wrapper" id="headerMenuWrapper" style="display: none;">
+                    <button type="button" class="btn-hamburger-header" id="headerMenuToggleBtn" title="Menu Pengaturan & Aksi" aria-label="Menu" aria-expanded="false">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="header-menu-dropdown" id="headerMenuDropdown">
+                        <div class="header-menu-header">
+                            <span class="header-menu-role-tag" id="headerMenuRoleTag">Admin</span>
+                            <span class="header-menu-title">Menu</span>
+                        </div>
+                        
+                        <!-- Item Khusus Admin: Edit Pengumuman -->
+                        <button type="button" class="header-menu-item" id="menuItemEditAnn" style="display: none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            <span>Edit Pengumuman</span>
+                        </button>
+                        
+                        <!-- Item Khusus Admin: Ubah Kata Sandi -->
+                        <button type="button" class="header-menu-item" id="menuItemChangePwd" style="display: none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            <span>Ubah Kata Sandi</span>
+                        </button>
+
+                        <!-- Item Umum: Dark Mode Toggle -->
+                        <button type="button" class="header-menu-item" id="menuItemDarkMode">
+                            <span id="menuItemDarkIcon" style="display: inline-flex; align-items: center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                            </span>
+                            <span id="menuItemDarkLabel">Mode Gelap</span>
+                        </button>
+
+                        <div class="header-menu-divider"></div>
+
+                        <!-- Item Umum: Keluar -->
+                        <button type="button" class="header-menu-item item-logout" id="menuItemLogout">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            <span>Keluar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden proxies to preserve compatibility with existing code -->
+                <button id="editAnnouncementBtn" style="display:none !important;"></button>
+                <button id="changePasswordBtn" style="display:none !important;"></button>
+                <button id="darkModeToggle" style="display:none !important;"></button>
+                <button id="logoutBtn" style="display:none !important;"></button>
             </div>
         </nav>
 
@@ -4413,6 +4582,10 @@
 
         window.logout = async function () {
             state.role = null;
+            const menuWrapper = document.getElementById('headerMenuWrapper');
+            if (menuWrapper) menuWrapper.style.display = 'none';
+            const menuDropdown = document.getElementById('headerMenuDropdown');
+            if (menuDropdown) menuDropdown.classList.remove('active');
             localStorage.removeItem(CONFIG.STORAGE_KEYS.session);
             sessionStorage.removeItem(CONFIG.STORAGE_KEYS.session);
             sessionStorage.removeItem('announcementSeen'); // Reset status pengumuman agar muncul lagi di sesi berikutnya
@@ -4427,6 +4600,8 @@
         function showMainPage() {
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainPage').classList.add('active');
+            const menuWrapper = document.getElementById('headerMenuWrapper');
+            if (menuWrapper) menuWrapper.style.display = 'block';
 
             // Mulai listen feedbacks (public read, tidak perlu auth)
             listenFeedbacks();
@@ -4505,7 +4680,17 @@
                     kritikAdmin.classList.remove('hidden');
                 }
                 if (quickLinksAdmin) quickLinksAdmin.classList.remove('hidden');
-                // Show Edit Pengumuman & Ubah Password buttons for admin
+                // Update menu garis tiga untuk admin
+                const menuRoleTag = document.getElementById('headerMenuRoleTag');
+                const menuItemEditAnn = document.getElementById('menuItemEditAnn');
+                const menuItemChangePwd = document.getElementById('menuItemChangePwd');
+                if (menuRoleTag) {
+                    menuRoleTag.textContent = 'Admin';
+                    menuRoleTag.style.background = 'var(--primary-light)';
+                    menuRoleTag.style.color = 'var(--primary)';
+                }
+                if (menuItemEditAnn) menuItemEditAnn.style.display = 'flex';
+                if (menuItemChangePwd) menuItemChangePwd.style.display = 'flex';
                 if (editAnnBtn) editAnnBtn.style.setProperty('display', 'inline-flex', 'important');
                 if (changePwdBtn) changePwdBtn.style.setProperty('display', 'inline-flex', 'important');
             } else {
@@ -4519,7 +4704,17 @@
                     kritikAdmin.style.setProperty('display', 'none', 'important');
                 }
                 if (quickLinksAdmin) quickLinksAdmin.classList.add('hidden');
-                // Hide Edit Pengumuman & Ubah Password buttons for non-admin
+                // Update menu garis tiga untuk user
+                const menuRoleTag = document.getElementById('headerMenuRoleTag');
+                const menuItemEditAnn = document.getElementById('menuItemEditAnn');
+                const menuItemChangePwd = document.getElementById('menuItemChangePwd');
+                if (menuRoleTag) {
+                    menuRoleTag.textContent = 'User';
+                    menuRoleTag.style.background = 'rgba(22, 163, 74, 0.1)';
+                    menuRoleTag.style.color = 'var(--success)';
+                }
+                if (menuItemEditAnn) menuItemEditAnn.style.display = 'none';
+                if (menuItemChangePwd) menuItemChangePwd.style.display = 'none';
                 if (editAnnBtn) editAnnBtn.style.setProperty('display', 'none', 'important');
                 if (changePwdBtn) changePwdBtn.style.setProperty('display', 'none', 'important');
             }
@@ -7140,6 +7335,79 @@
 
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', window.logout);
+
+            // Header Hamburger Dropdown Menu (Garis Tiga)
+            const menuToggleBtn = document.getElementById('headerMenuToggleBtn');
+            const menuDropdown = document.getElementById('headerMenuDropdown');
+
+            if (menuToggleBtn && menuDropdown) {
+                menuToggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = menuDropdown.classList.toggle('active');
+                    menuToggleBtn.classList.toggle('active', isOpen);
+                    menuToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#headerMenuWrapper')) {
+                        menuDropdown.classList.remove('active');
+                        menuToggleBtn.classList.remove('active');
+                        menuToggleBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && menuDropdown.classList.contains('active')) {
+                        menuDropdown.classList.remove('active');
+                        menuToggleBtn.classList.remove('active');
+                        menuToggleBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                // Menu Item: Edit Pengumuman
+                document.getElementById('menuItemEditAnn')?.addEventListener('click', () => {
+                    menuDropdown.classList.remove('active');
+                    menuToggleBtn.classList.remove('active');
+                    loadAnnouncement();
+                    document.getElementById('announcementEditModal').classList.add('active');
+                });
+
+                // Menu Item: Ubah Kata Sandi
+                document.getElementById('menuItemChangePwd')?.addEventListener('click', () => {
+                    menuDropdown.classList.remove('active');
+                    menuToggleBtn.classList.remove('active');
+                    openChangePasswordModal();
+                });
+
+                // Menu Item: Dark Mode Toggle
+                const updateDarkMenuText = () => {
+                    const isDark = document.body.classList.contains('dark-mode');
+                    const label = document.getElementById('menuItemDarkLabel');
+                    const icon = document.getElementById('menuItemDarkIcon');
+                    if (label) label.textContent = isDark ? 'Mode Terang' : 'Mode Gelap';
+                    if (icon) {
+                        icon.innerHTML = isDark
+                            ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
+                            : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+                    }
+                };
+
+                document.getElementById('menuItemDarkMode')?.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-mode');
+                    saveToStorage(CONFIG.STORAGE_KEYS.darkmode, document.body.classList.contains('dark-mode'));
+                    updateDarkMenuText();
+                });
+
+                // Menu Item: Keluar
+                document.getElementById('menuItemLogout')?.addEventListener('click', () => {
+                    menuDropdown.classList.remove('active');
+                    menuToggleBtn.classList.remove('active');
+                    window.logout();
+                });
+
+                // Inisialisasi tampilan icon / teks dark mode saat dimuat
+                updateDarkMenuText();
+            }
 
             // Toggle password
             document.getElementById('togglePassword').addEventListener('click', () => {
