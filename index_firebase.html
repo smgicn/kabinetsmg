@@ -1484,6 +1484,11 @@
             line-height: 1.5;
         }
 
+        #contentTextInput {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
         .content-actions {
             display: flex;
             gap: 12px;
@@ -3173,7 +3178,7 @@
                             <select class="form-select" style="min-width: 60px; font-size: 12px;" data-rtf="fontSize">
                                 <option value="12">12px</option>
                                 <option value="14">14px</option>
-                                <option value="16">16px</option>
+                                <option value="16" selected>16px</option>
                                 <option value="18">18px</option>
                                 <option value="20">20px</option>
                                 <option value="22">22px</option>
@@ -3207,7 +3212,7 @@
                             </button>
                         </div>
                         <div contenteditable="true" class="form-textarea" id="contentTextInput"
-                            style="min-height: 200px; overflow: auto;"></div>
+                            style="min-height: 200px; overflow: auto; font-size: 16px;"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Link Eksternal</label>
@@ -5733,6 +5738,8 @@
                 addLinkField();
             }
             updateKeywordSuggestions();
+            const fontSizeSelect = document.querySelector('select[data-rtf="fontSize"]');
+            if (fontSizeSelect) fontSizeSelect.value = '16';
             document.getElementById('contentModal').classList.add('active');
         }
 
