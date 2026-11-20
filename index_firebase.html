@@ -2458,6 +2458,29 @@
             color: #ffffff;
         }
 
+        .table-tool-btn.highlight {
+            background: var(--primary-light, #eff6ff);
+            border-color: var(--primary, #2563eb);
+            color: var(--primary, #2563eb);
+            font-weight: 600;
+        }
+
+        .table-tool-btn.highlight:hover {
+            background: var(--primary, #2563eb);
+            color: #ffffff;
+        }
+
+        .dark-mode .table-tool-btn.highlight {
+            background: rgba(37, 99, 235, 0.2);
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+
+        .dark-mode .table-tool-btn.highlight:hover {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
         /* Image Resizer Overlay */
         .image-resizer-overlay {
             position: absolute;
@@ -3349,6 +3372,21 @@
                                     <path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"></path>
                                 </svg>
                             </button>
+                                                        <button type="button" class="btn btn-secondary" data-rtf="mergeCols" title="Merge Kolom (Gabung dengan kolom kanan)">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                    <path d="M12 3v18"></path>
+                                    <path d="M8 12h8"></path>
+                                </svg>
+                                Merge
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-rtf="unmergeCols" title="Unmerge Kolom (Pisahkan kolom yang digabung)">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                    <path d="M12 3v18"></path>
+                                </svg>
+                                Unmerge
+                            </button>
                             <button type="button" class="btn btn-secondary" data-rtf="deleteTable" id="toolbarDeleteTableBtn" title="Hapus Tabel (Letakkan kursor di dalam tabel)">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"></path>
@@ -3585,7 +3623,7 @@
         </div>
     </div>
 
-    <!-- Floating Table Action Toolbar -->
+        <!-- Floating Table Action Toolbar -->
     <div id="tableToolbarOverlay" class="table-toolbar-overlay" style="display: none;">
         <div class="table-toolbar-content">
             <span class="table-toolbar-label">Tabel:</span>
@@ -3593,7 +3631,28 @@
             <button type="button" class="table-tool-btn" data-table-action="deleteRow" title="Hapus Baris Ini">- Baris</button>
             <button type="button" class="table-tool-btn" data-table-action="addColRight" title="Tambah Kolom Baru di Kanan">+ Kolom</button>
             <button type="button" class="table-tool-btn" data-table-action="deleteCol" title="Hapus Kolom Ini">- Kolom</button>
-            <button type="button" class="table-tool-btn danger" data-table-action="deleteTable" title="Hapus Seluruh Tabel">ðŸ—‘ï¸ Hapus Tabel</button>
+            <button type="button" class="table-tool-btn highlight" data-table-action="mergeCols" title="Gabungkan dengan Kolom Kanan (Merge Kolom)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 2px;">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    <path d="M12 3v18"></path>
+                    <path d="M8 12h8"></path>
+                </svg>
+                Merge Kolom
+            </button>
+            <button type="button" class="table-tool-btn" data-table-action="unmergeCols" title="Pisahkan Kolom yang Digabung (Unmerge)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 2px;">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    <path d="M12 3v18"></path>
+                </svg>
+                Unmerge
+            </button>
+            <button type="button" class="table-tool-btn danger" data-table-action="deleteTable" title="Hapus Seluruh Tabel">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 2px;">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Hapus Tabel
+            </button>
         </div>
     </div>
 
@@ -7617,6 +7676,10 @@
                         }
                     } else if (command === 'deleteTable') {
                         handleTableAction('deleteTable');
+                    } else if (command === 'mergeCols') {
+                        handleTableAction('mergeCols');
+                    } else if (command === 'unmergeCols') {
+                        handleTableAction('unmergeCols');
                     } else {
                         document.execCommand(command, false, value);
                     }
@@ -7872,6 +7935,134 @@
                         currentActiveCell = null;
                         updateTableToolbarPos();
                     }
+                } else if (action === 'mergeCols') {
+                    let startCell = null;
+                    let endCell = null;
+                    const sel = window.getSelection();
+                    if (sel && sel.rangeCount > 0) {
+                        const range = sel.getRangeAt(0);
+                        let sc = range.startContainer;
+                        if (sc.nodeType === Node.TEXT_NODE) sc = sc.parentElement;
+                        startCell = sc ? sc.closest('td, th') : null;
+
+                        let ec = range.endContainer;
+                        if (ec.nodeType === Node.TEXT_NODE) ec = ec.parentElement;
+                        endCell = ec ? ec.closest('td, th') : null;
+                    }
+
+                    let cellsToMerge = [];
+                    if (startCell && endCell && startCell !== endCell && startCell.closest('tr') === endCell.closest('tr')) {
+                        let r = startCell.closest('tr');
+                        let foundStart = false;
+                        for (let i = 0; i < r.cells.length; i++) {
+                            const c = r.cells[i];
+                            if (c === startCell || c === endCell) {
+                                if (!foundStart) {
+                                    foundStart = true;
+                                    cellsToMerge.push(c);
+                                } else {
+                                    cellsToMerge.push(c);
+                                    break;
+                                }
+                            } else if (foundStart) {
+                                cellsToMerge.push(c);
+                            }
+                        }
+                    }
+
+                    if (cellsToMerge.length > 1) {
+                        const target = cellsToMerge[0];
+                        let totalColspan = 0;
+                        for (let i = 0; i < cellsToMerge.length; i++) {
+                            const c = cellsToMerge[i];
+                            const span = parseInt(c.getAttribute('colspan') || '1', 10);
+                            totalColspan += span;
+                            if (i > 0) {
+                                const txt = c.innerHTML.trim();
+                                if (txt && txt !== '&nbsp;' && txt !== '<br>') {
+                                    if (target.innerHTML.trim() === '&nbsp;' || target.innerHTML.trim() === '') {
+                                        target.innerHTML = txt;
+                                    } else {
+                                        target.innerHTML += ' ' + txt;
+                                    }
+                                }
+                                c.remove();
+                            }
+                        }
+                        target.setAttribute('colspan', totalColspan);
+                        currentActiveCell = target;
+                        updateTableToolbarPos();
+                        return;
+                    }
+
+                    const cell = currentActiveCell || startCell;
+                    if (!cell) {
+                        alert('Silakan klik di dalam sel yang ingin digabungkan (Merge).');
+                        return;
+                    }
+
+                    const nextCell = cell.nextElementSibling;
+                    if (!nextCell || (nextCell.tagName !== 'TD' && nextCell.tagName !== 'TH')) {
+                        alert('Tidak ada kolom di sebelah kanan untuk digabungkan (Merge).');
+                        return;
+                    }
+
+                    const currentSpan = parseInt(cell.getAttribute('colspan') || '1', 10);
+                    const nextSpan = parseInt(nextCell.getAttribute('colspan') || '1', 10);
+                    const newSpan = currentSpan + nextSpan;
+
+                    const nextTxt = nextCell.innerHTML.trim();
+                    if (nextTxt && nextTxt !== '&nbsp;' && nextTxt !== '<br>') {
+                        if (cell.innerHTML.trim() === '&nbsp;' || cell.innerHTML.trim() === '') {
+                            cell.innerHTML = nextTxt;
+                        } else {
+                            cell.innerHTML += ' ' + nextTxt;
+                        }
+                    }
+
+                    cell.setAttribute('colspan', newSpan);
+                    nextCell.remove();
+                    currentActiveCell = cell;
+                    updateTableToolbarPos();
+                } else if (action === 'unmergeCols') {
+                    let cell = currentActiveCell;
+                    if (!cell) {
+                        const sel = window.getSelection();
+                        if (sel && sel.rangeCount > 0) {
+                            let node = sel.getRangeAt(0).commonAncestorContainer;
+                            if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+                            cell = node ? node.closest('td, th') : null;
+                        }
+                    }
+
+                    if (!cell) {
+                        alert('Silakan klik pada sel yang ingin dipisahkan (Unmerge).');
+                        return;
+                    }
+
+                    const span = parseInt(cell.getAttribute('colspan') || '1', 10);
+                    if (span <= 1) {
+                        alert('Sel ini belum digabungkan (tidak memiliki colspan).');
+                        return;
+                    }
+
+                    cell.removeAttribute('colspan');
+                    const isTh = cell.tagName === 'TH';
+                    for (let i = 1; i < span; i++) {
+                        const newCell = document.createElement(isTh ? 'th' : 'td');
+                        newCell.style.border = '1px solid var(--border, #cbd5e1)';
+                        newCell.style.padding = '8px 10px';
+                        newCell.style.minWidth = '30px';
+                        if (isTh) {
+                            newCell.style.backgroundColor = 'var(--background-soft, #f8fafc)';
+                            newCell.style.fontWeight = '600';
+                        }
+                        newCell.innerHTML = '&nbsp;';
+                        cell.parentNode.insertBefore(newCell, cell.nextSibling);
+                    }
+
+                    currentActiveCell = cell;
+                    updateTableToolbarPos();
                 }
             };
 
