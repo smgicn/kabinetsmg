@@ -2323,6 +2323,141 @@
             }
         }
 
+        /* Table Styles in Editor and Cards */
+        .form-textarea table,
+        .content-text table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 14px;
+        }
+
+        .form-textarea table th,
+        .form-textarea table td,
+        .content-text table th,
+        .content-text table td {
+            border: 1px solid var(--border, #cbd5e1);
+            padding: 8px 10px;
+            text-align: left;
+            min-width: 30px;
+            vertical-align: top;
+        }
+
+        .form-textarea table th,
+        .content-text table th {
+            background-color: var(--background-soft, #f8fafc);
+            font-weight: 600;
+        }
+
+        .form-textarea table.table-active {
+            outline: 2px dashed var(--primary);
+            outline-offset: 2px;
+        }
+
+        .dark-mode .form-textarea table th,
+        .dark-mode .content-text table th {
+            background-color: var(--background-soft) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border) !important;
+        }
+
+        .dark-mode .form-textarea table td,
+        .dark-mode .content-text table td {
+            color: var(--text-primary) !important;
+            border-color: var(--border) !important;
+        }
+
+        /* Floating Table Action Toolbar */
+        .table-toolbar-overlay {
+            position: fixed;
+            z-index: 1050;
+            background: var(--background, #ffffff);
+            border: 1px solid var(--border, #e2e8f0);
+            border-radius: 8px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+            padding: 4px 8px;
+            display: none;
+            font-family: inherit;
+            font-size: 12px;
+            pointer-events: auto;
+        }
+
+        .table-toolbar-content {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .table-toolbar-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted, #64748b);
+            margin-right: 2px;
+        }
+
+        .table-tool-btn {
+            background: var(--background-soft, #f1f5f9);
+            border: 1px solid var(--border, #cbd5e1);
+            color: var(--text-primary, #1e293b);
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .table-tool-btn:hover {
+            background: var(--primary-light, #eff6ff);
+            border-color: var(--primary, #2563eb);
+            color: var(--primary, #2563eb);
+        }
+
+        .table-tool-btn.danger {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .table-tool-btn.danger:hover {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+        }
+
+        .dark-mode .table-toolbar-overlay {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+        }
+
+        .dark-mode .table-tool-btn {
+            background: #334155;
+            border-color: #475569;
+            color: #f1f5f9;
+        }
+
+        .dark-mode .table-tool-btn:hover {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .dark-mode .table-tool-btn.danger {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+
+        .dark-mode .table-tool-btn.danger:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
         /* Image Resizer Overlay */
         .image-resizer-overlay {
             position: absolute;
@@ -3209,10 +3344,15 @@
                                 title="Tambah Link">🔗</button>
                             <button type="button" class="btn btn-secondary" data-rtf="unlink"
                                 title="Hapus Link">⎌</button>
-                            <button type="button" class="btn btn-secondary" data-rtf="insertTable" title="Tambah Tabel">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                            <button type="button" class="btn btn-secondary" data-rtf="insertTable" title="Tambah Tabel Baru">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"></path>
+                                </svg>
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-rtf="deleteTable" id="toolbarDeleteTableBtn" title="Hapus Tabel (Letakkan kursor di dalam tabel)">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"></path>
+                                    <line x1="3" y1="3" x2="21" y2="21" stroke="#ef4444" stroke-width="2.5"></line>
                                 </svg>
                             </button>
                         </div>
@@ -3442,6 +3582,18 @@
                 <button class="btn btn-secondary" id="cancelReplyBtn">Batal</button>
                 <button class="btn btn-primary" id="saveReplyBtn">Kirim Respon</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Floating Table Action Toolbar -->
+    <div id="tableToolbarOverlay" class="table-toolbar-overlay" style="display: none;">
+        <div class="table-toolbar-content">
+            <span class="table-toolbar-label">Tabel:</span>
+            <button type="button" class="table-tool-btn" data-table-action="addRowBelow" title="Tambah Baris Baru di Bawah">+ Baris</button>
+            <button type="button" class="table-tool-btn" data-table-action="deleteRow" title="Hapus Baris Ini">- Baris</button>
+            <button type="button" class="table-tool-btn" data-table-action="addColRight" title="Tambah Kolom Baru di Kanan">+ Kolom</button>
+            <button type="button" class="table-tool-btn" data-table-action="deleteCol" title="Hapus Kolom Ini">- Kolom</button>
+            <button type="button" class="table-tool-btn danger" data-table-action="deleteTable" title="Hapus Seluruh Tabel">ðŸ—‘ï¸ Hapus Tabel</button>
         </div>
     </div>
 
@@ -7445,20 +7597,26 @@
                             }
                         }
                     } else if (command === 'insertTable') {
-                        const rows = prompt('Jumlah Baris:', '2');
-                        const cols = prompt('Jumlah Kolom:', '3');
-                        if (rows && cols) {
-                            let tableHtml = '<table style="width:100%; border-collapse:collapse; border:1px solid #ddd; margin:10px 0;"><tbody>';
+                        const rows = parseInt(prompt('Jumlah Baris:', '3')) || 0;
+                        const cols = parseInt(prompt('Jumlah Kolom:', '3')) || 0;
+                        if (rows > 0 && cols > 0) {
+                            let tableHtml = '<table style="width:100%; border-collapse:collapse; margin:14px 0;"><thead><tr>';
+                            for (let c = 0; c < cols; c++) {
+                                tableHtml += `<th style="border:1px solid var(--border, #cbd5e1); padding:8px 10px; background-color:var(--background-soft, #f8fafc); font-weight:600;">Kolom ${c + 1}</th>`;
+                            }
+                            tableHtml += '</tr></thead><tbody>';
                             for (let r = 0; r < rows; r++) {
                                 tableHtml += '<tr>';
                                 for (let c = 0; c < cols; c++) {
-                                    tableHtml += '<td style="border:1px solid #ddd; padding:8px;">&nbsp;</td>';
+                                    tableHtml += '<td style="border:1px solid var(--border, #cbd5e1); padding:8px 10px; min-width:30px;">&nbsp;</td>';
                                 }
                                 tableHtml += '</tr>';
                             }
-                            tableHtml += '</tbody></table><p>&nbsp;</p>';
+                            tableHtml += '</tbody></table><p><br></p>';
                             document.execCommand('insertHTML', false, tableHtml);
                         }
+                    } else if (command === 'deleteTable') {
+                        handleTableAction('deleteTable');
                     } else {
                         document.execCommand(command, false, value);
                     }
@@ -7466,86 +7624,383 @@
                 });
             });
 
-            // Paste Handler for Rich Text with Auto-Compression
+            // Table Cleaning and TSV Parser
+            const cleanTableHtml = (rawHtml) => {
+                if (!rawHtml) return '';
+                try {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(rawHtml, 'text/html');
+                    doc.querySelectorAll('script, style, meta, link, xml, o\\:p').forEach(el => el.remove());
+                    const tables = doc.querySelectorAll('table');
+                    if (tables.length === 0) return '';
+
+                    tables.forEach(table => {
+                        table.removeAttribute('class');
+                        table.removeAttribute('width');
+                        table.removeAttribute('border');
+                        table.removeAttribute('cellspacing');
+                        table.removeAttribute('cellpadding');
+                        table.removeAttribute('id');
+                        table.style.width = '100%';
+                        table.style.borderCollapse = 'collapse';
+                        table.style.margin = '14px 0';
+                        table.querySelectorAll('colgroup, col').forEach(col => col.remove());
+
+                        const rows = table.querySelectorAll('tr');
+                        rows.forEach((row, rIdx) => {
+                            row.removeAttribute('class');
+                            row.removeAttribute('height');
+                            row.removeAttribute('style');
+
+                            const cells = row.querySelectorAll('th, td');
+                            cells.forEach(cell => {
+                                cell.removeAttribute('class');
+                                cell.removeAttribute('width');
+                                cell.removeAttribute('height');
+                                cell.removeAttribute('bgcolor');
+                                cell.removeAttribute('id');
+
+                                let textAlign = cell.style.textAlign || cell.getAttribute('align') || '';
+                                let fontWeight = cell.style.fontWeight || (cell.tagName === 'TH' ? '600' : '');
+
+                                let styleStr = 'border: 1px solid var(--border, #cbd5e1); padding: 8px 10px; min-width: 30px;';
+                                if (textAlign) styleStr += ` text-align: ${textAlign};`;
+                                if (fontWeight) styleStr += ` font-weight: ${fontWeight};`;
+                                if (rIdx === 0 && (cell.tagName === 'TH' || fontWeight === 'bold' || fontWeight >= '600')) {
+                                    styleStr += ' background-color: var(--background-soft, #f8fafc);';
+                                }
+                                cell.setAttribute('style', styleStr);
+
+                                if (!cell.innerHTML || cell.innerHTML.trim() === '') {
+                                    cell.innerHTML = '&nbsp;';
+                                }
+                            });
+                        });
+
+                        if (!table.nextElementSibling || table.nextElementSibling.tagName !== 'P') {
+                            const p = doc.createElement('p');
+                            p.innerHTML = '<br>';
+                            if (table.nextSibling) {
+                                table.parentNode.insertBefore(p, table.nextSibling);
+                            } else {
+                                table.parentNode.appendChild(p);
+                            }
+                        }
+                    });
+
+                    return doc.body.innerHTML;
+                } catch (err) {
+                    console.error('Error cleaning table HTML:', err);
+                    return rawHtml;
+                }
+            };
+
+            const tsvToHtmlTable = (tsv) => {
+                if (!tsv || !tsv.includes('\t')) return null;
+                const lines = tsv.trim().split(/\r\n|\r|\n/);
+                if (lines.length === 0) return null;
+                if (!lines.some(l => l.includes('\t'))) return null;
+
+                let html = '<table style="width:100%; border-collapse:collapse; margin:14px 0;"><tbody>';
+                lines.forEach((line, rIndex) => {
+                    const cells = line.split('\t');
+                    html += '<tr>';
+                    cells.forEach(cellText => {
+                        const trimmed = cellText.trim();
+                        const safeText = escapeHtml(trimmed) || '&nbsp;';
+                        const isHeader = (rIndex === 0 && lines.length > 1);
+                        const tag = isHeader ? 'th' : 'td';
+                        const bg = isHeader ? ' background-color: var(--background-soft, #f8fafc); font-weight: 600;' : '';
+                        html += `<${tag} style="border: 1px solid var(--border, #cbd5e1); padding: 8px 10px; min-width: 30px;${bg}">${safeText}</${tag}>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table><p><br></p>';
+                return html;
+            };
+
+            // Table Management Logic (Overlay & Actions)
+            let currentActiveTable = null;
+            let currentActiveCell = null;
+            const tableToolbarOverlay = document.getElementById('tableToolbarOverlay');
+
+            const showTableToolbar = (table, cell) => {
+                currentActiveTable = table;
+                currentActiveCell = cell;
+                if (!tableToolbarOverlay || !table) return;
+                tableToolbarOverlay.style.display = 'block';
+                updateTableToolbarPos();
+            };
+
+            const hideTableToolbar = () => {
+                if (tableToolbarOverlay) {
+                    tableToolbarOverlay.style.display = 'none';
+                }
+                document.querySelectorAll('#contentTextInput table, #contentSubjectInput table').forEach(t => {
+                    t.classList.remove('table-active');
+                });
+                currentActiveTable = null;
+                currentActiveCell = null;
+            };
+
+            const updateTableToolbarPos = () => {
+                if (!currentActiveTable || !tableToolbarOverlay || tableToolbarOverlay.style.display === 'none') return;
+                const rect = currentActiveTable.getBoundingClientRect();
+                const editor = currentActiveTable.closest('.form-textarea');
+                if (!editor) {
+                    hideTableToolbar();
+                    return;
+                }
+                const editorRect = editor.getBoundingClientRect();
+
+                if (rect.bottom < editorRect.top || rect.top > editorRect.bottom) {
+                    tableToolbarOverlay.style.display = 'none';
+                    return;
+                }
+                tableToolbarOverlay.style.display = 'block';
+
+                let top = rect.top - 36;
+                let left = rect.left;
+
+                if (top < editorRect.top) {
+                    top = Math.max(editorRect.top + 2, rect.top + 2);
+                }
+
+                tableToolbarOverlay.style.position = 'fixed';
+                tableToolbarOverlay.style.top = `${top}px`;
+                tableToolbarOverlay.style.left = `${left}px`;
+                tableToolbarOverlay.style.zIndex = '9999';
+            };
+
+            const handleTableAction = (action) => {
+                if (!currentActiveTable) {
+                    const sel = window.getSelection();
+                    if (sel && sel.rangeCount > 0) {
+                        let node = sel.getRangeAt(0).commonAncestorContainer;
+                        if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+                        currentActiveTable = node ? node.closest('table') : null;
+                        currentActiveCell = node ? node.closest('td, th') : null;
+                    }
+                }
+                if (!currentActiveTable) {
+                    const editor = document.getElementById('contentTextInput');
+                    const tables = editor?.querySelectorAll('table');
+                    if (tables && tables.length === 1) {
+                        currentActiveTable = tables[0];
+                    }
+                }
+
+                if (!currentActiveTable) {
+                    alert('Silakan klik di dalam tabel yang ingin diatur terlebih dahulu.');
+                    return;
+                }
+
+                if (action === 'deleteTable') {
+                    if (confirm('Apakah Anda yakin ingin menghapus tabel ini?')) {
+                        const p = document.createElement('p');
+                        p.innerHTML = '<br>';
+                        if (currentActiveTable.parentNode) {
+                            currentActiveTable.parentNode.insertBefore(p, currentActiveTable);
+                        }
+                        currentActiveTable.remove();
+                        hideTableToolbar();
+                        const editor = document.getElementById('contentTextInput');
+                        if (editor) editor.focus();
+                    }
+                } else if (action === 'addRowBelow') {
+                    const tr = currentActiveCell ? currentActiveCell.closest('tr') : currentActiveTable.rows[currentActiveTable.rows.length - 1];
+                    if (tr) {
+                        const newRow = document.createElement('tr');
+                        const colCount = tr.cells.length;
+                        for (let i = 0; i < colCount; i++) {
+                            const td = document.createElement('td');
+                            td.style.border = '1px solid var(--border, #cbd5e1)';
+                            td.style.padding = '8px 10px';
+                            td.style.minWidth = '30px';
+                            td.innerHTML = '&nbsp;';
+                            newRow.appendChild(td);
+                        }
+                        tr.parentNode.insertBefore(newRow, tr.nextSibling);
+                        updateTableToolbarPos();
+                    }
+                } else if (action === 'deleteRow') {
+                    const tr = currentActiveCell ? currentActiveCell.closest('tr') : null;
+                    if (tr && currentActiveTable.rows.length > 1) {
+                        tr.remove();
+                        currentActiveCell = null;
+                        updateTableToolbarPos();
+                    } else if (currentActiveTable.rows.length <= 1) {
+                        handleTableAction('deleteTable');
+                    }
+                } else if (action === 'addColRight') {
+                    const colIdx = currentActiveCell ? currentActiveCell.cellIndex : (currentActiveTable.rows[0]?.cells.length - 1 || 0);
+                    for (let r = 0; r < currentActiveTable.rows.length; r++) {
+                        const row = currentActiveTable.rows[r];
+                        const isTh = row.parentNode.tagName === 'THEAD' || row.cells[0]?.tagName === 'TH';
+                        const newCell = document.createElement(isTh ? 'th' : 'td');
+                        newCell.style.border = '1px solid var(--border, #cbd5e1)';
+                        newCell.style.padding = '8px 10px';
+                        newCell.style.minWidth = '30px';
+                        if (isTh) {
+                            newCell.style.backgroundColor = 'var(--background-soft, #f8fafc)';
+                            newCell.style.fontWeight = '600';
+                            newCell.textContent = `Kolom ${row.cells.length + 1}`;
+                        } else {
+                            newCell.innerHTML = '&nbsp;';
+                        }
+                        if (colIdx >= 0 && colIdx < row.cells.length - 1) {
+                            row.insertBefore(newCell, row.cells[colIdx + 1]);
+                        } else {
+                            row.appendChild(newCell);
+                        }
+                    }
+                    updateTableToolbarPos();
+                } else if (action === 'deleteCol') {
+                    const colIdx = currentActiveCell ? currentActiveCell.cellIndex : -1;
+                    if (colIdx >= 0) {
+                        const totalCols = currentActiveTable.rows[0]?.cells.length || 0;
+                        if (totalCols <= 1) {
+                            handleTableAction('deleteTable');
+                            return;
+                        }
+                        for (let r = 0; r < currentActiveTable.rows.length; r++) {
+                            const row = currentActiveTable.rows[r];
+                            if (row.cells[colIdx]) {
+                                row.cells[colIdx].remove();
+                            }
+                        }
+                        currentActiveCell = null;
+                        updateTableToolbarPos();
+                    }
+                }
+            };
+
+            if (tableToolbarOverlay) {
+                tableToolbarOverlay.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                });
+                tableToolbarOverlay.addEventListener('click', (e) => {
+                    const btn = e.target.closest('[data-table-action]');
+                    if (btn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleTableAction(btn.dataset.tableAction);
+                    }
+                });
+            }
+
+            document.getElementById('contentTextInput')?.addEventListener('scroll', updateTableToolbarPos);
+            document.getElementById('contentSubjectInput')?.addEventListener('scroll', updateTableToolbarPos);
+            document.querySelector('#contentModal .modal')?.addEventListener('scroll', updateTableToolbarPos);
+            window.addEventListener('resize', updateTableToolbarPos);
+
+            ['closeContentModal', 'cancelContentBtn', 'saveContentBtn'].forEach(id => {
+                document.getElementById(id)?.addEventListener('click', hideTableToolbar);
+            });
+
+            // Paste Handler for Rich Text with Auto-Compression & Excel/Spreadsheet Table Support
             const handlePaste = (e) => {
                 e.preventDefault();
                 const clipboardData = e.clipboardData || window.clipboardData;
-                const items = clipboardData.items;
+                if (!clipboardData) return;
+
                 const html = clipboardData.getData('text/html');
                 const text = clipboardData.getData('text/plain');
+                const items = clipboardData.items;
 
-                // Handle images in clipboard
+                // 1. Check if pasted data contains a Table from Excel, Google Sheets, or web page
+                const hasTable = html && (/<table[\s>]/i.test(html) || /<(tr|td|th)[\s>]/i.test(html));
+                const isTsv = !html && text && text.includes('\t') && (text.includes('\n') || text.includes('\r'));
+
+                if (hasTable) {
+                    const cleanHtmlTable = cleanTableHtml(html);
+                    if (cleanHtmlTable) {
+                        document.execCommand('insertHTML', false, cleanHtmlTable);
+                        return;
+                    }
+                }
+
+                if (isTsv) {
+                    const tsvHtml = tsvToHtmlTable(text);
+                    if (tsvHtml) {
+                        document.execCommand('insertHTML', false, tsvHtml);
+                        return;
+                    }
+                }
+
+                // 2. Handle actual images in clipboard (screenshots, copied image files)
                 let imageFound = false;
                 if (items) {
                     for (let i = 0; i < items.length; i++) {
                         if (items[i].type.indexOf('image') !== -1) {
                             const blob = items[i].getAsFile();
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                                const originalDataUrl = event.target.result;
+                            if (blob) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                    const originalDataUrl = event.target.result;
+                                    
+                                    // Auto Compression Logic
+                                    const img = new Image();
+                                    img.onload = () => {
+                                        const canvas = document.createElement('canvas');
+                                        const MAX_WIDTH = 800;
+                                        let width = img.width;
+                                        let height = img.height;
 
-                                // Auto Compression Logic
-                                const img = new Image();
-                                img.onload = () => {
-                                    const canvas = document.createElement('canvas');
-                                    const MAX_WIDTH = 800;
-                                    let width = img.width;
-                                    let height = img.height;
+                                        if (width > MAX_WIDTH) {
+                                            height = (MAX_WIDTH / width) * height;
+                                            width = MAX_WIDTH;
+                                        }
 
-                                    if (width > MAX_WIDTH) {
-                                        height = (MAX_WIDTH / width) * height;
-                                        width = MAX_WIDTH;
-                                    }
-
-                                    canvas.width = width;
-                                    canvas.height = height;
-                                    const ctx = canvas.getContext('2d');
-                                    ctx.drawImage(img, 0, 0, width, height);
-
-                                    // Convert to compressed JPEG (quality 0.7)
-                                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                                    const imgTag = `<img src="${compressedDataUrl}" alt="Pasted & Compressed Image">`;
-                                    document.execCommand('insertHTML', false, imgTag);
+                                        canvas.width = width;
+                                        canvas.height = height;
+                                        const ctx = canvas.getContext('2d');
+                                        ctx.drawImage(img, 0, 0, width, height);
+                                        
+                                        // Convert to compressed JPEG (quality 0.7)
+                                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                                        const imgTag = `<img src="${compressedDataUrl}" alt="Pasted & Compressed Image">`;
+                                        document.execCommand('insertHTML', false, imgTag);
+                                    };
+                                    img.src = originalDataUrl;
                                 };
-                                img.src = originalDataUrl;
-                            };
-                            reader.readAsDataURL(blob);
-                            imageFound = true;
+                                reader.readAsDataURL(blob);
+                                imageFound = true;
+                                break;
+                            }
                         }
                     }
                 }
 
-                if (!imageFound) {
-                    // Check if Shift was held (SHIFT+CTRL+V) or plain text was pasted
-                    const isShiftPaste = e.shiftKey || !html;
+                if (imageFound) return;
 
-                    if (isShiftPaste) {
-                        // Plain text paste (SHIFT+CTRL+V): Escape and preserve line breaks with <br>, no styling so it adapts to dark mode
-                        const plainText = text || '';
-                        const formattedText = escapeHtml(plainText).replace(/\r\n|\r|\n/g, '<br>');
-                        document.execCommand('insertHTML', false, formattedText);
-                    } else {
-                        // Rich HTML paste: sanitize Word/Web styles and remove dark text colors & white backgrounds that break dark mode
-                        let cleanHTML = html
-                            .replace(/<o:p>.*?<\/o:p>/gi, '') // Remove Word tags
-                            .replace(/<!--[\s\S]*?-->/g, '') // Remove comments
-                            .replace(/class=["'][^"']*["']/gi, '') // Remove classes
-                            .replace(/<font[^>]*>/gi, '') // Remove opening font tags
-                            .replace(/<\/font>/gi, '') // Remove closing font tags
-                            .replace(/color=["'][^"']*["']/gi, '') // Remove HTML color attributes
-                            .replace(/bgcolor=["'][^"']*["']/gi, '') // Remove HTML bgcolor attributes
-                            .replace(/style=(["'])(.*?)\1/gi, (match, quote, styleContent) => {
-                                let cleaned = styleContent
-                                    .replace(/color\s*:\s*(#000000|#000|black|windowtext|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*[^)]+\)|rgb\(\s*30\s*,\s*41\s*,\s*59\s*\)|rgb\(\s*34\s*,\s*34\s*,\s*34\s*\)|rgb\(\s*15\s*,\s*23\s*,\s*42\s*\)|#1e293b|#333|#333333|#222|#222222|#444|#444444|#475569|#111|#111827|#1f2937)[^;]*;?/gi, '')
-                                    .replace(/background(-color)?\s*:\s*(#ffffff|#fff|white|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\)|rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*[^)]+\)|#fafafa|#f8fafc|#f9fafb|#f1f5f9)[^;]*;?/gi, '')
-                                    .replace(/;\s*;/g, ';')
-                                    .replace(/^[\s;]+|[\s;]+$/g, '')
-                                    .trim();
-                                return cleaned ? `style="${cleaned}"` : '';
-                            });
-                        
-                        document.execCommand('insertHTML', false, cleanHTML);
-                    }
+                // 3. Normal rich HTML or plain text paste
+                const isShiftPaste = e.shiftKey || !html;
+
+                if (isShiftPaste) {
+                    const plainText = text || '';
+                    const formattedText = escapeHtml(plainText).replace(/\r\n|\r|\n/g, '<br>');
+                    document.execCommand('insertHTML', false, formattedText);
+                } else {
+                    let cleanHTML = html
+                        .replace(/<o:p>.*?<\/o:p>/gi, '')
+                        .replace(/<!--[\s\S]*?-->/g, '')
+                        .replace(/class=["'][^"']*["']/gi, '')
+                        .replace(/<font[^>]*>/gi, '')
+                        .replace(/<\/font>/gi, '')
+                        .replace(/color=["'][^"']*["']/gi, '')
+                        .replace(/bgcolor=["'][^"']*["']/gi, '')
+                        .replace(/style=(["'])(.*?)\1/gi, (match, quote, styleContent) => {
+                            let cleaned = styleContent
+                                .replace(/color\s*:\s*(#000000|#000|black|windowtext|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*[^)]+\)|rgb\(\s*30\s*,\s*41\s*,\s*59\s*\)|rgb\(\s*34\s*,\s*34\s*,\s*34\s*\)|rgb\(\s*15\s*,\s*23\s*,\s*42\s*\)|#1e293b|#333|#333333|#222|#222222|#444|#444444|#475569|#111|#111827|#1f2937)[^;]*;?/gi, '')
+                                .replace(/background(-color)?\s*:\s*(#ffffff|#fff|white|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\)|rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*[^)]+\)|#fafafa|#f8fafc|#f9fafb|#f1f5f9)[^;]*;?/gi, '')
+                                .replace(/;\s*;/g, ';')
+                                .replace(/^[\s;]+|[\s;]+$/g, '')
+                                .trim();
+                            return cleaned ? `style="${cleaned}"` : '';
+                        });
+                    
+                    document.execCommand('insertHTML', false, cleanHTML);
                 }
             };
 
@@ -7573,9 +8028,28 @@
                 if (e.target.tagName === 'IMG' && (e.target.closest('#contentTextInput') || e.target.closest('#contentSubjectInput'))) {
                     currentResizingImg = e.target;
                     updateResizerPos();
+                    hideTableToolbar();
                 } else if (!e.target.closest('.resizer-handle')) {
                     currentResizingImg = null;
                     resizerOverlay.style.display = 'none';
+                }
+
+                // Check table selection in editor
+                const clickedTable = e.target.closest('table');
+                const isInEditor = e.target.closest('#contentTextInput') || e.target.closest('#contentSubjectInput');
+                const isInsideTableToolbar = e.target.closest('#tableToolbarOverlay');
+                const isToolbarBtn = e.target.closest('[data-rtf="deleteTable"]') || e.target.closest('[data-rtf="insertTable"]');
+
+                if (clickedTable && isInEditor) {
+                    document.querySelectorAll('#contentTextInput table, #contentSubjectInput table').forEach(t => {
+                        if (t !== clickedTable) t.classList.remove('table-active');
+                    });
+                    clickedTable.classList.add('table-active');
+                    currentActiveTable = clickedTable;
+                    currentActiveCell = e.target.closest('td, th');
+                    showTableToolbar(clickedTable, currentActiveCell);
+                } else if (!isInsideTableToolbar && !isToolbarBtn) {
+                    hideTableToolbar();
                 }
             };
 
